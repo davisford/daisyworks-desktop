@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="DaisyDesktop" basedir="." default="all">
+	
+	<property name="skip-tests" value="true"/>
+	
+	<target name="init">
+		<condition property="mvn" value="mvn">
+			<os family="mac" />
+		</condition>
+		<condition property="mvn" value="mvn.bat">
+			<os family="windows" />
+		</condition>
+		<condition property="mvn" value="mvn">
+			<os family="unix" />
+		</condition>
+	</target>
+	
+	<target name="server" depends="init">
+		<exec executable="${mvn}" dir="./server">
+			<arg value="clean"/>
+			<arg value="package"/>
+			<arg value="-Dmaven.test.skip=${skip-tests}"/>
+		</exec>
+		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" tofile="./client/bin-debug/daisy-server.jar" failonerror="true"/>
+		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" tofile="./client/deploy/daisy-server.jar" failonerror="true"/>
+	</target>
+		
+	<target name="installer">
+		<!-- <subant target="nativeInstall">
+			<fileset dir="." includes="biblioflip-ui/build.xml"/>
+		</subant> -->
+		<ant target="installer" dir="client" useNativeBasedir="true"  />
+	</target>
+	
+	<target name="all" depends="server, installer" />
+	
+</project>
