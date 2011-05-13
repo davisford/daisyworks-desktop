@@ -1,0 +1,15 @@
+**/*.DS_Store
+server/target/
+server/.classpath
+server/.settings/
+server/.project
+*.log
+*.log.*
+build.properties
+client/bin-debug/
+client/bin-release/
+client/installer/*.exe
+client/installer/*.dmg
+client/installer/*.deb
+client/deploy/*.swf
+client/deploy/*.jar
