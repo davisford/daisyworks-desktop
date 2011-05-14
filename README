@@ -65,6 +65,30 @@ http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+4
 
 As of this writing, we are using 4.1.0.16076 Adobe Flex SDK -- not the Open Source Flex SDK.
 
+!!! IMPORTANT !!! If you are going to build on Linux, it can be a little trickier.  I went
+through a lot of headache to get this to work properly.  I posted to the Adobe Forums
+here:
+
+http://forums.adobe.com/message/3354091#3354091
+
+Just downloading the Flex 4 SDK and running ant doesn't work.  I would get an error.  So, do 
+this stuff instead:
+
+Download this Flex 4 SDK =>
+
+http://fpdownload.adobe.com/pub/flex/sdk/builds/flex4/flex_sdk_4.1.0.16076.zip
+
+Unzip it somewhere, e.g. /home/<you>/flex-sdk/flex_sdk_4.1.0.16076
+
+Download this Air 2 SDK =>
+
+http://airdownload.adobe.com/air/lin/download/latest/AdobeAIRSDK.tbz2
+
+Unzip it on top of the same directory, e.g. /home/<you>/flex-sdk/flex_sdk_4.1.0.16076
+
+Now, when you build in Linux, the Ant build script *should* work.  It does for me on 
+Ubuntu 11.04 Desktop AMD64, with 64-bit Sun JDK.
+
 --------------------------------------------
 | How To Build
 --------------------------------------------
