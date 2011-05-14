@@ -1,0 +1,75 @@
+---------------------------------------------
+| DaisyWorks Desktop App
+---------------------------------------------
+
+--------------------------------------------
+| Introduction
+--------------------------------------------
+The DaisyWorks Desktop App is a GUI desktop application for managing / interacting
+with the Daisy embedded device via Bluetooth.  The application is built using
+Adobe Air and Java.  Air represents the bulk of the application and the user interface.
+Java is used because there is no way to talk to Bluetooth through the Air SDK.
+
+Air communicates via Java through Object Remoting / AMF which is a binary over-the-wire
+protocol for remote services.
+
+http://opensource.adobe.com/wiki/display/blazeds/BlazeDS
+
+On the Java side, we instantiate our own embedded Jetty server and programatically
+configure the WAR.  
+
+http://jetty.codehaus.org/jetty/
+
+We use Spring-Flex (with its BlazeDS support) to expose services from the War.
+
+http://www.springsource.org/spring-flex
+
+This architecture allows cross-platform support for Windows, Mac, and Linux, since
+both Air and Java can all run fine on these three platforms (today...)
+
+To make the installation and user experience easier, we embed the JRE inside the 
+installer for Windows and Linux.  This avoids having the user download and install
+Java themselves, and avoids most runtime errors caused by not finding the Java
+executable, or having a corrupt Java installation.  It also ensures we have fully
+tested with the JRE we ship.
+
+For Mac OS, there is no re-distributable JRE.  The OS (through 10.6.x) ships with
+Java.  This may change in the future, and we'll have to re-evaluate but for now,
+we expect it to be there, and the application will find it and use it at runtime.
+
+--------------------------------------------
+| Build Pre-requisites
+--------------------------------------------
+
+Adobe Build tools allow you to create a native application installer for each platform,
+which is nice.  What is not so nice is that you must actually *build on that platform*
+to get each respective installer file.  Thus, to build a Windows setup.exe, you have to
+build on Windows, etc.
+
+ * Sun/Oracle JDK - install and use the Sun/Oracle JDK; The Ant build scripts use the
+<os> tag and this supposedly requires tools.jar which is not present in OpenJDK.
+
+ * Ant (using 1.7 or later) - I would just use all Maven, but the flex-mojos/maven support
+for the Air stuff (e.g. native installers) is poorly supported, as well as FlashBuilder
+project support.  So, the top-level stuff is all Ant, and the Air application is Ant, while
+the Java server side is maven (just cuz' it is easier).
+
+ * Maven (using 2.2.x or later) 
+
+ * Flex SDK - You have to download and install the latest Flex SDK, unzip it to a directory
+and edit the build.properties file to tell the build where it is.
+
+You can download the Flex SDK here:
+
+http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+4
+
+As of this writing, we are using 4.1.0.16076 Adobe Flex SDK -- not the Open Source Flex SDK.
+
+--------------------------------------------
+| How To Build
+--------------------------------------------
+
+1. cp build.properties.sample build.properties
+2. edit build.properties
+3. ant
+

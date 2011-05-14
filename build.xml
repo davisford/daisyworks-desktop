@@ -24,6 +24,19 @@
 		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" tofile="./client/bin-debug/daisyworks-server.jar" failonerror="true"/>
 		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" tofile="./client/deploy/daisyworks-server.jar" failonerror="true"/>
 	</target>
+
+	<target name="check-os">
+		<condition property="windows">
+			<os family="windows"/>
+		</condition>
+		<condition property="linux">
+			<os family="unix"/>
+		</condition>		
+	</target>
+
+	<target name="copy-jre" depends="check-os" if="linux">
+		<echo message="linux copy jre"/>
+	</target>
 		
 	<target name="installer">
 		<!-- <subant target="nativeInstall">
