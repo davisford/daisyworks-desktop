@@ -6,13 +6,16 @@
 					   xmlns:view="daisyworks.view.*"
 					   xmlns:config="daisyworks.config.*"
 					   width="1250"
-					   height="470">
+					   height="470"
+					   closing="closingHandler(event)">
 
 	<fx:Style source="daisyworks.css"/>
 
 	<fx:Script>
 		<![CDATA[
-		
+			protected function closingHandler(event:Event):void {
+				mainView.close();
+			}
 		]]>
 	</fx:Script>
 

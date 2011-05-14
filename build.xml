@@ -21,8 +21,8 @@
 			<arg value="package"/>
 			<arg value="-Dmaven.test.skip=${skip-tests}"/>
 		</exec>
-		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" tofile="./client/bin-debug/daisy-server.jar" failonerror="true"/>
-		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" tofile="./client/deploy/daisy-server.jar" failonerror="true"/>
+		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" tofile="./client/bin-debug/daisyworks-server.jar" failonerror="true"/>
+		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" tofile="./client/deploy/daisyworks-server.jar" failonerror="true"/>
 	</target>
 		
 	<target name="installer">

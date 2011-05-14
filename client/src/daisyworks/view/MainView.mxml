@@ -46,10 +46,6 @@
 			 * Put stuff in here that should boot-strap the app
 			 */
 			public function go():void {
-				if(_prefs.getValue(Preferences.JAVA_PATH) == null) {
-					// hardcode it for now: we will ship JRE with installer
-					_prefs.setValue(Preferences.JAVA_PATH, "/usr/bin/java");
-				}
 				// watchdog manages JVM lifecycle for us
 				dispatchEvent(new Event("startWatchdog", true));
 			}

@@ -1,4 +1,6 @@
 package daisyworks.controller {
+	import com.adobe.utils.StringUtil;
+	
 	import daisyworks.event.DaisyWorksEvent;
 	import daisyworks.log.Logger;
 	import daisyworks.model.Preferences;
@@ -8,6 +10,7 @@ package daisyworks.controller {
 	import flash.events.IEventDispatcher;
 	import flash.events.IOErrorEvent;
 	import flash.events.NativeProcessExitEvent;
+	import flash.events.ProgressEvent;
 	import flash.events.TimerEvent;
 	import flash.filesystem.File;
 	import flash.system.Capabilities;
@@ -84,7 +87,7 @@ package daisyworks.controller {
 		 */
 		public function start():void {
 			port = prefs.getValue("port", "8080");
-			remoteObj.endpoint = "http://localhost:"+port+"/biblioflip/messagebroker/amf";
+			remoteObj.endpoint = "http://localhost:"+port+"/daisyworks/messagebroker/amf";
 			
 			// start the JVM
 			startJava();
@@ -158,10 +161,22 @@ package daisyworks.controller {
 		 */
 		private function startJava():void {
 			try {
+				// now we have to find the JRE executable
+				var startupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+				resolveJVM(startupInfo);
+			} catch(e:Error) {
+				dispatcher.dispatchEvent(new DaisyWorksEvent(DaisyWorksEvent.JVM_START_FAILURE, TOTAL_JVM_FAILURE));
+				javaFailed = true;
+			}
+		}
+		
+		public function _startJava(startupInfo:NativeProcessStartupInfo):void {
+			try {
+				// this is the jar file
 				var file:File=File.applicationDirectory;
 				file=file.resolvePath(JARFILE);
-				var startupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
-				startupInfo.executable = new File(prefs.getValue('java'));
+			
+				// the arguments we pass to java
 				var args:Vector.<String> = new Vector.<String>();
 				
 				if(debug) {
@@ -169,18 +184,20 @@ package daisyworks.controller {
 					args.push('-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y');
 				}
 				
+				// tell log4j where to write to
 				var logPath:String = File.applicationStorageDirectory.nativePath;
 				args.push('-Ddaisyworks.log='+logPath);
-								
+				
+				// tell the JVM which port to listen on
 				args.push("-Ddaisyworks.port="+port);
 				
-				// force 32-bit; think this works only on Mac OS X
+				// force 32-bit; must be 32-bit for Bluetooth libraries
 				args.push("-d32");
 				
 				args.push('-jar');
 				// the jar file to execute
 				args.push(file.nativePath);
-
+				
 				startupInfo.arguments = args;
 				
 				jvm.addEventListener(NativeProcessExitEvent.EXIT, onJvmExit);
@@ -193,8 +210,68 @@ package daisyworks.controller {
 			} catch (e:Error) {
 				dispatcher.dispatchEvent(new DaisyWorksEvent(DaisyWorksEvent.JVM_START_FAILURE, TOTAL_JVM_FAILURE));
 				javaFailed = true;
+			}	
+			
+		}
+		
+		private static var WINDOWS:String = "Windows";
+		private static var MAC:String = "Macintosh";
+		private static var LINUX:String = "Linux";
+		
+		/**
+		 * Figure out which operating system we are running on
+		 */
+		private function resolveJVM(startupInfo:NativeProcessStartupInfo):void {
+			var whoami:String = Capabilities.manufacturer.replace("Adobe ","");
+			switch(whoami) {
+				case WINDOWS:
+					resolveWindowsJVM(startupInfo);
+					break;
+				case MAC:
+					resolveMacJVM(startupInfo);
+					break;
+				case LINUX:
+					resolveLinuxJVM(startupInfo);
+					break;
+				default:
+					LOG.error("This application is running on an unsupported operating system: "+whoami);
+					throw new Error("This application is running on an unsupported operating system: "+whoami);
 			}
-  
+		}
+		
+		private function resolveWindowsJVM(startupInfo:NativeProcessStartupInfo):void {
+			
+		}
+		
+		/**
+		 * There is no re-distributable Mac OS JRE.  We have to count on it being there.
+		 * We also have to force it to 32-bit mode for the Bluetooth libraries.
+		 */
+		private function resolveMacJVM(startupInfo:NativeProcessStartupInfo):void {
+			// we gotta call another native process to tell us where java is
+			var suinfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+			// this tool on OS 10.5 and higher tells you where JAVA_HOME is; if not on 10.5.x and up, yer screwed
+			suinfo.executable = new File("/usr/libexec/java_home");
+
+			var javahome:NativeProcess = new NativeProcess();
+			
+			javahome.addEventListener(NativeProcessExitEvent.EXIT, function(evt:NativeProcessExitEvent):void {
+				LOG.info("Mac OS java_home exited");
+			});
+			
+			javahome.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, function(evt:ProgressEvent):void {
+				var outputData:String = javahome.standardOutput.readUTFBytes(javahome.standardOutput.bytesAvailable);
+				outputData = com.adobe.utils.StringUtil.trim(outputData) + "/bin/java";
+				LOG.debug("Mac OS found java: "+outputData);
+				startupInfo.executable = new File(outputData);
+				_startJava(startupInfo);
+			});
+			
+			javahome.start(suinfo); 
+		}
+		
+		private function resolveLinuxJVM(startupInfo:NativeProcessStartupInfo):void {
+			
 		}
 		
 		private function onJvmExit(evt:NativeProcessExitEvent):void {
