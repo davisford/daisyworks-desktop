@@ -21,6 +21,7 @@
 		<!-- Linux Build -->
 		<condition property="isLinux">
 			<os family="unix"/>
+				<not><os family="mac"/></not>
 		</condition>	
 		<condition property="mvn" value="mvn">
 			<os family="unix" />
