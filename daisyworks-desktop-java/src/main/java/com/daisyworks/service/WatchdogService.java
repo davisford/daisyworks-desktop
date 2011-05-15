@@ -39,6 +39,7 @@ public class WatchdogService {
 	
 	@RemotingInclude
 	public String ping(Long timestamp) {
+		LOGGER.info("Hey y'all hit my ping-pong");
 		currentTimestamp = new Date(timestamp);
 		return "pong";
 	}
