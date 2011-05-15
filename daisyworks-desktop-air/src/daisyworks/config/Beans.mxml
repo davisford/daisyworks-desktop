@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<swiz:BeanProvider xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:swiz="http://swiz.swizframework.org" 
+				   xmlns:controller="daisyworks.controller.*">
+
+	<fx:Script>
+		<![CDATA[
+			import daisyworks.model.Preferences;
+		]]>
+	</fx:Script>
+
+	<!-- ______________________PROTOTYPE SCOPE______________________-->
+	
+	<swiz:Prototype type="{Preferences}" singleton="true"/>
+	
+	<controller:WatchdogController/>
+	
+</swiz:BeanProvider>
