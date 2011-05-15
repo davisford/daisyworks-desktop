@@ -20,8 +20,12 @@
 
 		<!-- Linux Build -->
 		<condition property="isLinux">
-			<os family="unix"/>
-				<not><os family="mac"/></not>
+			<and>
+				<os family="unix"/>
+				<not>
+					<os family="mac"/>
+				</not>
+			</and>
 		</condition>	
 		<condition property="mvn" value="mvn">
 			<os family="unix" />
