@@ -9,7 +9,7 @@ daisyworks-desktop-air/deploy/*.swf
 daisyworks-desktop-air/deploy/*.jar
 daisyworks-desktop-air/deploy/jre/**/*
 daisyworks-desktop-air/deploy/jre/COPYRIGHT
-daisyworks-desktop-air/deploy/jre/LICENSE
+daisyworks-desktop-air/deploy/jre/LICENSE*
 daisyworks-desktop-air/deploy/jre/README
 daisyworks-desktop-air/deploy/jre/THIRDPARTYLICENSEREADME.txt
 daisyworks-desktop-air/deploy/jre/Welcome.html
