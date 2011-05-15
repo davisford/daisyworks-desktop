@@ -97,7 +97,7 @@
 			<arg value="native" />
 			
 			<!-- output-package -->
-			<arg value="${basedir}/installer/${nativeInstall}"/>
+			<arg value="${basedir}/../install/${nativeInstall}"/>
 			
 			<!-- app descriptor -->
 			<arg value="${SRC_DIR}/daisyworks-app.xml"/>
