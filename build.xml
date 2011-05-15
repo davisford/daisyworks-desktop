@@ -2,46 +2,90 @@
 <project name="DaisyDesktop" basedir="." default="all">
 	
 	<property name="skip-tests" value="true"/>
+	<property name="jre.version" value="jre1.6.0_25"/>
 	
 	<target name="init">
+		<!-- Mac OS Build -->
 		<condition property="mvn" value="mvn">
 			<os family="mac" />
+		</condition>
+		
+		<!-- Windows Build -->
+		<condition property="isWindows">
+			<os family="windows"/>
 		</condition>
 		<condition property="mvn" value="mvn.bat">
 			<os family="windows" />
 		</condition>
+
+		<!-- Linux Build -->
+		<condition property="isLinux">
+			<os family="unix"/>
+		</condition>	
 		<condition property="mvn" value="mvn">
 			<os family="unix" />
 		</condition>
 	</target>
 	
+	<!--
+		Builds an executable jar and copies it to the Air build to be included in the installer
+	-->
 	<target name="server" depends="init">
 		<exec executable="${mvn}" dir="./server">
 			<arg value="clean"/>
 			<arg value="package"/>
 			<arg value="-Dmaven.test.skip=${skip-tests}"/>
 		</exec>
-		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" tofile="./client/bin-debug/daisyworks-server.jar" failonerror="true"/>
-		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" tofile="./client/deploy/daisyworks-server.jar" failonerror="true"/>
+		<!-- we copy to bin-debug for in-place FlashBuilder execution -->
+		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" 
+			tofile="./client/bin-debug/daisyworks-server.jar" 
+			failonerror="true"/>
+		<!-- we copy to client/deploy for cmd line installer build -->
+		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" 
+			tofile="./client/deploy/daisyworks-server.jar" 
+			failonerror="true"/>
+			
+		<!-- all are called, but only one is executed -->
+		<antcall target="copy-linux-jre" />
+		<antcall target="copy-windows-jre" />
 	</target>
 
-	<target name="check-os">
-		<condition property="windows">
-			<os family="windows"/>
-		</condition>
-		<condition property="linux">
-			<os family="unix"/>
-		</condition>		
+	<!--
+		Extracts the 32-bit Sun 6 JRE to the Air directories to be included in the installer for Linux
+	-->
+	<target name="copy-linux-jre" depends="init" if="isLinux">
+		<!-- we copy to bin-debug for in-place FlashBuilder execution -->
+		<unzip 
+			src="${basedir}/jre/linux/${jre.version}/${jre.version}.zip" 
+			dest="./client/bin-debug/jre" 
+			overwrite="false"/>
+		<!-- we copy to client/deploy for cmd line installer build -->
+		<unzip
+			src="${basedir}/jre/linux/${jre.version}/${jre.version}.zip"
+			dest="./client/deploy/jre" 
+			overwrite="false"/>
 	</target>
-
-	<target name="copy-jre" depends="check-os" if="linux">
-		<echo message="linux copy jre"/>
+	
+	<!--
+		Extracts the 32-bit Sun 6 JRE to the Air directories to be included in the installer for Windows
+	-->
+	<target name="copy-windows-jre" depends="init" if="isWindows">
+		<!-- we copy to bin-debug for in-place FlashBuilder execution -->
+		<unzip 
+			src="${basedir}/jre/windows/${jre.version}/${jre.version}.zip" 
+			dest="./client/bin-debug/jre" 
+			overwrite="false"/>
+		<!-- we copy to client/deploy for cmd line installer build -->
+		<unzip
+			src="${basedir}/jre/windows/${jre.version}/${jre.version}.zip"
+			dest="./client/deploy/jre" 
+			overwrite="false"/>
 	</target>
 		
+	<!--
+		Call the subtask to build the native installer
+	-->
 	<target name="installer">
-		<!-- <subant target="nativeInstall">
-			<fileset dir="." includes="biblioflip-ui/build.xml"/>
-		</subant> -->
 		<ant target="installer" dir="client" useNativeBasedir="true"  />
 	</target>
 	

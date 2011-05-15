@@ -9,8 +9,8 @@ server/.project
 build.properties
 client/bin-debug/
 client/bin-release/
-client/installer/*.exe
-client/installer/*.dmg
-client/installer/*.deb
+install/*.exe
+install/*.dmg
+install/*.deb
 client/deploy/*.swf
 client/deploy/*.jar

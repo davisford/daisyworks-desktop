@@ -108,7 +108,8 @@
 			
 			<!-- include these files in installer -->
 			<arg value="daisyworks.swf"/>
-			<arg value="daisyworks-server.jar"/>			
+			<arg value="daisyworks-server.jar"/>	
+			<arg value="jre"/>		
 <!--			<arg value="biblioflip_logo_16x16.png"/>
 			<arg value="biblioflip_logo_32x32.png"/>
 			<arg value="biblioflip_logo_48x48.png"/>
