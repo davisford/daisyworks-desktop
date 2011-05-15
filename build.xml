@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="DaisyDesktop" basedir="." default="all">
+<project name="DaisyWorksDesktop" basedir="." default="all">
 	
 	<property name="skip-tests" value="true"/>
 	<property name="jre.version" value="jre1.6.0_25"/>
+
+	<property name="ui" value="daisyworks-desktop-air"/>
+	<property name="webapp" value="daisyworks-desktop-java"/>
 	
 	<target name="init">
 		<!-- Mac OS Build -->
@@ -36,18 +39,18 @@
 		Builds an executable jar and copies it to the Air build to be included in the installer
 	-->
 	<target name="server" depends="init">
-		<exec executable="${mvn}" dir="./server">
+		<exec executable="${mvn}" dir="./${webapp}">
 			<arg value="clean"/>
 			<arg value="package"/>
 			<arg value="-Dmaven.test.skip=${skip-tests}"/>
 		</exec>
 		<!-- we copy to bin-debug for in-place FlashBuilder execution -->
-		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" 
-			tofile="./client/bin-debug/daisyworks-server.jar" 
+		<copy file="./${webapp}/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" 
+			tofile="./${ui}/bin-debug/daisyworks-server.jar" 
 			failonerror="true"/>
 		<!-- we copy to client/deploy for cmd line installer build -->
-		<copy file="./server/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" 
-			tofile="./client/deploy/daisyworks-server.jar" 
+		<copy file="./${webapp}/target/daisyworks-desktop-server-1.0-SNAPSHOT.jar" 
+			tofile="./${ui}/deploy/daisyworks-server.jar" 
 			failonerror="true"/>
 			
 		<!-- all are called, but only one is executed -->
@@ -62,12 +65,12 @@
 		<!-- we copy to bin-debug for in-place FlashBuilder execution -->
 		<unzip 
 			src="${basedir}/jre/linux/${jre.version}/${jre.version}.zip" 
-			dest="./client/bin-debug/jre" 
+			dest="./${ui}/bin-debug/jre" 
 			overwrite="false"/>
 		<!-- we copy to client/deploy for cmd line installer build -->
 		<unzip
 			src="${basedir}/jre/linux/${jre.version}/${jre.version}.zip"
-			dest="./client/deploy/jre" 
+			dest="./${ui}/deploy/jre" 
 			overwrite="false"/>
 	</target>
 	
@@ -78,12 +81,12 @@
 		<!-- we copy to bin-debug for in-place FlashBuilder execution -->
 		<unzip 
 			src="${basedir}/jre/windows/${jre.version}/${jre.version}.zip" 
-			dest="./client/bin-debug/jre" 
+			dest="./${ui}/bin-debug/jre" 
 			overwrite="false"/>
 		<!-- we copy to client/deploy for cmd line installer build -->
 		<unzip
 			src="${basedir}/jre/windows/${jre.version}/${jre.version}.zip"
-			dest="./client/deploy/jre" 
+			dest="./${ui}/deploy/jre" 
 			overwrite="false"/>
 	</target>
 		
@@ -91,7 +94,7 @@
 		Call the subtask to build the native installer
 	-->
 	<target name="installer">
-		<ant target="installer" dir="client" useNativeBasedir="true"  />
+		<ant target="installer" dir="${ui}" useNativeBasedir="true"  />
 	</target>
 	
 	<target name="all" depends="server, installer" />

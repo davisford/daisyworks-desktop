@@ -97,3 +97,10 @@ Ubuntu 11.04 Desktop AMD64, with 64-bit Sun JDK.
 2. edit build.properties
 3. ant
 
+--------------------------------------------
+| TODO
+--------------------------------------------
+
+The JRE that we include for Windows / Linux is the full enchilada.  We should trim it back to the 
+absolute bare binary essentials for runtime.  It blows up the size of the installer mega-fold.
+
