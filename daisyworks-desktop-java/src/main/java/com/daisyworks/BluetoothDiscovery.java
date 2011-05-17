@@ -92,14 +92,19 @@ public class BluetoothDiscovery implements DiscoveryListener{
             System.out.println("No Devices Found .");
         }
         else{
-            //print bluetooth device addresses and names in the format [ No. address (name) ]
             System.out.println("\nBluetooth Devices: ");
             for(RemoteDevice remoteDevice : devices) {
             	System.out.println("\t"+remoteDevice.getBluetoothAddress()+" ("+remoteDevice.getFriendlyName(false)+")");
+            	
             	synchronized(serviceLock) {
-            		System.out.println("Search for services on " + remoteDevice.getBluetoothAddress() +
-            				" " + remoteDevice.getFriendlyName(false));
+            		
+            		System.out.println(
+            				"Search for services on " + 
+            				remoteDevice.getBluetoothAddress() +
+            				"/" + remoteDevice.getFriendlyName(false));
+            		
             		agent.searchServices(attrIds, searchUuidSet, remoteDevice, bluetoothDeviceDiscovery);
+            		
             		try {
 						serviceLock.wait();
 					} catch (InterruptedException e) {
@@ -109,11 +114,8 @@ public class BluetoothDiscovery implements DiscoveryListener{
             	if(services.size() > 0) {
             		String url = services.iterator().next();
             		System.out.println("Trying to connect to "+url);
-            		Connection session = Connector.open(url);
-            		if(session != null) {
-            			
-            		}
-            	
+            		Connector.open(url);
+            		
             	}
             }
         }
