@@ -9,6 +9,8 @@ import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PRO
 import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_OPEN_CONNECTIONS;
 import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_STACK;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,8 +23,8 @@ import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
-import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
+import javax.microedition.io.StreamConnection;
  
 /**
 * Simple static void main tester program to discover devices and services
@@ -114,8 +116,17 @@ public class BluetoothDiscovery implements DiscoveryListener{
             	if(services.size() > 0) {
             		String url = services.iterator().next();
             		System.out.println("Trying to connect to "+url);
-            		Connector.open(url);
+            		StreamConnection cxn = (StreamConnection) Connector.open(url);
+            		DataInputStream dis = cxn.openDataInputStream();
+            		DataOutputStream dos = cxn.openDataOutputStream();
+            		dos.writeChars("4;");
+            		dos.flush();
             		
+            		if(dis.available() > 0) {
+            			System.out.println("Daisy sez: "+dis.readLine());
+            		} else {
+            			System.out.println("No bytes available to read");
+            		}
             	}
             }
         }
