@@ -3,7 +3,7 @@
 				   xmlns:s="library://ns.adobe.com/flex/spark"
 				   xmlns:mx="library://ns.adobe.com/flex/mx"
 				   xmlns:swiz="http://swiz.swizframework.org" 
-				   xmlns:controller="daisyworks.controller.*">
+				   xmlns:controller="daisyworks.controller.*" xmlns:model="daisyworks.model.*" xmlns:view="daisyworks.view.*">
 
 	<fx:Script>
 		<![CDATA[
@@ -15,6 +15,11 @@
 	
 	<swiz:Prototype type="{Preferences}" singleton="true"/>
 	
-	<controller:WatchdogController/>
+	<controller:WatchdogController id="watchdogController"/>
+	<controller:BluetoothController id="bluetoothController"/>
+	
+	<model:Device />
+	
+	<view:DiscoverySettingsPresenter />
 	
 </swiz:BeanProvider>

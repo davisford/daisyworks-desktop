@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<!-- define our meta data, letting the app know to expect the component to have these styles -->
+	<fx:Metadata>
+		[HostComponent("spark.components.Button")]
+		[Style(name="fillColors", type="Array")]
+		[Style(name="overFillColors", type="Array")]
+		[Style(name="downFillColors", type="Array")]
+		[Style(name="disabledFillColors", type="Array")]
+		[Style(name="cornerRadius",type="Number",format="length")]
+		[Style(name="labelStyleName",type="String")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			
+			//Bindable variables to store style properties in
+			[Bindable]
+			protected var cornerRadius:Number = 0;
+			
+			[Bindable]
+			protected var fillColors:ArrayCollection = new ArrayCollection([0x000000, 0x000000]);
+			
+			[Bindable]
+			protected var overFillColors:ArrayCollection = new ArrayCollection([0x000000, 0x000000]);
+			
+			[Bindable]
+			protected var downFillColors:ArrayCollection = new ArrayCollection([0x000000, 0x000000]);
+			
+			[Bindable]
+			protected var disabledFillColors:ArrayCollection = new ArrayCollection([0x000000, 0x000000]);
+			
+			[Bindable]
+			protected var labelStyleName:String = "buttonLabel";
+			
+			/** Retreive the styles from the StyleManager, null/styleName is needed for the inital setting of the styles*/
+			override public function styleChanged(styleProp:String):void{
+				super.styleChanged(styleProp);
+				switch(styleProp){
+					case 'cornerRadius':
+						cornerRadius = getStyle("cornerRadius");
+						break;
+					case 'fillColors':
+						fillColors = new ArrayCollection(getStyle("fillColors") || [0x000000, 0x000000]);
+						break;					
+					case 'overFillColors':
+						overFillColors = new ArrayCollection(getStyle("overFillColors") || [0x000000, 0x000000]);
+						break;
+					case 'downFillColors':
+						downFillColors = new ArrayCollection(getStyle("downFillColors") || [0x000000, 0x000000]);
+						break;
+					case 'disabledFillColors':
+						disabledFillColors = new ArrayCollection(getStyle("disabledFillColors") || [0x000000, 0x000000]);
+						break;
+					case 'labelStyleName':
+						labelStyleName = getStyle("labelStyleName") || "buttonLabel";
+						break;
+					case null:
+					case 'styleName':
+						cornerRadius = getStyle("cornerRadius");
+						fillColors = new ArrayCollection(getStyle("fillColors") || [0x000000, 0x000000]);
+						overFillColors = new ArrayCollection(getStyle("overFillColors") || [0x000000, 0x000000]);
+						downFillColors = new ArrayCollection(getStyle("downFillColors") || [0x000000, 0x000000]);
+						disabledFillColors = new ArrayCollection(getStyle("disabledFillColors") || [0x000000, 0x000000]);
+						labelStyleName = getStyle("labelStyleName") || "buttonLabel";
+						break;
+				}
+			}
+		]]>
+	</fx:Script>
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+	</s:states>
+	
+	<s:Rect radiusX="{cornerRadius}" radiusY="{cornerRadius}" top="0" left="0" right="0" bottom="0">
+		<s:fill>
+			<!-- Define the various colours for the states -->
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="{fillColors.getItemAt(0) as uint}"
+								 color.over="{overFillColors.getItemAt(0) as uint}"
+								 color.down="{downFillColors.getItemAt(0) as uint}"
+								 color.disabled="{disabledFillColors.getItemAt(0) as uint}" /> 
+				<s:GradientEntry color="{fillColors.getItemAt(1) as uint}"
+								 color.over="{overFillColors.getItemAt(1) as uint}"
+								 color.down="{downFillColors.getItemAt(1) as uint}"
+								 color.disabled="{disabledFillColors.getItemAt(1) as uint}"  /> 
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+	<!-- SkinParts
+	name=labelDisplay, type=spark.components.supportClasses.TextBase, required=false
+	-->
+	<!-- Don't forget to specify the label skin part, without this, the label won't appear -->
+	<s:Label id="labelDisplay" styleName="{labelStyleName}" top="12" left="20" right="20" bottom="10" />
+</s:Skin>

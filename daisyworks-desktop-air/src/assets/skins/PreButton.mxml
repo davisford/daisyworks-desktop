@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:ai="http://ns.adobe.com/ai/2008"
+		xmlns:d="http://ns.adobe.com/fxg/2008/dt"
+		minHeight="35"
+		minWidth="25">
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+
+	<fx:Metadata>[HostComponent("spark.components.Button")]</fx:Metadata>
+
+	<s:Rect id="upFill"
+			top="1"
+			right="1"
+			left="1"
+			bottom="1"
+			radiusX="15"
+			radiusY="15">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="#8A8A8A" color.over="#8AA2BE" ratio="0" alpha="0.8"/>
+				<s:GradientEntry color="#595957" color.over="#525C68" ratio="0.45"/>
+				<s:GradientEntry color="#4E4E50" color.over="#464E58" ratio="0.55"/>
+				<s:GradientEntry color="#686B6B" color.over="#6A7686" ratio="1"/>
+			</s:LinearGradient>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color="#676767" weight="0.5"/>
+		</s:stroke>
+	</s:Rect>
+
+	<s:Rect id="highlightFill"
+			top="2"
+			right="2"
+			left="2"
+			bottom="2"
+			radiusX="15"
+			radiusY="15">
+		<s:stroke>
+			<s:LinearGradientStroke rotation="90" weight="1">
+				<s:GradientEntry color="#FDFDFD" ratio="0" alpha="0.6"/>
+				<s:GradientEntry color="#FDFDFD" ratio="0.2" alpha="0"/>
+			</s:LinearGradientStroke>
+
+		</s:stroke>
+	</s:Rect>
+
+	<s:Label id="labelElement"
+				  color="#FFFFFF"
+				  right="20"
+				  left="20"
+				  verticalAlign="middle"
+				  horizontalCenter="0"
+				  verticalCenter="1"/>
+
+	<s:filters>
+		<s:DropShadowFilter color="#676767"
+							blurX="5"
+							blurY="5"
+							angle="90"
+							distance="2"
+							alpha="0.8"/>
+	</s:filters>
+
+</s:Skin>

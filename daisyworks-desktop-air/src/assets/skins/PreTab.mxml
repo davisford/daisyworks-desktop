@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/halo">
+
+	<s:Rect top="1"
+			right="1"
+			bottom="1"
+			left="1"
+			radiusX="15"
+			radiusY="15">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="#C4C4C4" ratio="0" alpha="1"/>
+				<s:GradientEntry color="#EEEEEC" ratio="0.4" alpha="1"/>
+				<s:GradientEntry color="#E7E7E5" ratio="1" alpha="1"/>
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+
+	<s:Rect top="2"
+			left="2"
+			right="2"
+			bottom="1"
+			radiusX="15"
+			radiusY="15">
+		<s:stroke>
+			<s:LinearGradientStroke rotation="90">
+				<s:GradientEntry color="#FDFDFD" ratio="0" alpha="0.6"/>
+				<s:GradientEntry color="#FDFDFD" ratio="0.3" alpha="0"/>
+			</s:LinearGradientStroke>
+		</s:stroke>
+	</s:Rect>
+
+</s:SparkSkin>

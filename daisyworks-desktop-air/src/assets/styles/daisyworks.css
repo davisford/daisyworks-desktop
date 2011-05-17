@@ -1,0 +1,75 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+@font-face {
+	src: url('assets/fonts/avenir.swf');
+	fontFamily: "Avenir 95 Black";
+}
+
+@font-face {
+	src: url('assets/fonts/myriad.swf');
+	fontFamily: "Myriad Pro";
+	fontStyle: normal;
+	fontWeight: normal;
+}
+
+@font-face {
+	src: url('assets/fonts/myriad.swf');
+	fontFamily: "Myriad Pro Bold";
+	fontStyle: normal;
+	fontWeight: normal;
+}
+
+
+global
+{
+	/*content-background-color: #D59A66;
+	chrome-color: #BF8B5E;*/
+}
+
+s|WindowedApplication{
+	backgroundColor: #adadad;
+	font-family: "Myriad Pro";
+}
+
+s|Button{
+	skinClass: ClassReference('assets.skins.SimpleButtonSkin');
+	fillColors: #666666, #333333;
+	overFillColors: #896396, #673d76;
+	downFillColors: #a567b9, #673d76;
+	disabledFillColors: #999999, #333333;
+	color: #ffffff;
+	cornerRadius: 20;
+}
+
+.buttonLabel{
+	fontFamily: "Avenir 95 Black";
+	fontSize: 22;
+}
+
+mx|TabNavigator
+{
+	background-color: #adadae;
+	font-weight: normal;
+	color: #ffffff;
+	text-roll-over-color: #896396, #673d76;
+	corner-radius: 20;
+	border-style: none;
+	
+	
+}
+
+mx|TabNavigator:selectedTab
+{
+	background-color: #ababab;
+	font-weight: bold;
+	color: #FFFFFF;
+	text-roll-over-color: #FFFFFF;
+	
+	corner-radius: 20;
+	
+	border-style: solid;
+	border-thickness: 1;
+	border-color: #000000;
+}

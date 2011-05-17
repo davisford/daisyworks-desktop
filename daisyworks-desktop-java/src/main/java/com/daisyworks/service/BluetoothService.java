@@ -3,7 +3,10 @@
  */
 package com.daisyworks.service;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.bluetooth.DeviceClass;
@@ -18,6 +21,8 @@ import org.springframework.flex.remoting.RemotingDestination;
 import org.springframework.flex.remoting.RemotingInclude;
 import org.springframework.stereotype.Service;
 
+import com.daisyworks.model.Device;
+
 /**
  * Does Bluetooth stuff 
  */
@@ -30,10 +35,26 @@ public class BluetoothService implements DiscoveryListener {
 	// discovery is not re-entrant
 	private static Object lock = new Object();
 	
-	private Set<RemoteDevice> devices = new HashSet<RemoteDevice>();
+	private Map<Device, RemoteDevice> map = new HashMap<Device, RemoteDevice>();
 		
 	public BluetoothService() {
 		LOGGER.debug("Bluetooth Service initialized");
+	}
+	
+	/**
+	 * Get the Local Device information
+	 * @return
+	 */
+	@RemotingInclude
+	public Device getLocalDevice() {
+		try {
+			final LocalDevice localDevice = LocalDevice.getLocalDevice();
+			final Device device = new Device(localDevice.getFriendlyName(), localDevice.getBluetoothAddress());
+			return device;
+		} catch(Exception e) {
+			LOGGER.error(e);
+			throw new RuntimeException(e);
+		}
 	}
 	
 	/**
@@ -41,7 +62,9 @@ public class BluetoothService implements DiscoveryListener {
 	 * @return
 	 */
 	@RemotingInclude
-	public String discover() {
+	public Set<Device> discover() {
+		// clear the map
+		map = new HashMap<Device, RemoteDevice>();
 		try {
 			final LocalDevice localDevice = LocalDevice.getLocalDevice();
 			LOGGER.info("Local Bluetooth Name/Addres: "+localDevice.getFriendlyName()+"/"+localDevice.getBluetoothAddress());
@@ -55,36 +78,36 @@ public class BluetoothService implements DiscoveryListener {
 			} catch(InterruptedException e) {
 				// FIXME
 				LOGGER.error(e);
-				return e.getMessage();
+				throw new RuntimeException(e);
 			}
 			LOGGER.info("Device Inquiry Complete");
 			
-			if(devices.size() == 0) {
-				return "No Devices Found -- sux for you";
+			if(map.size() == 0) {
+				LOGGER.warn("No Bluetooth devices were found");
+				return new HashSet<Device>(0);
 			}
 			
-			StringBuilder sb = new StringBuilder();
-			for(RemoteDevice d : devices) {
-				sb.append("Device:")
-				  .append("\taddress="+d.getBluetoothAddress())
-				  .append("\tfriendly-name="+d.getFriendlyName(true))
-				  .append("\tauthenticated="+d.isAuthenticated())
-				  .append("\tencrypted="+d.isEncrypted())
-				  .append("\ttrusted="+d.isTrustedDevice());
-			}
-			return sb.toString();
+			return map.keySet();
 			
 		} catch (Exception e) {
 			// FIXME
 			LOGGER.error(e);
-			return e.getMessage();
+			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
-		devices.add(btDevice);
-		// TODO add DeviceClass info too
+		try {
+			Device device = new Device(btDevice.getFriendlyName(true), btDevice.getBluetoothAddress());
+			device.setAuthenticated(btDevice.isAuthenticated());
+			device.setEncrypted(btDevice.isEncrypted());
+			device.setTrusted(btDevice.isTrustedDevice());
+			map.put(device, btDevice);
+		} catch (IOException e) {
+			// FIXME
+			LOGGER.error(e);
+		}
 	}
 
 	@Override

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="10"/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import daisyworks.event.BluetoothDiscoveryEvent;
+
+			[Bindable]
+			[Inject]
+			public var presenter:DiscoverySettingsPresenter;
+			
+			[EventHandler(event="DaisyWorksEvent.JVM_STARTED")]
+			public function postJvmStarted():void {
+				//dispatchEvent(new BluetoothDiscoveryEvent(BluetoothDiscoveryEvent.DO_DISCOVERY));
+			}
+
+			protected function discoverBtn_clickHandler(event:MouseEvent):void
+			{
+				dispatchEvent(new BluetoothDiscoveryEvent(BluetoothDiscoveryEvent.GET_LOCAL_DEVICE));
+				dispatchEvent(new BluetoothDiscoveryEvent(BluetoothDiscoveryEvent.DO_DISCOVERY));
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+
+	</fx:Declarations>
+	<mx:Form width="100%" height="109">
+		<mx:FormItem label="Local Device Name" width="100%">
+			<s:TextInput width="100%" id="localNameTI" text="{presenter.localDevice.name}" enabled="false"/>
+		</mx:FormItem>
+		<mx:FormItem label="Local Device Address" width="100%">
+			<s:TextInput width="100%" id="localAddressTI" text="{presenter.localDevice.address}" enabled="false"/>
+		</mx:FormItem>
+		<mx:FormItem width="100%">
+			<s:Button label="Refresh" click="discoverBtn_clickHandler(event)"/>
+		</mx:FormItem>
+	</mx:Form>
+	
+	<mx:DataGrid dataProvider="{presenter.devices}" left="10" right="10" top="50" width="100%" height="100%" paddingLeft="10" paddingRight="10">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Address" dataField="address"/>
+			<mx:DataGridColumn headerText="Name" dataField="name"/>
+		</mx:columns>
+	</mx:DataGrid>
+</s:Group>

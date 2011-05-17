@@ -9,7 +9,7 @@
 					   height="470"
 					   closing="closingHandler(event)">
 
-	<fx:Style source="daisyworks.css"/>
+<!--	<fx:Style source="assets/styles/daisyworks.css"/>-->
 
 	<fx:Script>
 		<![CDATA[

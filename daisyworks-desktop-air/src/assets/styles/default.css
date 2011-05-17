@@ -1,0 +1,80 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace default "spark.skins.default.*";
+
+@font-face {
+	src: url('assets/fonts/avenir.swf');
+	fontFamily: "Avenir 95 Black";
+}
+
+@font-face {
+	src: url('assets/fonts/myriad.swf');
+	fontFamily: "Myriad Pro";
+	fontStyle: normal;
+	fontWeight: normal;
+}
+
+@font-face {
+	src: url('assets/fonts/myriad.swf');
+	fontFamily: "Myriad Pro Bold";
+	fontStyle: normal;
+	fontWeight: normal;
+}
+
+global {
+	fontSize:12;
+}
+
+s|WindowedApplication{
+	backgroundColor: #adadad;
+	font-family: "Myriad Pro";
+}
+
+/* Use S namespace for Spark component */
+s|Button.preSkin { skinClass: ClassReference('assets.skins.PreButton') }
+
+s|Button{
+	skinClass: ClassReference('assets.skins.SimpleButtonSkin');
+	fillColors: #666666, #333333;
+	overFillColors: #896396, #673d76;
+	downFillColors: #a567b9, #673d76;
+	disabledFillColors: #999999, #333333;
+	color: #ffffff;
+	cornerRadius: 20;
+}
+
+.buttonLabel{
+	fontFamily: "Avenir 95 Black";
+	fontSize: 12;
+}
+
+/* Use MX namespace for Halo component */
+mx|TabNavigator {
+	padding-top:10;
+	paddingLeft:10;
+	selected-tab-text-style-name:tabText;
+	tab-style-name:tabButton;
+	borderSkin: ClassReference("assets.skins.PreTab");	
+}
+
+.tabButton {
+	padding-left:20;
+	color:#F7F7F7;
+	roll-over-color:#F7F7F7;
+	skin: ClassReference("assets.skins.PreTabSkin");
+}
+
+.tabText {
+	font-weight:normal;
+	font-size:12;
+	roll-over-color:#F7F7F7;
+}
+
+s|SkinnableContainer {
+	skinClass: ClassReference("assets.skins.PreItemPanel");
+	color:#595959;
+}
+
+
+

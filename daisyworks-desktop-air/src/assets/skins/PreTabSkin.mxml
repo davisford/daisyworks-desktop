@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
+			 xmlns:s="library://ns.adobe.com/flex/spark"
+			 xmlns:mx="library://ns.adobe.com/flex/halo"
+			 xmlns:spark="mx.skins.spark.*"
+			 minHeight="20"
+			 minWidth="21"
+			 width="{this.width + 30}">
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled" stateGroups="disabledStates"/>
+		<s:State name="selectedUp" stateGroups="selectedStates"/>
+		<s:State name="selectedOver" stateGroups="selectedStates"/>
+		<s:State name="selectedDown" stateGroups="selectedStates"/>
+		<s:State name="selectedDisabled" stateGroups="disabledStates, selectedStates"/>
+	</s:states>
+
+	<s:Rect id="mainFill"
+			top="1"
+			right="1"
+			left="1"
+			bottom="1"
+			radiusX="10"
+			radiusY="10">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="#858585" ratio="0" alpha="0.5" alpha.selectedOver="0.9"/>
+				<s:GradientEntry color="#858585" ratio="0.4" alpha="0.15" alpha.selectedOver="0.45"/>
+				<s:GradientEntry color="#858585" ratio="0.8" alpha="0" alpha.selectedOver="0.1"/>
+			</s:LinearGradient>
+		</s:fill>
+		<s:stroke>
+			<s:LinearGradientStroke rotation="90">
+				<s:GradientEntry color="#676767" ratio="0" alpha="1"/>
+				<s:GradientEntry color="#676767" ratio="0.5" alpha="0"/>
+			</s:LinearGradientStroke>
+		</s:stroke>
+	</s:Rect>
+
+	<s:Path data="M 0 0 L 5 5 L 10 0 L 0 0 z" x="{mainFill.width - 20}" y="{mainFill.height / 2}">
+		<s:fill>
+			<s:SolidColor color="#959595"/>
+		</s:fill>
+	</s:Path>
+</s:SparkSkin>

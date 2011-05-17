@@ -32,7 +32,7 @@ public class WatchdogService {
 				LOGGER.debug("running watchdog timer, last ping was at:" + currentTimestamp + " " + diff/1000 + " seconds ago" );
 				if(diff >= PERIOD) {
 					LOGGER.error("Last ping from UI was "+currentTimestamp+" haven't received ping in "+diff/1000+"s so I'm quitting");
-					System.exit(1);
+					//System.exit(1);
 				}
 			}}, 0, PERIOD);
 	}

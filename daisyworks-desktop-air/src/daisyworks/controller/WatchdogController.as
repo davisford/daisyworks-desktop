@@ -104,7 +104,6 @@ package daisyworks.controller {
 			timer.stop();
 		}
 
-
 		/**
 		 * Every <tt>INTERVAL</tt> this code runs.
 		 * @param evt
@@ -203,6 +202,7 @@ package daisyworks.controller {
 				
 				LOG.debug('executing '+startupInfo.arguments.toString());
 				jvm.start(startupInfo);
+				dispatcher.dispatchEvent(new DaisyWorksEvent(DaisyWorksEvent.JVM_STARTED));
 			} catch (e:Error) {
 				dispatcher.dispatchEvent(new DaisyWorksEvent(DaisyWorksEvent.JVM_START_FAILURE, TOTAL_JVM_FAILURE));
 				javaFailed = true;
