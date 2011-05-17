@@ -1,10 +1,17 @@
 package com.daisyworks;
 
+import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_DEVICES_LIST;
+import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_BLUECOVE_VERSION;
+import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_DEVICE_ID;
+import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_FEATURE_L2CAP;
+import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_FEATURE_SERVICE_ATTRIBUTES;
+import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_FEATURE_SET_DEVICE_SERVICE_CLASSES;
+import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_OPEN_CONNECTIONS;
+import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_STACK;
+
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.*;
 
 import javax.bluetooth.DataElement;
 import javax.bluetooth.DeviceClass;
@@ -14,11 +21,11 @@ import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
- 
+import javax.microedition.io.Connection;
+import javax.microedition.io.Connector;
  
 /**
-* Class that discovers all bluetooth devices in the neighbourhood
-* and displays their name and bluetooth address.
+* Simple static void main tester program to discover devices and services
 */
 public class BluetoothDiscovery implements DiscoveryListener{
    
@@ -30,26 +37,23 @@ public class BluetoothDiscovery implements DiscoveryListener{
     //vector containing the devices discovered
     private static Set<RemoteDevice> devices=new HashSet<RemoteDevice>();
     private static Set<String> services = new HashSet<String>();
-    
-    private static final UUID RFCOMM = new UUID(0x0003);
-    private static final UUID SERIAL_PORT = new UUID(0x1101);
-   
+       
     private static final UUID[] searchUuidSet = new UUID[] { 
-    	new UUID(0x0001),	// SDP
-    	new UUID(0x0003),	// RFCOMM
-    	new UUID(0x0008),	// OBEX
-    	new UUID(0x000C),	// HTTP
-    	new UUID(0x0100),	// L2CAP
-    	new UUID(0x000F),	// BNEP
-    	new UUID(0x1101),	// Serial Port
-    	new UUID(0x1000),	// ServiceDiscoveryServerServiceClassID
-    	new UUID(0x1001),	// BrowseGroupDescriptorServiceClassID
-    	new UUID(0x1002),	// PublicBrowseGroup
-    	new UUID(0x1105),	// OBEX Oject Push
-    	new UUID(0x1106),	// OBEX File Transfer
-    	new UUID(0x1115),	// PAN
-    	new UUID(0x1116),	// Network Access Point
-    	new UUID(0x1117),	// Group Network
+//    	new UUID(0x0001),	// SDP
+//    	new UUID(0x0003),	// RFCOMM
+//    	new UUID(0x0008),	// OBEX
+//    	new UUID(0x000C),	// HTTP
+    	new UUID(0x0100)	// L2CAP
+//    	new UUID(0x000F),	// BNEP
+//    	new UUID(0x1101),	// Serial Port
+//    	new UUID(0x1000),	// ServiceDiscoveryServerServiceClassID
+//    	new UUID(0x1001),	// BrowseGroupDescriptorServiceClassID
+//    	new UUID(0x1002),	// PublicBrowseGroup
+//    	new UUID(0x1105),	// OBEX Oject Push
+//    	new UUID(0x1106),	// OBEX File Transfer
+//    	new UUID(0x1115),	// PAN
+//    	new UUID(0x1116),	// Network Access Point
+//    	new UUID(0x1117),	// Group Network
     };
     static int[] attrIds =  new int[] { 0x0100 // Service name
     		
@@ -83,19 +87,17 @@ public class BluetoothDiscovery implements DiscoveryListener{
        
         System.out.println("Device Inquiry Completed. ");
        
-        //print all devices in vecDevices
-        int deviceCount=devices.size();
-       
-        if(deviceCount <= 0){
+              
+        if(devices.size() <= 0){
             System.out.println("No Devices Found .");
         }
         else{
             //print bluetooth device addresses and names in the format [ No. address (name) ]
-            System.out.println("Bluetooth Devices: ");
+            System.out.println("\nBluetooth Devices: ");
             for(RemoteDevice remoteDevice : devices) {
-            	System.out.println(remoteDevice.getBluetoothAddress()+" ("+remoteDevice.getFriendlyName(false)+")");
+            	System.out.println("\t"+remoteDevice.getBluetoothAddress()+" ("+remoteDevice.getFriendlyName(false)+")");
             	synchronized(serviceLock) {
-            		System.out.println("search services on " + remoteDevice.getBluetoothAddress() +
+            		System.out.println("Search for services on " + remoteDevice.getBluetoothAddress() +
             				" " + remoteDevice.getFriendlyName(false));
             		agent.searchServices(attrIds, searchUuidSet, remoteDevice, bluetoothDeviceDiscovery);
             		try {
@@ -103,6 +105,15 @@ public class BluetoothDiscovery implements DiscoveryListener{
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
+            	}
+            	if(services.size() > 0) {
+            		String url = services.iterator().next();
+            		System.out.println("Trying to connect to "+url);
+            		Connection session = Connector.open(url);
+            		if(session != null) {
+            			
+            		}
+            	
             	}
             }
         }
@@ -135,7 +146,7 @@ public class BluetoothDiscovery implements DiscoveryListener{
      * @see javax.bluetooth.DiscoveryListener#deviceDiscovered(javax.bluetooth.RemoteDevice, javax.bluetooth.DeviceClass)
      */
     public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
-        System.out.println("Device discovered: "+btDevice.getBluetoothAddress());
+        System.out.println("\tDevice discovered: "+btDevice.getBluetoothAddress());
         //add the device to the vector
         if(!devices.contains(btDevice)){
             devices.add(btDevice);
@@ -153,19 +164,19 @@ public class BluetoothDiscovery implements DiscoveryListener{
        
         switch (discType) {
             case DiscoveryListener.INQUIRY_COMPLETED :
-                System.out.println("INQUIRY_COMPLETED");
+                System.out.println("\tresponse code: INQUIRY_COMPLETED");
                 break;
                
             case DiscoveryListener.INQUIRY_TERMINATED :
-                System.out.println("INQUIRY_TERMINATED");
+                System.out.println("\tresponse code: INQUIRY_TERMINATED");
                 break;
                
             case DiscoveryListener.INQUIRY_ERROR :
-                System.out.println("INQUIRY_ERROR");
+                System.out.println("\tresponse code: INQUIRY_ERROR");
                 break;
  
             default :
-                System.out.println("Unknown Response Code");
+                System.out.println("\tresponse code: Unknown Response Code =>"+discType);
                 break;
         }
     }
@@ -175,18 +186,17 @@ public class BluetoothDiscovery implements DiscoveryListener{
      * @see javax.bluetooth.DiscoveryListener#servicesDiscovered(int, javax.bluetooth.ServiceRecord[])
      */
     public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
-    	System.out.println("SERVICE DISCOVERED!!!!!");
     	for(int i=0; i<servRecord.length; i++) {
     		String url = servRecord[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
     		if(url == null) {
-    			System.err.println("url was null for "+servRecord[i].toString());
+    			System.err.println("\tService url was null for "+servRecord[i].toString());
     		}
     		services.add(url);
     		DataElement serviceName = servRecord[i].getAttributeValue(0x0100);
     		if(serviceName != null) {
-    			System.out.println("service "+serviceName.getValue() + " found " + url);
+    			System.out.println("\tService "+serviceName.getValue() + " found " + url);
     		} else {
-    			System.out.println("service found " + url);
+    			System.out.println("\tService found " + url);
     		}
     	}
     }
@@ -199,18 +209,18 @@ public class BluetoothDiscovery implements DiscoveryListener{
     	synchronized(serviceLock) {
     		serviceLock.notifyAll();
     	}
-    	System.out.println("service search complete for transaction "+transID);
+    	System.out.println("Service search complete for transaction "+transID);
     	switch(respCode) {
     	case DiscoveryListener.SERVICE_SEARCH_COMPLETED :
-    		System.out.println("\tSERVICE_SEARCH_COMPLETED"); break;
+    		System.out.println("\tresponse code: SERVICE_SEARCH_COMPLETED"); break;
     	case DiscoveryListener.SERVICE_SEARCH_DEVICE_NOT_REACHABLE:
-    		System.out.println("\tSERVICE_SEARCH_DEVICE_NOT_REACHABLE"); break;
+    		System.out.println("\tresponse code: SERVICE_SEARCH_DEVICE_NOT_REACHABLE"); break;
     	case DiscoveryListener.SERVICE_SEARCH_ERROR:
-    		System.out.println("\tSERVICE_SEARCH_ERROR"); break;
+    		System.out.println("\tresponse code: SERVICE_SEARCH_ERROR"); break;
     	case DiscoveryListener.SERVICE_SEARCH_NO_RECORDS:
-    		System.out.println("\tSERVICE_SEARCH_NO_RECORDS"); break;
+    		System.out.println("\tresponse code: SERVICE_SEARCH_NO_RECORDS"); break;
     	case DiscoveryListener.SERVICE_SEARCH_TERMINATED:
-    		System.out.println("\tSERVICE_SEARCH_TERMINATED"); break;
+    		System.out.println("\tresponse code: SERVICE_SEARCH_TERMINATED"); break;
     	default:
     		System.out.println("\tUnknown Response Code: "+respCode);
     	}

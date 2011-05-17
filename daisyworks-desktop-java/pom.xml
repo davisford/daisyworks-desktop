@@ -15,7 +15,8 @@
 		<bouncycastle.version>140</bouncycastle.version>
 		<spring.version>3.0.4.RELEASE</spring.version>
 		<spring.flex.version>1.5.0.BUILD-SNAPSHOT</spring.flex.version>
-
+		<!-- 2.1.0 is last stable release -->
+		<bluecove.version>2.1.1-SNAPSHOT</bluecove.version>
 		<!-- SKIP TESTS? -->
 		<maven.test.skip>true</maven.test.skip>
 	</properties>
@@ -42,6 +43,17 @@
 		<repository>
 			<id>springframework-extenral</id>
 			<url>http://maven.springframework.org/external</url>
+		</repository>
+		<repository>
+			<!-- for bluecove snapshot jars -->
+			<id>pyx4j-web-snapshot-bluecove</id>
+			<url>http://repository.pyx4j.com/maven2-snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
 		</repository>
 	</repositories>
 
@@ -70,14 +82,14 @@
 		<dependency>
 			<groupId>net.sf.bluecove</groupId>
 			<artifactId>bluecove</artifactId>
-			<version>2.1.0</version>
+			<version>${bluecove.version}</version>
 		</dependency>
 
 		<!-- needed for bluetooth on Linux -->
 		<dependency>
 			<groupId>net.sf.bluecove</groupId>
 			<artifactId>bluecove-gpl</artifactId>
-			<version>2.1.0</version>
+			<version>${bluecove.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 
@@ -99,7 +111,7 @@
 		<dependency>
 			<groupId>net.sf.bluecove</groupId>
 			<artifactId>bluecove-emu</artifactId>
-			<version>2.1.0</version>
+			<version>${bluecove.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
