@@ -114,8 +114,10 @@ public class BluetoothDiscovery implements DiscoveryListener{
             	if(services.size() > 0) {
             		String url = services.iterator().next();
             		System.out.println("Trying to connect to "+url);
-            		Connector.open(url);
-            		
+            		Connection connection = Connector.open(url);
+            		if(connection != null) {
+            			System.out.println("Got a connection");
+            		}
             	}
             }
         }
