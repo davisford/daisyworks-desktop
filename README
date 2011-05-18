@@ -104,3 +104,44 @@ Ubuntu 11.04 Desktop AMD64, with 64-bit Sun JDK.
 The JRE that we include for Windows / Linux is the full enchilada.  We should trim it back to the 
 absolute bare binary essentials for runtime.  It blows up the size of the installer mega-fold.
 
+Also need to fix the Linux JRE bundle because the uid/gid get blown away and the main executable
+can no longer be launched.  Also, if you try to run the .deb installer it has a whole bunch of
+warnings and says the package is of poor quality (mainly b/c of these uid/gid issues).
+
+--------------------------------------------
+| BLUETOOTH
+--------------------------------------------
+
+Bluetooth is a fickle animal with lots of different hardware and software stack implementations
+on different operating systems and architectures.  This section provides some brief documentation
+on what we've tested the application on and what steps were necessary to make it work (if any)
+
+The implementation relies on the open source Java Bluecove libraries.  Here are some relative links.
+
+http://bluecove.org
+http://code.google.com/p/bluecove
+http://snapshot.bluecove.org/
+
+-------------------
+| Windows 7 on AMD64
+-------------------
+Should work out of the box
+
+Tested with SMC BT10 USB/Bluetooth Adapter: http://www.smc.com/index.cfm?event=viewProduct&cid=5&scid=103&localeCode=EN_USA&pid=1370
+
+-------------------
+| Ubuntu 11.04 on i5 x86_64 and AMD64
+-------------------
+On 64-bit Ubuntu you will need to install the native libs for Bluetooth dev.  I'm not sure if we 
+could really bundle these.  They should be installed by the user as an extra step, unfortunately
+to better ensure it will work.  This command should do it:
+
+sudo apt-get install libbluetooth-dev
+
+Tested with Targus ACB10US1 USB/Bluetooth Adapter: http://www.targus.com/us/productdetail.aspx?sku=ACB10US1
+
+-------------------
+| Mac OS X 10.6 i7 x86_64
+-------------------
+Should work out of the box; tested with built-in bluetooth for Mac Book Pro
+
