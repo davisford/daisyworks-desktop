@@ -44,10 +44,10 @@ public class BluetoothDiscovery implements DiscoveryListener{
        
     private static final UUID[] searchUuidSet = new UUID[] { 
 //    	new UUID(0x0001),	// SDP
-//    	new UUID(0x0003),	// RFCOMM
+    	new UUID(0x0003)	// RFCOMM
 //    	new UUID(0x0008),	// OBEX
 //    	new UUID(0x000C),	// HTTP
-    	new UUID(0x0100)	// L2CAP
+//    	new UUID(0x0100)	// L2CAP
 //    	new UUID(0x000F),	// BNEP
 //    	new UUID(0x1101),	// Serial Port
 //    	new UUID(0x1000),	// ServiceDiscoveryServerServiceClassID
