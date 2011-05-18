@@ -10,7 +10,6 @@ import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PRO
 import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_STACK;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
