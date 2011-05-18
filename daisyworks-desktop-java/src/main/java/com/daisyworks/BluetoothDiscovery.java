@@ -9,9 +9,10 @@ import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PRO
 import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_OPEN_CONNECTIONS;
 import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_STACK;
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,6 +24,7 @@ import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
+import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
  
@@ -116,16 +118,30 @@ public class BluetoothDiscovery implements DiscoveryListener{
             	if(services.size() > 0) {
             		String url = services.iterator().next();
             		System.out.println("Trying to connect to "+url);
-            		StreamConnection cxn = (StreamConnection) Connector.open(url);
-            		DataInputStream dis = cxn.openDataInputStream();
-            		DataOutputStream dos = cxn.openDataOutputStream();
-            		dos.writeChars("4;");
-            		dos.flush();
-            		
-            		if(dis.available() > 0) {
-            			System.out.println("Daisy sez: "+dis.readLine());
-            		} else {
-            			System.out.println("No bytes available to read");
+            		Connection connection = Connector.open(url);
+            		if(connection != null) {
+            			StreamConnection cxn = (StreamConnection) connection;
+            			BufferedReader reader = new BufferedReader(new InputStreamReader(cxn.openInputStream()));
+            			DataOutputStream dos = cxn.openDataOutputStream();
+            			System.out.println("Writing out a daisy command");
+            			dos.writeUTF("4;\n\r");
+            			dos.flush();
+
+            			for(int i=0; i<10; i++) {
+            				if(reader.ready()) {
+            					System.out.println("Daisy sed this: "+reader.readLine());
+            				} else {
+            					System.out.println("Boo we have no bytes to read");
+            				}
+            				dos.writeBytes("4;\n\r");
+            				dos.flush();
+            				try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+            			}
+            			
             		}
             	}
             }
