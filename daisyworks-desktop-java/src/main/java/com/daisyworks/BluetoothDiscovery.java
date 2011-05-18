@@ -9,7 +9,11 @@ import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PRO
 import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_OPEN_CONNECTIONS;
 import static com.intel.bluetooth.BlueCoveLocalDeviceProperties.LOCAL_DEVICE_PROPERTY_STACK;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,6 +27,7 @@ import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
+import javax.microedition.io.StreamConnection;
  
 /**
 * Simple static void main tester program to discover devices and services
@@ -116,7 +121,28 @@ public class BluetoothDiscovery implements DiscoveryListener{
             		System.out.println("Trying to connect to "+url);
             		Connection connection = Connector.open(url);
             		if(connection != null) {
-            			System.out.println("Got a connection");
+            			StreamConnection cxn = (StreamConnection) connection;
+            			BufferedReader reader = new BufferedReader(new InputStreamReader(cxn.openInputStream()));
+            			DataOutputStream dos = cxn.openDataOutputStream();
+            			System.out.println("Writing out a daisy command");
+            			dos.writeUTF("4;\n\r");
+            			dos.flush();
+
+            			for(int i=0; i<10; i++) {
+            				if(reader.ready()) {
+            					System.out.println("Daisy sed this: "+reader.readLine());
+            				} else {
+            					System.out.println("Boo we have no bytes to read");
+            				}
+            				dos.writeBytes("4;\n\r");
+            				dos.flush();
+            				try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+            			}
+            			
             		}
             	}
             }
