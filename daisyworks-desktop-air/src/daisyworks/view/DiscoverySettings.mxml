@@ -8,6 +8,10 @@
 	<fx:Script>
 		<![CDATA[
 			import daisyworks.event.BluetoothDiscoveryEvent;
+			import daisyworks.event.SerialPortCmdEvent;
+			import daisyworks.model.Device;
+			
+			import mx.events.ListEvent;
 
 			[Bindable]
 			[Inject]
@@ -22,6 +26,13 @@
 			{
 				dispatchEvent(new BluetoothDiscoveryEvent(BluetoothDiscoveryEvent.GET_LOCAL_DEVICE));
 				dispatchEvent(new BluetoothDiscoveryEvent(BluetoothDiscoveryEvent.DO_DISCOVERY));
+			}
+
+
+			protected function datagrid_itemClickHandler(event:ListEvent):void
+			{
+				var device:Device = dataGrid.selectedItem as Device;
+				if(device != null) { dispatchEvent(new SerialPortCmdEvent(SerialPortCmdEvent.CONNECT, device.address)); }
 			}
 
 		]]>
@@ -42,7 +53,16 @@
 		</mx:FormItem>
 	</mx:Form>
 	
-	<mx:DataGrid dataProvider="{presenter.devices}" left="10" right="10" top="50" width="100%" height="100%" paddingLeft="10" paddingRight="10">
+	<mx:DataGrid id="dataGrid"
+		dataProvider="{presenter.devices}" 
+				 itemClick="datagrid_itemClickHandler(event)"
+				 left="10" 
+				 right="10" 
+				 top="50" 
+				 width="100%" 
+				 height="100%" 
+				 paddingLeft="10" 
+				 paddingRight="10">
 		<mx:columns>
 			<mx:DataGridColumn headerText="Address" dataField="address"/>
 			<mx:DataGridColumn headerText="Name" dataField="name"/>

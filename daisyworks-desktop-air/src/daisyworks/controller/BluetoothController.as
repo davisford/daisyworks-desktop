@@ -63,13 +63,25 @@ package daisyworks.controller
 			remoteObj.getLocalDevice();
 		}
 		
+		[EventHandler(event="SerialPortCmdEvent.CONNECT", properties="address")]
+		public function connect(address:String):void {
+			remoteObj.connect(address);
+		}
+		
+		[EventHandler(event="SerialPortDataEvent.TX", properties="line")]
+		public function send(line:String):void {
+			remoteObj.send(line);
+		}
+		
 		public function result(obj:Object):void {
 			if(obj.result is ArrayCollection) {
 				devices = obj.result as ArrayCollection;
 				LOG.info("device count returned "+devices.length);
-			} else {
+			} else if(obj.result is Device) {
 				localDevice = obj.result as Device;	
 				LOG.info("local name: "+localDevice.name);
+			} else {
+				LOG.info("other result");
 			}
 		}
 		

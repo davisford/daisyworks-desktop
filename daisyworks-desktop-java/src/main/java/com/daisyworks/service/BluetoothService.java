@@ -3,7 +3,10 @@
  */
 package com.daisyworks.service;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -18,6 +21,8 @@ import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
+import javax.microedition.io.Connector;
+import javax.microedition.io.StreamConnection;
 
 import org.apache.log4j.Logger;
 import org.springframework.flex.remoting.RemotingDestination;
@@ -45,6 +50,9 @@ public class BluetoothService implements DiscoveryListener {
 	private Map<String, String> serviceMap = new HashMap<String, String>();
 	
 	private DiscoveryAgent agent;
+	
+	private BufferedReader reader;
+	private DataOutputStream output;
 	
 	private ServiceDiscoveryThread serviceDiscoveryThread;
 	
@@ -111,6 +119,32 @@ public class BluetoothService implements DiscoveryListener {
 			// FIXME
 			LOGGER.error(e);
 			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Connect to the SPP on the given address
+	 * @param address the bluetooth address
+	 * @throws Exception 
+	 */
+	@RemotingInclude
+	public void connect(String address) throws Exception {
+		StreamConnection connection = (StreamConnection) Connector.open(serviceMap.get(address));
+		reader = new BufferedReader(new InputStreamReader(connection.openInputStream()));
+		output = connection.openDataOutputStream();
+	}
+	
+	/**
+	 * Sends a command via Bluetooth to the UART to the micro to be
+	 * processed by the shell program.
+	 * @param command the command to send
+	 * @throws Exception
+	 */
+	@RemotingInclude
+	public void send(String command) throws Exception {
+		if(output != null) {
+			output.writeBytes(command);
+			output.flush();
 		}
 	}
 	

@@ -13,9 +13,11 @@
 	<bean id="defaultMessageTemplate" class="org.springframework.flex.messaging.MessageTemplate" />
  
 	<flex:message-broker>
-		<flex:message-service default-channels="my-amf" />
-		<flex:exception-translator ref="exceptionTranslator"/>
+		<flex:message-service default-channels="my-amf" /> 
+<!--		<flex:exception-translator ref="exceptionTranslator"/>-->
 	</flex:message-broker>
+	
+	
 	
 	<!-- for pub/sub -->
 	<flex:message-destination id="consoleUpdates"/>

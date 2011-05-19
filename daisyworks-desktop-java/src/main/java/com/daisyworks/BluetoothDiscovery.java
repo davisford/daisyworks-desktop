@@ -133,10 +133,13 @@ public class BluetoothDiscovery implements DiscoveryListener{
             				} else {
             					System.out.println("Boo we have no bytes to read");
             				}
-            				dos.writeBytes("4;\n\r");
-            				dos.flush();
+            				
             				try {
+            					dos.writeBytes("6;\n\r");
+                				dos.flush();
 								Thread.sleep(1000);
+								dos.writeBytes("7;\n\r");
+	            				dos.flush();
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
