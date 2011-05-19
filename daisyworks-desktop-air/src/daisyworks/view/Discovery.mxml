@@ -6,15 +6,24 @@
 		<![CDATA[
 			import daisyworks.event.SerialPortDataEvent;
 			import daisyworks.model.Icons;
-
+			
+			import mx.messaging.events.MessageEvent;
+			
 			protected function sendTI_keyDownHandler(event:KeyboardEvent):void
 			{
+				if(!consumer.subscribed) {
+					consumer.subscribe();
+				}
+				
 				if(event.keyCode == Keyboard.ENTER) {
 					sendTextCommand(sendTI.text);
 				}
 			}
 			
 			protected function sendButton_clickHandler(event:MouseEvent):void {
+				if(!consumer.subscribed) {
+					consumer.subscribe();
+				}
 				sendTextCommand(sendTI.text);
 			}
 			
@@ -27,10 +36,20 @@
 				dispatchEvent(new SerialPortDataEvent(SerialPortDataEvent.TX, command));
 			}
 
+
+			protected function consumer_messageHandler(event:MessageEvent):void
+			{
+				consoleTA.text += '\n>' + event.message.body;
+			}
+
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="http://localhost:8080/daisyworks/messagebroker/amf" />
+		</s:ChannelSet>
+		
+		<s:Consumer destination="consoleUpdates" id="consumer" channelSet="{channelSet}" message="consumer_messageHandler(event)" />
 	</fx:Declarations>
 	<s:Panel left="10" right="10" bottom="0" title="Serial Console" top="95">
 		<s:TextArea width="100%" height="100%" id="consoleTA" editable="false" enabled="true" text="&gt;"/>

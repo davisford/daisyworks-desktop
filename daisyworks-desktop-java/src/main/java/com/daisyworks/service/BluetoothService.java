@@ -25,6 +25,8 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.flex.messaging.MessageTemplate;
 import org.springframework.flex.remoting.RemotingDestination;
 import org.springframework.flex.remoting.RemotingInclude;
 import org.springframework.stereotype.Service;
@@ -55,6 +57,9 @@ public class BluetoothService implements DiscoveryListener {
 	private DataOutputStream output;
 	
 	private ServiceDiscoveryThread serviceDiscoveryThread;
+	private ConsoleReadThread consoleReadThread;
+	
+	private MessageTemplate template;
 	
 	/**
 	 * Constructor
@@ -62,6 +67,11 @@ public class BluetoothService implements DiscoveryListener {
 	public BluetoothService() {
 		LOGGER.debug("Bluetooth Service initialized");
 		serviceDiscoveryThread = new ServiceDiscoveryThread(this);
+	}
+	
+	@Autowired
+	public void setTemplate(MessageTemplate template) {
+		this.template = template;
 	}
 	
 	/**
@@ -112,7 +122,7 @@ public class BluetoothService implements DiscoveryListener {
 				LOGGER.info("Discovered "+deviceMap.size()+" devices");
 			}
 			// start service discovery
-			serviceDiscoveryThread.run();
+			serviceDiscoveryThread.start();
 			
 			return toDeviceSet(deviceMap); 
 		} catch (Exception e) {
@@ -132,6 +142,10 @@ public class BluetoothService implements DiscoveryListener {
 		StreamConnection connection = (StreamConnection) Connector.open(serviceMap.get(address));
 		reader = new BufferedReader(new InputStreamReader(connection.openInputStream()));
 		output = connection.openDataOutputStream();
+		if(consoleReadThread == null) {
+			consoleReadThread = new ConsoleReadThread(reader, template);
+		}
+		consoleReadThread.start();
 	}
 	
 	/**
@@ -276,11 +290,11 @@ public class BluetoothService implements DiscoveryListener {
     /**
      * Background thread for discovering services on remote devices
      */
-    private class ServiceDiscoveryThread implements Runnable {
+    private class ServiceDiscoveryThread extends Thread {
     	
     	private DiscoveryListener listener;
     	
-        ServiceDiscoveryThread(DiscoveryListener listener) {
+        public ServiceDiscoveryThread(DiscoveryListener listener) {
     		this.listener = listener;
     	}
 
@@ -304,6 +318,32 @@ public class BluetoothService implements DiscoveryListener {
 				}
 			}
 		}
+    }
+    
+    /**
+     * Background thread for reading from the UART and posting on message bus for UI
+     */
+    private class ConsoleReadThread extends Thread {
     	
+    	private BufferedReader reader;
+    	private MessageTemplate template;
+    	
+    	public ConsoleReadThread(BufferedReader reader, MessageTemplate template) {
+    		this.reader = reader;
+    		this.template = template;
+    	}
+    	
+    	@Override
+    	public void run() {
+    		LOGGER.info("Going to read from serial port...");
+    		while(true) {
+    			try {
+					String line = reader.readLine();
+					template.send("consoleUpdates", line);
+				} catch (IOException e) {
+					LOGGER.error(e.getMessage());
+				}
+    		}
+    	}
     }
 }
