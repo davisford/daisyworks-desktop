@@ -8,6 +8,7 @@
 			import daisyworks.model.Preferences;
 			
 			import mx.controls.Alert;
+			import mx.events.ResizeEvent;
 			import mx.messaging.events.MessageEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
@@ -57,6 +58,7 @@
 
 			protected function consumer_messageHandler(event:MessageEvent):void	{
 				consoleTA.text += '\n>' + event.message.body;
+				scrollDown();
 			}
 			
 			protected function sendResult(evt:ResultEvent):void {
@@ -66,6 +68,11 @@
 			protected function sendFault(evt:FaultEvent):void {
 				Alert.show(evt.fault.faultDetail, "Failed to send the command");
 			}
+						
+			private function scrollDown(event:Event=null):void {
+				// scroll with the text
+				consoleTA.scroller.verticalScrollBar.value = consoleTA.scroller.verticalScrollBar.maximum + 100;
+			}
 
 		]]>
 	</fx:Script>
@@ -73,13 +80,16 @@
 		<s:ChannelSet id="channelSet">
 			<s:AMFChannel url="http://localhost:8080/daisyworks/messagebroker/amf" />
 		</s:ChannelSet>	
-		<s:Consumer destination="consoleUpdates" id="consumer" channelSet="{channelSet}" message="consumer_messageHandler(event)" />
+		<s:Consumer destination="serialPort" id="consumer" channelSet="{channelSet}" message="consumer_messageHandler(event)" />
 		<s:RemoteObject id="remoteObject" destination="bluetoothService" showBusyCursor="false" >
 			<s:method name="send" result="sendResult(event)" fault="sendFault(event)" />
 		</s:RemoteObject>
 	</fx:Declarations>
 	<s:Panel left="10" right="10" bottom="0" title="Serial Console" top="95">
-		<s:TextArea width="100%" height="100%" id="consoleTA" editable="false" enabled="true" text="&gt;" verticalScrollPolicy="on"/>
+		<s:TextArea width="100%" height="100%" id="consoleTA" editable="false" 
+					enabled="true" text="&gt;" verticalScrollPolicy="on" 
+					valueCommit="scrollDown(event)"
+					resize="scrollDown(event)"/>
 	</s:Panel>
 	<s:HGroup height="35" left="10" right="10" top="10">
 		<s:Label text="Select a device to connect" verticalAlign="middle" height="100%"/>

@@ -238,11 +238,21 @@ public final class BluetoothService implements DiscoveryListener {
 	 * @param address
 	 * @throws Exception
 	 */
+	@SuppressWarnings("deprecation")
 	@RemotingInclude
 	public void disconnectRFComm(String address)  {
 		StreamConnection connection = connectionMap.get(address);
 		try {
-			// close these first; if they aren't closed, the connection won't close
+			// stop the thread
+			if(consoleReadThread != null) {
+				/*
+				 * This is deprecated, but the Bluecove implementation of InputStream
+				 * provides no possible way to interrupt a thread that is doing a blocking
+				 * read call;  This big hammer approach is the only sane way to deal
+				 * with this.
+				 */
+				consoleReadThread.stop(); 
+			}
 			if(reader != null) { reader.close(); }
 			if(output != null) { output.close(); }
 			if(connection != null) { connection.close(); }
@@ -407,24 +417,21 @@ public final class BluetoothService implements DiscoveryListener {
 		
 		/**
 		 * {@link BufferedReader#readLine()} and all read methods are blocking I/O that
-		 * can't be interrupted.  This is kind of a hack.  TODO see if we can replace 
-		 * this code with NIO using an interruptible channel
+		 * can't be interrupted.  Even if I wrap it with NIO, the underlying input
+		 * stream is of type com.intel.bluetooth.BluetoothRFCommInputStream which can't
+		 * be interrupted.  The only way to stop this is to use {@link Thread#stop()}
 		 */
 		@Override
 		public void run() {
 			LOGGER.info("Background thread listening for serial port updates  ");
 			try {
-				while (!reader.ready()) {
-					Thread.sleep(50);		
-				}
-				String line = reader.readLine();
-				LOGGER.info("daisy sez: "+line);
-				template.send("serialPort", line);
+				while (true) {
+					String line = reader.readLine();
+					template.send("serialPort", line);
+				}		
 			} catch (IOException e) {
 				LOGGER.error(e);
-			} catch (InterruptedException e) {
-				LOGGER.error(e);
-			}
+			} 
 		}
 	}
 }
