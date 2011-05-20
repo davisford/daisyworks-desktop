@@ -63,15 +63,21 @@
 	-->
 	<target name="copy-linux-jre" depends="init" if="isLinux">
 		<!-- we copy to bin-debug for in-place FlashBuilder execution -->
-		<unzip 
-			src="${basedir}/jre/linux/${jre.version}/${jre.version}.zip" 
-			dest="./${ui}/bin-debug/jre" 
-			overwrite="false"/>
+		<exec executable="unzip" failonerror="false">
+			<arg value="-d"/>
+			<arg value="./${ui}/bin-debug/jre"/>
+			<arg value="-o"/>
+			<arg value="-v"/>
+			<arg value="${basedir}/jre/linux/${jre.version}/${jre.version}.zip"/>
+		</exec>
 		<!-- we copy to client/deploy for cmd line installer build -->
-		<unzip
-			src="${basedir}/jre/linux/${jre.version}/${jre.version}.zip"
-			dest="./${ui}/deploy/jre" 
-			overwrite="false"/>
+		<exec executable="unzip" failonerror="false">
+			<arg value="-d"/>
+			<arg value="./${ui}/deploy/jre"/>
+			<arg value="-o"/>
+			<arg value="-v"/>
+			<arg value="${basedir}/jre/linux/${jre.version}/${jre.version}.zip"/>
+		</exec>
 	</target>
 	
 	<!--
