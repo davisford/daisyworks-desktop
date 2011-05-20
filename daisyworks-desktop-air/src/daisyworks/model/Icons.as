@@ -32,6 +32,14 @@ package daisyworks.model {
 		[Embed(source="../../assets/images/application_osx_terminal.png")]
 		[Bindable]
 		public static var TERMINAL:Class;
+		
+		[Embed(source="../../assets/images/bullet_black.png")]
+		[Bindable]
+		public static var DISCONNECTED:Class;
+		
+		[Embed(source="../../assets/images/bullet_green.png")]
+		[Bindable]
+		public static var CONNECTED:Class;
 
 		public function Icons() {	}
 	}

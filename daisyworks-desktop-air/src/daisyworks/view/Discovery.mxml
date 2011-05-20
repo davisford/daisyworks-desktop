@@ -4,26 +4,44 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
 	<fx:Script>
 		<![CDATA[
-			import daisyworks.event.SerialPortDataEvent;
 			import daisyworks.model.Icons;
+			import daisyworks.model.Preferences;
 			
+			import mx.controls.Alert;
 			import mx.messaging.events.MessageEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 			
-			protected function sendTI_keyDownHandler(event:KeyboardEvent):void
-			{
-				if(!consumer.subscribed) {
-					consumer.subscribe();
-				}
-				
+			[Inject]
+			public var prefs:Preferences;
+			
+			[Bindable]
+			public var isConnected:Boolean = false;
+			
+			[PostConstruct]
+			public function init():void {
+				remoteObject.endpoint = "http://localhost:" + prefs.getValue("port", "8080") + "/daisyworks/messagebroker/amf";;
+			}
+			
+			[EventHandler(event="BluetoothEvent.CONNECTED")]
+			public function connected():void {
+				isConnected=true;
+				if(!consumer.subscribed) { consumer.subscribe(); }
+			}
+			
+			[EventHandler(event="BluetoothEvent.DISCONNECTED")]
+			public function disconnected():void {
+				isConnected=false;
+				if(consumer.subscribed) { consumer.unsubscribe(); }
+			}
+			
+			protected function sendTI_keyDownHandler(event:KeyboardEvent):void {				
 				if(event.keyCode == Keyboard.ENTER) {
 					sendTextCommand(sendTI.text);
 				}
 			}
 			
 			protected function sendButton_clickHandler(event:MouseEvent):void {
-				if(!consumer.subscribed) {
-					consumer.subscribe();
-				}
 				sendTextCommand(sendTI.text);
 			}
 			
@@ -33,13 +51,20 @@
 				// append it to text area
 				consoleTA.text += '\n>' + command;
 				// send it to the device
-				dispatchEvent(new SerialPortDataEvent(SerialPortDataEvent.TX, command));
+				remoteObject.send(command);
 			}
 
 
-			protected function consumer_messageHandler(event:MessageEvent):void
-			{
+			protected function consumer_messageHandler(event:MessageEvent):void	{
 				consoleTA.text += '\n>' + event.message.body;
+			}
+			
+			protected function sendResult(evt:ResultEvent):void {
+				
+			}
+			
+			protected function sendFault(evt:FaultEvent):void {
+				Alert.show(evt.fault.faultDetail, "Failed to send the command");
 			}
 
 		]]>
@@ -47,19 +72,21 @@
 	<fx:Declarations>
 		<s:ChannelSet id="channelSet">
 			<s:AMFChannel url="http://localhost:8080/daisyworks/messagebroker/amf" />
-		</s:ChannelSet>
-		
+		</s:ChannelSet>	
 		<s:Consumer destination="consoleUpdates" id="consumer" channelSet="{channelSet}" message="consumer_messageHandler(event)" />
+		<s:RemoteObject id="remoteObject" destination="bluetoothService" showBusyCursor="false" >
+			<s:method name="send" result="sendResult(event)" fault="sendFault(event)" />
+		</s:RemoteObject>
 	</fx:Declarations>
 	<s:Panel left="10" right="10" bottom="0" title="Serial Console" top="95">
-		<s:TextArea width="100%" height="100%" id="consoleTA" editable="false" enabled="true" text="&gt;"/>
+		<s:TextArea width="100%" height="100%" id="consoleTA" editable="false" enabled="true" text="&gt;" verticalScrollPolicy="on"/>
 	</s:Panel>
 	<s:HGroup height="35" left="10" right="10" top="10">
-		<s:Label text="Select a device to pair with it" verticalAlign="middle" height="100%"/>
+		<s:Label text="Select a device to connect" verticalAlign="middle" height="100%"/>
 	</s:HGroup>
 	<s:HGroup y="50" height="35" left="9" right="11" verticalAlign="middle">
-		<s:TextInput width="210" id="sendTI" keyDown="sendTI_keyDownHandler(event)"/>
-		<s:Button label="Send" id="sendButton" click="sendButton_clickHandler(event)"/>
+		<s:TextInput width="210" id="sendTI" keyDown="sendTI_keyDownHandler(event)" enabled="{isConnected}"/>
+		<s:Button label="Send" id="sendButton" click="sendButton_clickHandler(event)" enabled="{isConnected}"/>
 		<s:Label height="100%" verticalAlign="middle" width="100%" id="errorLabel"/>
 	</s:HGroup>
 </s:Group>

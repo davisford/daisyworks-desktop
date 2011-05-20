@@ -24,7 +24,8 @@
 	</flex:message-broker>
 	
 	<!-- for pub/sub -->
-	<flex:message-destination id="consoleUpdates"/>
+	<flex:message-destination id="serialPort" />
+	<flex:message-destination id="connectionStatus" />
 	
 	<context:annotation-config />
 	<context:component-scan base-package="com.daisyworks.service" />

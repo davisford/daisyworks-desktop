@@ -49,7 +49,7 @@ package daisyworks.controller {
 		
 		private static const JARFILE:String = "daisyworks-server.jar";
 		
-		private var debug:Boolean = false;
+		private var debug:Boolean = true;
 		
 		private static var port:Number;
 		
@@ -179,7 +179,7 @@ package daisyworks.controller {
 				
 				if(debug) {
 					args.push('-Xdebug');
-					args.push('-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y');
+					args.push('-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n');
 				}
 				
 				// tell log4j where to write to

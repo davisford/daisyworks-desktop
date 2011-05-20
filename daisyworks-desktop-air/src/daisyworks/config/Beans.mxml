@@ -16,10 +16,7 @@
 	<swiz:Prototype type="{Preferences}" singleton="true"/>
 	
 	<controller:WatchdogController id="watchdogController"/>
-	<controller:BluetoothController id="bluetoothController"/>
 	
 	<model:Device />
-	
-	<view:DiscoverySettingsPresenter />
 	
 </swiz:BeanProvider>

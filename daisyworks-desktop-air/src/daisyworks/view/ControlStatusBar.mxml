@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="25" currentState="Disconnected">
+	<s:layout>
+		<s:HorizontalLayout verticalAlign.Disconnected="middle" verticalAlign.Connected="middle"/>
+	</s:layout>
+	<s:states>
+		<s:State name="Connected"/>
+		<s:State name="Disconnected"/>
+	</s:states>
+	
+	<fx:Script>
+		<![CDATA[
+			import daisyworks.event.BluetoothEvent;
+			import daisyworks.model.Device;
+			import daisyworks.model.Icons;
+			
+			[Bindable]
+			private var remoteDevice:Device;
+			
+			[EventHandler(event="BluetoothEvent.CONNECTED", properties="device")]
+			public function connected(device:Device):void {
+				remoteDevice = device;
+				currentState = 'Connected';
+			}
+			
+			[EventHandler(event="BluetoothEvent.DISCONNECTED")]
+			public function disconnected():void {
+				remoteDevice = null;
+				currentState = 'Disconnected';
+			}
+
+			protected function disconnect_clickHandler(event:MouseEvent):void {
+				dispatchEvent(new BluetoothEvent(BluetoothEvent.DISCONNECT, remoteDevice));
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<mx:Image source="{Icons.DISCONNECTED}" includeIn="Disconnected" />
+	<s:Label includeIn="Disconnected" text="Disconnected"/>
+	<mx:Image source="{Icons.CONNECTED}" includeIn="Connected" />
+	<s:Label includeIn="Connected" text="Connected"/>
+	<mx:VRule includeIn="Connected" height="100%"/>
+	<s:Label includeIn="Connected" text="Address"/>
+	<s:Label includeIn="Connected" text="{remoteDevice.address}"/>
+	<mx:VRule includeIn="Connected" height="100%"/>
+	<s:Label includeIn="Connected" text="Name"/>
+	<s:Label includeIn="Connected" text="{remoteDevice.name}"/>
+	<mx:VRule includeIn="Connected" height="100%"/>
+	<s:Button includeIn="Connected" label="Disconnect" click="disconnect_clickHandler(event)"/>
+</s:Group>
