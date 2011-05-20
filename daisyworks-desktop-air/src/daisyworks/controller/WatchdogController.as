@@ -279,7 +279,7 @@ package daisyworks.controller {
 		 */
 		private function resolveLinuxJVM(startupInfo:NativeProcessStartupInfo, args:Vector.<String>):void {
 			var file:File=File.applicationDirectory;
-			file=file.resolvePath("jre/bin/javaw");
+			file=file.resolvePath("jre/bin/java");
 			startupInfo.executable = file;
 			_startJava(startupInfo, args);
 		}
