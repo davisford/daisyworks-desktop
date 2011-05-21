@@ -5,6 +5,10 @@ package daisyworks.model {
 		[Bindable]
 		public static var BLUETOOTH:Class;
 		
+		[Embed(source="../../assets/images/bluetooth_small.png")]
+		[Bindable]
+		public static var BLUETOOTH_SMALL:Class;
+		
 		[Embed(source="../../assets/images/control_panel.png")]
 		[Bindable]
 		public static var CONTROL:Class;

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" currentState="Ready">
 	<s:layout>
-		<s:VerticalLayout horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingBottom="10"/>
+		<s:VerticalLayout horizontalAlign="left" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10"/>
 	</s:layout>
 	<fx:Script>
 		<![CDATA[
@@ -19,10 +19,7 @@
 
 			[Bindable]
 			private var devices:ArrayCollection;
-			
-			[Bindable]
-			private var localDevice:Device;
-			
+						
 			private var selected:Device;
 			
 			[Inject]
@@ -30,12 +27,15 @@
 			
 			[PostConstruct]
 			public function init():void {
-				remoteObject.endpoint = "http://localhost:" + prefs.getValue("port", "8080") + "/daisyworks/messagebroker/amf";;
+				remoteObject.endpoint = "http://localhost:" + prefs.getValue("port", "8080") + "/daisyworks/messagebroker/amf";
 			}
 			
 			[EventHandler(event="DaisyWorksEvent.JVM_STARTED")]
 			public function postJvmStarted():void {
-				// should we trigger discovery, but jetty may not be ready yet...
+				if(currentState == 'Ready') {
+					currentState='Scanning';
+					remoteObject.findDevices();
+				}
 			}
 			
 			[EventHandler(event="BluetoothEvent.DISCONNECT", properties="device")]
@@ -44,9 +44,8 @@
 			}
 
 			private function discoverBtn_clickHandler(event:MouseEvent):void {
-				// fetch the local device info
-				remoteObject.getLocalDevice();
 				// discover bluetooth devices around us
+				currentState='Scanning';
 				remoteObject.findDevices();
 			}
 
@@ -58,23 +57,16 @@
 			////////////// REMOTE OBJECT RESULT/FAULT HANDLERS ////////////////////
 			
 			
-			// __________ GET LOCAL DEVICE ____________ //
-			private function localDeviceResult(evt:ResultEvent):void {
-				localDevice = evt.result as Device;
-			}
-			
-			private function localDeviceFault(evt:FaultEvent):void {
-				Alert.show(evt.fault.faultDetail, "Failed to find local Bluetooth Adapter Information");
-			}
-			
 			// ___________ FIND DEVICES ___________ //
 			
 			private function findDevicesResult(evt:ResultEvent):void {
 				devices = evt.result as ArrayCollection;
+				currentState='Ready';
 			}
 			
 			private function findDevicesFault(evt:FaultEvent):void {
-				Alert.show(evt.fault.faultDetail, "Failed to discover Bluetooth devices");
+				Alert.show(evt.fault.faultString, "Failed to discover Bluetooth devices");
+				currentState='Ready';
 			}
 			
 			// ___________ FIND SERVICES __________ //
@@ -85,17 +77,20 @@
 			}
 			
 			private function findServicesFault(evt:FaultEvent):void {
-				Alert.show(evt.fault.faultDetail, "Failed to discover RFCOMM service on device "+selected.name);	
+				Alert.show(evt.fault.faultString, "Failed to discover RFCOMM service on device "+selected.name);
+				currentState='Ready';
 			}
 			
 			// ____________ CONNECT _______________ //
 			
 			private function connectResult(evt:ResultEvent):void {
 				dispatchEvent(new BluetoothEvent(BluetoothEvent.CONNECTED, selected));
+				currentState='Ready';
 			}
 			
 			private function connectFault(evt:FaultEvent):void {
-				Alert.show(evt.fault.faultDetail, "Failed to connect to device "+selected.name);
+				Alert.show(evt.fault.faultString, "Failed to connect to device "+selected.name);
+				currentState='Ready';
 			}
 			
 			// ____________ DISCONNECT ______________ //
@@ -105,36 +100,32 @@
 			}
 			
 			private function disconnectFault(evt:FaultEvent):void {
-				Alert.show(evt.fault.faultDetail, "Failed to disconnect from device "+selected.name);
+				Alert.show(evt.fault.faultString, "Failed to disconnect from device "+selected.name);
 			}
 
 		]]>
 	</fx:Script>
+	<s:states>
+		<s:State name="Ready"/>
+		<s:State name="Scanning"/>
+	</s:states>
 	
 	<fx:Declarations>
 		<s:RemoteObject id="remoteObject" destination="bluetoothService" showBusyCursor="true" >
 			<s:method name="findDevices" result="findDevicesResult(event)" fault="findDevicesFault(event)" />
-			<s:method name="getLocalDevice" result="localDeviceResult(event)" fault="localDeviceFault(event)" />
 			<s:method name="findServices" result="findServicesResult(event)" fault="findServicesFault(event)" />
 			<s:method name="connectRFComm" result="connectResult(event)" fault="connectFault(event)" />
 			<s:method name="disconnectRFComm" result="disconnectResult(event)" fault="disconnectFault(event)" />
 		</s:RemoteObject>
 	</fx:Declarations>
 	
-	<mx:Form width="100%" height="109">
-		<mx:FormItem label="Local Device Name" width="100%">
-			<s:TextInput width="100%" id="localNameTI" text="{localDevice.name}" enabled="false"/>
-		</mx:FormItem>
-		<mx:FormItem label="Local Device Address" width="100%">
-			<s:TextInput width="100%" id="localAddressTI" text="{localDevice.address}" enabled="false"/>
-		</mx:FormItem>
-		<mx:FormItem width="100%">
-			<s:Button label="Refresh" click="discoverBtn_clickHandler(event)"/>
-		</mx:FormItem>
-	</mx:Form>
+	<s:HGroup width="100%" height="30" verticalAlign="middle">
+		<s:Button label="Refresh" click="discoverBtn_clickHandler(event)" enabled.Ready="true" enabled.Scanning="false" />
+		<s:Label text.Ready="Select a device to connect" text.Scanning="Scanning..."/>
+	</s:HGroup>
 	
 	<mx:DataGrid id="dataGrid"
-		dataProvider="{devices}" 
+		dataProvider="{devices}" enabled.Ready="true" enabled.Scanning="false"
 				 itemClick="datagrid_itemClickHandler(event)"
 				 left="10" 
 				 right="10" 
@@ -144,8 +135,8 @@
 				 paddingLeft="10" 
 				 paddingRight="10">
 		<mx:columns>
-			<mx:DataGridColumn headerText="Address" dataField="address"/>
 			<mx:DataGridColumn headerText="Name" dataField="name"/>
+			<mx:DataGridColumn headerText="Address" dataField="address"/>
 		</mx:columns>
 	</mx:DataGrid>
 </s:Group>

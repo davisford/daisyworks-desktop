@@ -49,7 +49,8 @@ package daisyworks.controller {
 		
 		private static const JARFILE:String = "daisyworks-server.jar";
 		
-		private var debug:Boolean = true;
+		// enable this is you want to start JVM in remote socket debug mode on port 8787
+		private var debug:Boolean = false;
 		
 		private static var port:Number;
 		
@@ -127,6 +128,8 @@ package daisyworks.controller {
 				remoteObj.ping(new Date().time);
 			}
 		}
+		
+		private var jvmStarted:Boolean = false;
 
 		/**
 		 * Result handler for receiving a message back from Java
@@ -134,6 +137,10 @@ package daisyworks.controller {
 		 */
 		public function result(data:Object):void {
 			gotPong=true;
+			if(!jvmStarted) {
+				jvmStarted = true;
+				dispatcher.dispatchEvent(new DaisyWorksEvent(DaisyWorksEvent.JVM_STARTED));
+			}
 		}
 
 		/**

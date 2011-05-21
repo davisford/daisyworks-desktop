@@ -11,6 +11,8 @@ package daisyworks.event
 		
 		public static const DISCONNECT:String="BluetoothEvent.DISCONNECT";
 		
+		public static const LOCAL_DEVICE:String="BluetoothEvent.LOCAL_DEVICE";
+		
 		public var device:Device;
 		
 		public function BluetoothEvent(type:String, device:Device=null)
