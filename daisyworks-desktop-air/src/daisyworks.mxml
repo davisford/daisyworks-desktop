@@ -7,6 +7,7 @@
 					   xmlns:config="daisyworks.config.*"
 					   width="1250"
 					   height="470"
+					   skinClass="assets.skins.WindowedApplicationSkin"
 					   closing="closingHandler(event)">
 
 <!--	<fx:Style source="assets/styles/daisyworks.css"/>-->

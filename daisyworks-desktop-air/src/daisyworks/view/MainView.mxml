@@ -136,5 +136,4 @@
 			</s:NavigatorContent>
 		</mx:ViewStack>
 	</mx:HDividedBox>
-	<view:ControlStatusBar />
 </s:Group>
