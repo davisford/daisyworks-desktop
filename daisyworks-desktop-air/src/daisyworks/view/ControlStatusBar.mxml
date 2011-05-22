@@ -12,7 +12,7 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import daisyworks.event.BluetoothEvent;
+			import daisyworks.event.*;
 			import daisyworks.model.Device;
 			import daisyworks.model.Icons;
 			import daisyworks.model.Preferences;
@@ -30,60 +30,48 @@
 			[Inject]
 			public var prefs:Preferences;
 			
-			[PostConstruct]
-			public function init():void {
-				remoteObject.endpoint = "http://localhost:" + prefs.getValue("port", "8080") + "/daisyworks/messagebroker/amf";
-			}
-			
-			// __________ GET LOCAL DEVICE ____________ //
-			private function localDeviceResult(evt:ResultEvent):void {
-				localDevice = evt.result as Device;
-			}
-			
-			private function localDeviceFault(evt:FaultEvent):void {
-				Alert.show(evt.fault.faultString, "Failed to find local Bluetooth Adapter Information");
-			}
-			
+					
 			[EventHandler(event="DaisyWorksEvent.JVM_STARTED")]
 			public function postJvmStarted():void {
-				remoteObject.getLocalDevice();
+				dispatchEvent(new BluetoothLocalEvent(BluetoothLocalEvent.GET_LOCAL_DEVICE));
+			}
+			
+			[EventHandler(event="BluetoothLocalEvent.FOUND_LOCAL_DEVICE", properties="device")]
+			public function foundLocalDevice(device:Device):void {
+				localDevice = device;
 			}
 						
-			[EventHandler(event="BluetoothEvent.CONNECTED", properties="device")]
+			[EventHandler(event="BluetoothControlEvent.CONNECTED", properties="device")]
 			public function connected(device:Device):void {
 				remoteDevice = device;
 				currentState = 'Connected';
 			}
 			
-			[EventHandler(event="BluetoothEvent.DISCONNECTED")]
+			[EventHandler(event="BluetoothControlEvent.DISCONNECTED")]
 			public function disconnected():void {
 				remoteDevice = null;
 				currentState = 'Disconnected';
 			}
 
 			protected function disconnect_clickHandler(event:MouseEvent):void {
-				dispatchEvent(new BluetoothEvent(BluetoothEvent.DISCONNECT, remoteDevice));
+				dispatchEvent(new BluetoothControlEvent(BluetoothControlEvent.DISCONNECT, remoteDevice));
 			}
 
 		]]>
 	</fx:Script>
 	
 	<fx:Declarations>
-		<s:RemoteObject id="remoteObject" destination="bluetoothService" showBusyCursor="false" >
-			<s:method name="getLocalDevice" result="localDeviceResult(event)" fault="localDeviceFault(event)" />
-		</s:RemoteObject>
+
 	</fx:Declarations>
 	<mx:Image source="{Icons.DISCONNECTED}" includeIn="Disconnected" />
 	<s:Label includeIn="Disconnected" text="Not Connected"/>
 	<mx:Image source="{Icons.CONNECTED}" includeIn="Connected" />
-	<s:Label includeIn="Connected" text="Connected To"/>
-	<mx:VRule includeIn="Connected" height="100%"/>
-	<s:Label includeIn="Connected" text="{remoteDevice.name} / {remoteDevice.address}"/>
+	<s:Label includeIn="Connected" text="Connected To {remoteDevice.name}" toolTip="Bluetooth Address: {remoteDevice.address}"/>
 	<mx:VRule includeIn="Connected" height="100%"/>
 	<s:Button includeIn="Connected" label="Disconnect" click="disconnect_clickHandler(event)"/>
 	<s:HGroup width="100%" horizontalAlign="right" verticalAlign="middle" height="100%" paddingRight="5">
 		<mx:VRule height="100%"/>
 		<mx:Image source="{Icons.BLUETOOTH_SMALL}"/>
-		<s:Label text="{localDevice.name} / {localDevice.address}"/>
+		<s:Label text="{localDevice.name}" toolTip="Local Bluetooth Address: {localDevice.address}"/>
 	</s:HGroup>
 </s:Group>

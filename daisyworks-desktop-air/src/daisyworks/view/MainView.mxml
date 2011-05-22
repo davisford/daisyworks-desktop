@@ -27,6 +27,7 @@
 			import mx.events.FlexEvent;
 			import mx.events.IndexChangedEvent;
 			import mx.events.ResizeEvent;
+			import mx.rpc.Fault;
 			
 			private var _prefs:Preferences;
 			
@@ -90,6 +91,11 @@
 				Alert.show(message, "Please check the port settings", 4);
 			}
 			
+			[EventHandler(event="DaisyWorksEvent.BLUETOOTH_FAILURE", properties="message, fault")]
+			public function bluetoothFailure(message:String, fault:Fault):void {
+				Alert.show(fault.faultString, message);
+			}
+			
 
 			protected function accordion_changeHandler(event:IndexChangedEvent):void
 			{
@@ -105,25 +111,25 @@
 	
 	<mx:HDividedBox id="hdivide" width="100%" height="100%">
 		<mx:Accordion id="accordion" width="25%" headerHeight="40" height="100%" horizontalCenter="0" minWidth="300"  change="accordion_changeHandler(event)">
-			<s:NavigatorContent id="discoverySettings" left="5" right="5" width="100%" height="100%" label="Discover Daisy Devices" icon="{Icons.BLUETOOTH}">
+			<s:NavigatorContent id="discoverySettings" left="5" right="5" width="100%" height="100%" label="Discover / Connect" icon="{Icons.BLUETOOTH}">
 				<s:layout>
 					<s:BasicLayout/>
 				</s:layout>
-				<view:DiscoverySettings width="100%" x="0" height="100%"/>
+				<view:DiscoverSideBar width="100%" x="0" height="100%"/>
 			</s:NavigatorContent>
-			<s:NavigatorContent id="programSettings" left="5" right="5" width="100%" height="100%" label="Daisy Programming" icon="{Icons.PROCESSOR}">
+			<s:NavigatorContent id="programSettings" left="5" right="5" width="100%" height="100%" label="App Store" icon="{Icons.PROCESSOR}">
 				<s:Label text="program the daisy" />
 			</s:NavigatorContent>
-			<s:NavigatorContent id="controlSettings" left="5" right="5" width="100%" height="100%" label="Daisy Control" icon="{Icons.CONTROL}">
+			<s:NavigatorContent id="controlSettings" left="5" right="5" width="100%" height="100%" label="Interact" icon="{Icons.CONTROL}">
 				<s:Label text="control the daisy" />
 			</s:NavigatorContent>
-			<s:NavigatorContent id="cloudSettings" left="5" right="5" width="100%" height="100%" label="Cloud Settings" icon="{Icons.NETWORK}">
+			<s:NavigatorContent id="cloudSettings" left="5" right="5" width="100%" height="100%" label="Settings" icon="{Icons.NETWORK}">
 				<s:Label text="manage the cloud settings" />
 			</s:NavigatorContent>
 		</mx:Accordion>
 		<mx:ViewStack id="viewstack" width="75%" height="100%">
 			<s:NavigatorContent id="discovery">
-				<view:Discovery />
+				<view:DiscoverMainPane />
 			</s:NavigatorContent>
 			<s:NavigatorContent id="program">
 				<s:Label text="program" />

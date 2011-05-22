@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" currentState="Disconnected">
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="left" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10"/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import daisyworks.event.BluetoothControlEvent;
+			import daisyworks.event.BluetoothDiscoveryEvent;
+			import daisyworks.model.Device;
+			import daisyworks.model.Preferences;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			import mx.rpc.Fault;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.events.IndexChangeEvent;
+
+			[Bindable]
+			private var devices:ArrayCollection;
+						
+			[Bindable]
+			private var selected:Device;
+			
+			[Inject]
+			public var prefs:Preferences;
+			
+			[Bindable]
+			private var _connected:Boolean = false;
+			
+			private var _connectAfterDisconnect:Boolean = false;
+			
+			
+			// ___________ FIND DEVICES ___________ //
+			
+			[EventHandler(event="DaisyWorksEvent.JVM_STARTED")]
+			public function postJvmStarted():void {
+				if(currentState == 'Disconnected') {
+					currentState='Scanning';
+					dispatchEvent(new BluetoothDiscoveryEvent(BluetoothDiscoveryEvent.DISCOVER_DEVICES));
+				}
+			}
+			
+			private function discoverBtn_clickHandler(event:MouseEvent):void {
+				currentState='Scanning';
+				dispatchEvent(new BluetoothDiscoveryEvent(BluetoothDiscoveryEvent.DISCOVER_DEVICES));
+			}
+			
+			[EventHandler(event="BluetoothDiscoveryEvent.FOUND_DEVICES", properties="devices")]
+			public function foundDevices(devices:ArrayCollection):void {
+				this.devices = devices;
+				currentState='Disconnected';
+				label.text=devices.length + " device(s) discovered."
+			}
+			
+			[EventHandler(event="BluetoothDiscoveryEvent.DISCOVER_DEVICES_FAULT", properties="fault")]
+			public function findDevicesFault(fault:Fault):void {
+				currentState='Disconnected';
+			}
+			
+			// ___________ FIND SERVICES __________ //
+
+			private function datagrid_itemClickHandler(event:ListEvent):void {
+				if((selected == dataGrid.selectedItem) && _connected) {
+					// already connected; no-op
+					return;
+				} else if(_connected) {
+					// disconnect from current device
+					_connectAfterDisconnect = true;
+					dispatchEvent(new BluetoothControlEvent(BluetoothControlEvent.DISCONNECT, selected));
+					selected = dataGrid.selectedItem as Device;
+				} else {
+					selected = dataGrid.selectedItem as Device;
+					if(selected) { dispatchEvent(new BluetoothDiscoveryEvent(BluetoothDiscoveryEvent.DISCOVER_SERVICES, selected.address));	}
+					label.text="Inspecting "+selected.name+"...";
+				}
+			}
+			
+			[EventHandler(event="BluetoothDiscoveryEvent.FOUND_SERVICES")]
+			public function foundServices():void {
+				// service were found, so try to connect
+				label.text="Connecting to "+selected.name+"...";
+				dispatchEvent(new BluetoothControlEvent(BluetoothControlEvent.CONNECT, selected));
+			}
+						
+			[EventHandler(event="BluetoothDiscoveryEvent.DISCOVER_SERVICES_FAULT", properties="fault")]
+			public function findServicesFault(fault:Fault):void {
+				currentState='Disconnected';
+			}
+			
+			// ____________ CONNECT _______________ //
+			
+			[EventHandler(event="BluetoothControlEvent.CONNECTED")]
+			public function connected():void {
+				_connected = true;
+				currentState='Connected';
+			}
+			
+			[EventHandler(event="BluetoothControlEvent.CONNECT_FAULT")]
+			public function connectFault():void {
+				_connected = false;
+				currentState='Disconnected';
+			}
+			
+			// ____________ DISCONNECT _____________ //
+			
+			[EventHandler(event="BluetoothControlEvent.DISCONNECTED")]
+			public function disconnected():void {
+				_connected = false;
+				currentState='Disconnected';
+				if(_connectAfterDisconnect) {
+					dispatchEvent(new BluetoothDiscoveryEvent(BluetoothDiscoveryEvent.DISCOVER_SERVICES, selected.address));
+					label.text="Inspecting "+selected.name+"...";
+					_connectAfterDisconnect=false;
+				}
+			}
+			
+			[EventHandler(event="BluetoothControlEvent.DISCONNECT_FAULT", properties="fault")]
+			public function disconnectFault(fault:Fault):void {
+				Alert.show(fault.faultString, "Disconnect failed");
+			}
+						
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="Disconnected"/>
+		<s:State name="Scanning"/>
+		<s:State name="Connected"/>
+	</s:states>
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<s:HGroup width="100%" height="30" verticalAlign="middle">
+		<s:Button label="Refresh" click="discoverBtn_clickHandler(event)" enabled.Disconnected="true" enabled.Scanning="false"  enabled.Connected="true"/>
+		<s:Label id="label" text.Disconnected="Disconnected" text.Scanning="Scanning..." text.Connected="Connected to {selected.name}"/>
+	</s:HGroup>
+	<mx:DataGrid id="dataGrid"
+		dataProvider="{devices}" enabled.Disconnected="true" enabled.Scanning="false" enabled.Connected="true"
+				 itemClick="datagrid_itemClickHandler(event)"
+				 left="10" 
+				 right="10" 
+				 top="50" 
+				 width="100%" 
+				 height="100%" 
+				 paddingLeft="10" 
+				 paddingRight="10">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Name" dataField="name"/>
+		</mx:columns>
+	</mx:DataGrid>
+</s:Group>

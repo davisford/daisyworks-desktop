@@ -27,7 +27,7 @@ package daisyworks.controller {
 	 * if something goes wrong.
 	 * TODO: there's no recovery logic here yet.  It just ping/pongs.
 	 */
-	public class WatchdogController implements IResponder {
+	public class WatchdogController implements IResponder { 
 		
 		private static const LOG:ILogger = Logger.getLogger(WatchdogController);
 

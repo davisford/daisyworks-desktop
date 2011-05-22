@@ -6,6 +6,7 @@ package com.daisyworks.service;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.springframework.flex.remoting.RemotingDestination;
 import org.springframework.flex.remoting.RemotingInclude;
 import org.springframework.stereotype.Service;
 
+import com.daisyworks.exception.ExceptionUtil;
 import com.daisyworks.model.Device;
 
 /**
@@ -62,7 +64,7 @@ public final class BluetoothService implements DiscoveryListener {
 	private DiscoveryAgent agent;
 	
 	// for reading from the UART
-	private BufferedReader reader;
+	private InputStream input;
 	// for posting to the UART
 	private DataOutputStream output;
 
@@ -194,15 +196,16 @@ public final class BluetoothService implements DiscoveryListener {
 			try {
 				agent.searchServices(attrSet, uuidSet, remoteDevice, this);
 			} catch (BluetoothStateException e) {
-				LOGGER.error(e.getMessage());
+				LOGGER.error("Exception searching for services on remote device address: "+address+" \n" + ExceptionUtil.getStackTraceAsString(e)); 
 				throw new RuntimeException(e);
 			} finally {
 				try {
 					serviceLock.wait();
 				} catch (InterruptedException e) {
-					LOGGER.error(e.getMessage());
-					throw new RuntimeException(e);
+					LOGGER.error("We've got threading issues <service search> \n" + ExceptionUtil.getStackTraceAsString(e));
+					throw new BluetoothServiceException("Connection was not successful.  Please try again.");
 				}
+				// anything but SERVICE_SEARCH_COMPLETED means we had a problem
 				if(!ServiceDiscoveryResult.SERVICE_SEARCH_COMPLETED.equals(lastServiceDiscoveryResult)) {
 					throw new BluetoothServiceException(lastServiceDiscoveryResult.asString());
 				}
@@ -225,10 +228,10 @@ public final class BluetoothService implements DiscoveryListener {
 			connection = (StreamConnection) Connector.open(serviceMap.get(address));
 			connectionMap.put(address, connection);
 		}
-		reader = new BufferedReader(new InputStreamReader((connection.openInputStream())));
+		input  = connection.openInputStream();
 		output = connection.openDataOutputStream();
 		if (consoleReadThread == null) {
-			consoleReadThread = new ConsoleReadThread(reader, template);
+			consoleReadThread = new ConsoleReadThread(input, template);
 		}
 		consoleReadThread.start();
 	}
@@ -253,12 +256,12 @@ public final class BluetoothService implements DiscoveryListener {
 				 */
 				consoleReadThread.stop(); 
 			}
-			if(reader != null) { reader.close(); }
+			if(input != null) { input.close(); }
 			if(output != null) { output.close(); }
 			if(connection != null) { connection.close(); }
 			connectionMap.remove(address);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.error("Exception trying to disconnect from RFCOMM \n" +ExceptionUtil.getStackTraceAsString(e));
 		} finally {
 			consoleReadThread = null;
 		}
@@ -288,19 +291,20 @@ public final class BluetoothService implements DiscoveryListener {
 	 * @return
 	 * @throws IOException
 	 */
-	private Set<Device> toDeviceSet(Map<String, RemoteDevice> map)
-			throws IOException {
-		Set<Device> set = new HashSet<Device>();
-		for (String key : map.keySet()) {
-			RemoteDevice rd = map.get(key);
-			Device device = new Device(rd.getFriendlyName(false),
-					rd.getBluetoothAddress());
-			device.setAuthenticated(rd.isAuthenticated());
-			device.setEncrypted(rd.isEncrypted());
-			device.setTrusted(rd.isTrustedDevice());
-			set.add(device);
+	private Set<Device> toDeviceSet(final Map<String, RemoteDevice> map) throws IOException {
+		final Set<Device> set = new HashSet<Device>();
+		for (final String key : map.keySet()) {
+			set.add(toDevice(map.get(key)));
 		}
 		return set;
+	}
+	
+	private Device toDevice(final RemoteDevice remoteDevice) throws IOException {
+		final Device device = new Device(remoteDevice.getFriendlyName(false), remoteDevice.getBluetoothAddress());
+		device.setAuthenticated(remoteDevice.isAuthenticated());
+		device.setEncrypted(remoteDevice.isEncrypted());
+		device.setTrusted(remoteDevice.isTrustedDevice());
+		return device;
 	}
 
 	/*
@@ -349,20 +353,16 @@ public final class BluetoothService implements DiscoveryListener {
 	 * @see javax.bluetooth.DiscoveryListener#servicesDiscovered(int,
 	 * javax.bluetooth.ServiceRecord[])
 	 */
-	public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
-		for (int i = 0; i < servRecord.length; i++) {
-			String url = servRecord[i].getConnectionURL(
-					ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
+	public void servicesDiscovered(int transID, ServiceRecord[] records) {
+		for (int i = 0; i < records.length; i++) {
+			String url = records[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 			if (url == null) {
-				LOGGER.error("\tService url was null for "
-						+ servRecord[i].toString());
+				LOGGER.error("\tService url was null for "+ records[i].toString());
 			}
-			serviceMap.put(servRecord[i].getHostDevice().getBluetoothAddress(),
-					url);
-			DataElement serviceName = servRecord[i].getAttributeValue(0x0100);
+			serviceMap.put(records[i].getHostDevice().getBluetoothAddress(), url);
+			DataElement serviceName = records[i].getAttributeValue(0x0100);
 			if (serviceName != null) {
-				LOGGER.info("\tService " + serviceName.getValue() + " found "
-						+ url);
+				LOGGER.info("\tService " + serviceName.getValue() + " found " + url);
 			} else {
 				LOGGER.info("\tService found " + url);
 			}
@@ -405,13 +405,13 @@ public final class BluetoothService implements DiscoveryListener {
 	 * Background thread for reading from the UART and posting on message bus
 	 * for UI
 	 */
-	private class ConsoleReadThread extends Thread {
+	private final class ConsoleReadThread extends Thread {
 		
-		private BufferedReader reader;
-		private MessageTemplate template;
+		private final BufferedReader reader;
+		private final MessageTemplate template;
 
-		public ConsoleReadThread(BufferedReader reader, MessageTemplate template) throws IOException {
-			this.reader = reader;
+		public ConsoleReadThread(InputStream input, MessageTemplate template) throws IOException {
+			this.reader = new BufferedReader(new InputStreamReader(input));
 			this.template = template;
 		}
 		
@@ -423,11 +423,10 @@ public final class BluetoothService implements DiscoveryListener {
 		 */
 		@Override
 		public void run() {
-			LOGGER.info("Background thread listening for serial port updates  ");
+			LOGGER.info("Background thread listening for serial port updates...");
 			try {
 				while (true) {
-					String line = reader.readLine();
-					template.send("serialPort", line);
+					template.send("serialPort", reader.readLine());
 				}		
 			} catch (IOException e) {
 				LOGGER.error(e);
