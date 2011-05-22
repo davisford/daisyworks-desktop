@@ -221,6 +221,7 @@ public final class BluetoothService implements DiscoveryListener {
 	 */
 	@RemotingInclude
 	public void connectRFComm(String address) throws Exception {
+		LOGGER.info("attempting to connect to "+address);
 		StreamConnection connection = null;
 		if(connectionMap.containsKey(address)) {
 			connection = connectionMap.get(address);
@@ -244,6 +245,7 @@ public final class BluetoothService implements DiscoveryListener {
 	@SuppressWarnings("deprecation")
 	@RemotingInclude
 	public void disconnectRFComm(String address)  {
+		LOGGER.debug("disconnecting "+address);
 		StreamConnection connection = connectionMap.get(address);
 		try {
 			// stop the thread
@@ -282,6 +284,54 @@ public final class BluetoothService implements DiscoveryListener {
 			output.flush();
 		}
 	}
+	
+	/**
+	 * Set the device friendly name
+	 * @param name must be at least one character and not more than 20 characters
+	 * @return true if successful, false otherwise
+	 * @throws Exception
+	 */
+	@SuppressWarnings("deprecation")
+	@RemotingInclude
+	public boolean rename(String address, String name) throws Exception {
+		if(name == null || name.isEmpty()) {
+			throw new BluetoothServiceException("Name cannot be null or empty");
+		} else if(name.length() > 20) {
+			throw new BluetoothServiceException("Name cannot exceed 20 characters");
+		}
+		try {
+			// stop the read thread
+			if(consoleReadThread != null) { consoleReadThread.stop(); }
+
+			// switch to command mode
+			LOGGER.debug("switching to bluetooth command mode");
+			output.writeBytes("$$$");
+			output.flush();
+			Thread.sleep(200);
+			// clear the serialized friendly name
+			LOGGER.debug("erasing serialized friendly name");
+			output.writeBytes("s-,\r");
+			output.flush();
+			Thread.sleep(1000);
+			// set the friendly name
+			LOGGER.debug("setting new name to "+name);
+			output.writeBytes("sn,"+name+"\r");
+			output.flush();
+			Thread.sleep(1000);
+			// now we need to reset the modem
+			LOGGER.debug("resetting the modem...");
+			output.writeBytes("r,1\r");
+			output.flush();
+			Thread.sleep(1000);
+			
+			// tear down the connection
+			disconnectRFComm(address);
+		} catch(Exception e) {
+			LOGGER.error("Exception trying to rename the device \n"+ExceptionUtil.getStackTraceAsString(e));
+			return false;
+		}
+		return true;
+	}
 
 	/**
 	 * Converts the map into a set of {@link Device} objects that can be
@@ -300,10 +350,11 @@ public final class BluetoothService implements DiscoveryListener {
 	}
 	
 	private Device toDevice(final RemoteDevice remoteDevice) throws IOException {
-		final Device device = new Device(remoteDevice.getFriendlyName(false), remoteDevice.getBluetoothAddress());
+		final Device device = new Device(remoteDevice.getFriendlyName(true), remoteDevice.getBluetoothAddress());
 		device.setAuthenticated(remoteDevice.isAuthenticated());
 		device.setEncrypted(remoteDevice.isEncrypted());
 		device.setTrusted(remoteDevice.isTrustedDevice());
+		LOGGER.debug("discovered: "+device);
 		return device;
 	}
 
@@ -315,7 +366,6 @@ public final class BluetoothService implements DiscoveryListener {
 	 */
 	@Override
 	public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
-		LOGGER.info("Device discovered: " + btDevice.getBluetoothAddress());
 		deviceMap.put(btDevice.getBluetoothAddress(), btDevice);
 	}
 

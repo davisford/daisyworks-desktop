@@ -51,5 +51,10 @@ public class Device {
 	public void setTrusted(boolean trusted) {
 		this.trusted = trusted;
 	}
+	
+	@Override
+	public String toString() {
+		return name + "/" + address;
+	}
 
 }

@@ -6,6 +6,8 @@ package daisyworks.controller
 	import daisyworks.model.Preferences;
 	
 	import flash.events.IEventDispatcher;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 	
 	import mx.collections.ArrayCollection;
 	import mx.logging.ILogger;
@@ -19,6 +21,8 @@ package daisyworks.controller
 	import mx.rpc.events.ResultEvent;
 	import mx.rpc.remoting.Operation;
 	import mx.rpc.remoting.RemoteObject;
+	
+	import org.osmf.events.TimeEvent;
 
 	/**
 	 * This controller handles all the interaction with the remote Java AMF/BlazeDS services
@@ -73,7 +77,7 @@ package daisyworks.controller
 			controlRemoteObj = new RemoteObject();
 			controlRemoteObj.destination = destination;
 			controlRemoteObj.endpoint = endpoint;
-			controlRemoteObj.concurrency = "single";
+			controlRemoteObj.concurrency = "multiple";
 			controlRemoteObj.showBusyCursor = true;
 			
 			operations = new Object();
@@ -248,6 +252,24 @@ package daisyworks.controller
 		private function channelFault(event:ChannelFaultEvent):void { 
 			LOG.error("Consumer channel fault: "+event.faultString);
 		}
+		
+		// _____________ RENAME ___________________ //
+		[EventHandler(event="BluetoothRenameEvent.RENAME", properties="name, device")]
+		public function rename(name:String, device:Device):void {
+			// we have to disconnect for this to work b/c we have to reset the modem
+			dispatcher.dispatchEvent(new BluetoothControlEvent(BluetoothControlEvent.DISCONNECTED));
+			
+			// shutdown the consumer, or else it'll get blasted with 'null' messages
+			consumer.unsubscribe();
+			
+			controlRemoteObj.rename(device.address, name);
+			
+			var rescan:Timer = new Timer(5000, 1);
+			rescan.addEventListener(TimerEvent.TIMER, function():void {
+				controlRemoteObj.findDevices();
+			});
+			rescan.start();
+		} 
 		
 	}
 }
