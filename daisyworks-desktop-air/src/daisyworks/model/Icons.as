@@ -44,6 +44,14 @@ package daisyworks.model {
 		[Embed(source="../../assets/images/bullet_green.png")]
 		[Bindable]
 		public static var CONNECTED:Class;
+		
+		[Embed(source="../../assets/images/toolbox.png")]
+		[Bindable]
+		public static var SETTINGS:Class;
+		
+		[Embed(source="../../assets/images/box_open.png")]
+		[Bindable]
+		public static var APPLICATIONS:Class;
 
 		public function Icons() {	}
 	}

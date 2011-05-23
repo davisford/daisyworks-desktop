@@ -117,13 +117,13 @@
 				</s:layout>
 				<view:DiscoverSideBar width="100%" x="0" height="100%"/>
 			</s:NavigatorContent>
-			<s:NavigatorContent id="programSettings" left="5" right="5" width="100%" height="100%" label="App Store" icon="{Icons.PROCESSOR}">
+			<s:NavigatorContent id="programSettings" left="5" right="5" width="100%" height="100%" label="App Store" icon="{Icons.APPLICATIONS}">
 				<s:Label text="program the daisy" />
 			</s:NavigatorContent>
 			<s:NavigatorContent id="controlSettings" left="5" right="5" width="100%" height="100%" label="Interact" icon="{Icons.CONTROL}">
 				<s:Label text="control the daisy" />
 			</s:NavigatorContent>
-			<s:NavigatorContent id="cloudSettings" left="5" right="5" width="100%" height="100%" label="Settings" icon="{Icons.NETWORK}">
+			<s:NavigatorContent id="cloudSettings" left="5" right="5" width="100%" height="100%" label="Settings" icon="{Icons.SETTINGS}">
 				<s:Label text="manage the cloud settings" />
 			</s:NavigatorContent>
 		</mx:Accordion>
