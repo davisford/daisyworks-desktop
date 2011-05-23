@@ -52,6 +52,10 @@ package daisyworks.model {
 		[Embed(source="../../assets/images/box_open.png")]
 		[Bindable]
 		public static var APPLICATIONS:Class;
+		
+		[Embed(source="../../assets/images/box_down.png")]
+		[Bindable]
+		public static var APP_DOWNLOAD:Class;
 
 		public function Icons() {	}
 	}

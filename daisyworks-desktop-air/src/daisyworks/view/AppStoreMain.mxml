@@ -2,7 +2,61 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		
 	</fx:Declarations>
+	<s:HGroup width="100%" height="35">
+	</s:HGroup>
+	<s:List id="tileList"
+			itemRenderer="daisyworks.view.AppRenderer"
+		    left="0" right="0" top="0" bottom="0">
+		<s:layout>
+			<s:TileLayout horizontalGap="5"
+						  verticalGap="10"
+						  horizontalAlign="center"
+						  verticalAlign="middle"
+						  orientation="rows"/>
+		</s:layout>
+		<s:dataProvider>
+			<s:XMLListCollection>
+				<fx:XMLList xmlns="">
+					<bundle>
+						<name>Daisy Shell</name>
+						<description>General shell for interacting with the Daisy.</description>
+						<installation>
+							<installed>true</installed>
+							<url>file:///c:/foo/bar</url>
+						</installation>
+					</bundle>
+					<bundle>
+						<name>Daisy Servo</name>
+						<description>Control the servo with the daisy</description>
+						<installation>
+							<installed>true</installed>
+							<url>file:///c:/foo/bar</url>
+						</installation>
+					</bundle>
+					<bundle>
+						<name>Daisy Power Switch</name>
+						<description>Toggle power on/off and use a slider to control power.</description>
+						<installation>
+							<installed>true</installed>
+							<url>file:///c:/foo/bar</url>
+						</installation>
+					</bundle>
+					<bundle>
+						<name>Daisy Plant Monitor</name>
+						<description>Track moisture level of your plants.</description>
+						<installation>
+							<installed>true</installed>
+							<url>file:///c:/foo/bar</url>
+						</installation>
+					</bundle>
+				</fx:XMLList>
+			</s:XMLListCollection>
+		</s:dataProvider>
+	</s:List>
 </s:Group>
