@@ -8,11 +8,12 @@
 	<fx:Declarations>
 		
 	</fx:Declarations>
-	<s:HGroup width="100%" height="35">
+	<s:HGroup width="100%" height="35" verticalAlign="middle" textAlign="center" horizontalAlign="center">
+		<s:Label text="Featured Apps" fontSize="18" textDecoration="underline"/>
 	</s:HGroup>
 	<s:List id="tileList"
 			itemRenderer="daisyworks.view.AppRenderer"
-		    left="0" right="0" top="0" bottom="0">
+		    left="0" right="0" top="0" bottom="0" width="100%" height="100%" borderVisible="false">
 		<s:layout>
 			<s:TileLayout horizontalGap="5"
 						  verticalGap="10"
@@ -25,7 +26,7 @@
 				<fx:XMLList xmlns="">
 					<bundle>
 						<name>Daisy Shell</name>
-						<description>General shell for interacting with the Daisy.</description>
+						<description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vel dolor enim, sed pellentesque lorem. Quisque ac vulputate enim. Nulla vel turpis sit amet augue eleifend ultricies. Curabitur mattis metus nec neque interdum at euismod mi commodo. Suspendisse potenti. Mauris in urna tortor, a luctus mauris. Nam gravida pharetra justo. Quisque non velit quam, vel vestibulum diam. Nunc nec mauris lectus. Ut at tristique augue. Mauris tempor, tellus posuere dictum tempor, mauris turpis venenatis magna, sit amet egestas magna leo egestas eros. Fusce cursus nisl non enim imperdiet sit amet accumsan diam tempor. Etiam vitae lectus rutrum mi volutpat tempor. Aenean sed nisl nunc. Quisque sodales ultricies sapien, pretium egestas lectus gravida non. Etiam elementum arcu non nunc condimentum nec tincidunt libero gravida. Mauris vel egestas dolor.</description>
 						<installation>
 							<installed>true</installed>
 							<url>file:///c:/foo/bar</url>
@@ -33,7 +34,7 @@
 					</bundle>
 					<bundle>
 						<name>Daisy Servo</name>
-						<description>Control the servo with the daisy</description>
+						<description>Nunc aliquet sodales purus, sed eleifend justo iaculis eget. Duis eget odio fringilla nibh luctus porta. Phasellus lobortis velit convallis augue consequat hendrerit lobortis leo scelerisque. Suspendisse potenti. Etiam mi felis, sagittis quis aliquam at, ultrices vitae risus. Proin eget leo sapien. Pellentesque vel justo neque. Donec non nunc tortor. Mauris at nulla magna. Etiam aliquam cursus libero, et lobortis arcu faucibus quis.</description>
 						<installation>
 							<installed>true</installed>
 							<url>file:///c:/foo/bar</url>
@@ -41,7 +42,7 @@
 					</bundle>
 					<bundle>
 						<name>Daisy Power Switch</name>
-						<description>Toggle power on/off and use a slider to control power.</description>
+						<description>Mauris volutpat eros venenatis nulla eleifend ac tempor augue ultricies. Duis molestie consectetur nunc eget condimentum. Fusce faucibus mauris ac lorem semper sit amet lobortis tellus placerat. Maecenas imperdiet dui in sem sodales id eleifend arcu adipiscing. Mauris consequat ipsum at est pharetra vehicula.</description>
 						<installation>
 							<installed>true</installed>
 							<url>file:///c:/foo/bar</url>
@@ -49,7 +50,7 @@
 					</bundle>
 					<bundle>
 						<name>Daisy Plant Monitor</name>
-						<description>Track moisture level of your plants.</description>
+						<description>Vivamus ullamcorper commodo ultricies. Nam neque nibh, aliquet in mollis quis, scelerisque nec dolor. Proin rutrum sem a justo consectetur iaculis ac id magna. Mauris nec diam in risus gravida dignissim sit amet eu augue. Fusce lacus risus, luctus sed volutpat a, volutpat ut urna. Suspendisse iaculis dictum lorem, egestas condimentum lacus mollis non. Morbi sagittis varius urna sed semper. Quisque in elit id metus accumsan feugiat at a ante. Aliquam posuere, est vitae lacinia lobortis, purus nibh malesuada mauris, ac faucibus lectus nunc in nisl. Sed placerat consequat ipsum ut congue. Aliquam consectetur tempor augue, id faucibus neque euismod vitae. Maecenas eget suscipit purus.</description>
 						<installation>
 							<installed>true</installed>
 							<url>file:///c:/foo/bar</url>
@@ -59,4 +60,12 @@
 			</s:XMLListCollection>
 		</s:dataProvider>
 	</s:List>
+	<s:HGroup width="100%" height="35" verticalAlign="middle" textAlign="center" horizontalAlign="center" paddingRight="10" paddingLeft="10">
+		<s:Button label="&lt;&lt;" width="35"/>
+		<s:Button label="&lt;" width="33"/>
+		<s:Label text="Showing 4 of 75 Applications"/>
+		<s:Button label="&gt;" width="33"/>
+		<s:Button label="&gt;&gt;" width="35" height="20" x="1150"/>
+		
+	</s:HGroup>
 </s:Group>
