@@ -79,14 +79,27 @@
 			
 			private const crToolTip:String = "Most commands will not need a trailing carriage return <CR>; however, some special debug modes do require it.  Use the radio button to toggle sending a carriage return or not.";
 
+	
 		]]>
 	</fx:Script>
 	<fx:Declarations>
 		<s:RadioButtonGroup id="crRadioGroup"/>
+		
+		<fx:String id="helpText">
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget ligula a odio ullamcorper volutpat. Pellentesque malesuada rhoncus sapien, ut mollis ligula ornare ut. Ut rhoncus fermentum sagittis. Mauris ornare, augue non feugiat ultricies, purus orci lobortis nunc, ut pharetra velit nisl ut lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Pellentesque egestas viverra nisl id luctus. Etiam est lectus, dignissim sed luctus non, pellentesque at libero. Nunc elementum elit et augue lacinia hendrerit. Vivamus ligula velit, aliquam non vulputate at, posuere ac dui. Aenean sit amet nulla dui, vel varius eros. Ut quis enim eu mi semper mattis et et dolor.
+			
+			Sed sit amet nulla vel mi hendrerit congue. Donec ac turpis quis purus porttitor suscipit. Suspendisse potenti. Aliquam et libero sit amet diam volutpat tristique ac quis nibh. Cras gravida, nisl sed adipiscing egestas, odio nulla porta ligula, a iaculis risus est non tellus. Etiam cursus metus id dui adipiscing vitae suscipit dui tempor. Sed sagittis hendrerit elit quis tempor. Ut fermentum auctor nisi non hendrerit. Aliquam sem ligula, placerat ac rhoncus commodo, fringilla in velit. Nullam mattis, nisi et mattis convallis, mauris erat tempor erat, sed tristique tortor ipsum vitae sem.
+			
+			Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque sollicitudin fermentum metus, vel ornare quam aliquet ut. Fusce vehicula, sem eu faucibus adipiscing, felis magna hendrerit risus, non lacinia nibh ante fermentum tortor. Phasellus non nibh sit amet eros consectetur gravida. Praesent euismod vestibulum quam, elementum molestie metus mollis non. Maecenas id sem vitae elit commodo bibendum. Pellentesque sed nulla nulla, pellentesque commodo mi. Vivamus vel justo vehicula odio consequat blandit. Maecenas sollicitudin nulla nulla, vel ornare justo. Vivamus interdum, augue ac gravida interdum, libero magna accumsan nibh, ac pellentesque nisl purus sed libero. Sed at est id felis mollis volutpat sed id nisl. Proin sagittis enim a lorem consequat volutpat. Ut justo tortor, scelerisque luctus semper ut, congue ut magna. Cras rhoncus justo vel libero tristique non fringilla leo varius. Aliquam hendrerit, risus facilisis eleifend auctor, magna felis viverra lectus, varius tempor elit urna eu massa. Aenean a est a nulla elementum suscipit vel at sapien. Praesent viverra ligula in nunc imperdiet eget molestie quam viverra. Nam ligula lorem, aliquet a lacinia sit amet, rutrum id ligula. Maecenas velit neque, porta at iaculis ut, vulputate nec quam. Pellentesque volutpat bibendum tortor at ultricies.
+			
+			Maecenas suscipit consectetur faucibus. Integer ut lacus mauris. Donec consequat scelerisque urna sed mollis. Aenean eu lacus ligula, eu placerat felis. Sed ullamcorper quam fringilla tellus pretium condimentum. Curabitur iaculis cursus mauris eget mollis. Praesent mauris ligula, ultrices eget viverra non, volutpat eu lectus. Integer commodo, eros vitae fermentum pellentesque, nibh tellus dapibus nisi, sit amet condimentum nisi orci non arcu. Integer luctus lectus in libero lobortis bibendum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Donec euismod vulputate magna, nec faucibus tortor mollis sed. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nunc feugiat placerat enim, vel luctus dolor faucibus convallis.
+			
+			Vivamus et magna eu diam fringilla ultrices vel sit amet urna. Pellentesque eget tortor a est interdum mollis eu sit amet tortor. Maecenas fringilla dolor nec justo volutpat ut pulvinar justo molestie. Suspendisse felis turpis, fermentum vel tincidunt pellentesque, consectetur et nisl. Sed bibendum sem id libero euismod nec volutpat lorem ultricies. Nam nisl orci, ultricies adipiscing congue ac, lacinia ut tellus. Sed erat augue, venenatis id dictum a, feugiat gravida risus. Sed quis blandit mauris. In mattis urna vitae mi tristique eget ultrices nibh rhoncus. Duis tempor, dui non hendrerit placerat, augue urna bibendum nulla, ut tempus dolor metus quis eros. Aliquam dolor turpis, tempor at pharetra semper, volutpat sed velit. Nunc faucibus massa nec nisi scelerisque semper rhoncus ligula suscipit. Integer ac felis nibh. Vestibulum rhoncus placerat dapibus. Duis pellentesque arcu id diam molestie at ornare erat aliquam. Nulla metus massa, consequat a vulputate non, dapibus vel nisi. Aliquam odio ligula, rutrum eu facilisis sit amet, hendrerit vel urna. Ut enim sem, mattis vel convallis ac, rhoncus adipiscing velit. In hac habitasse platea dictumst.
+		</fx:String>
 	</fx:Declarations>
 	<mx:TabNavigator id="tabNavigator" width="100%" height="100%">
-		<mx:VBox label="Help" width="100%" height="100%">
-			<s:Label text="Help goes here"/>
+		<mx:VBox label="Help" width="100%" height="100%" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10">
+			<s:TextArea text="{helpText}" width="100%" height="100%"/>
 		</mx:VBox>
 		<mx:VBox label="Serial Console" width="100%" height="100%" borderVisible="false">
 		<s:Panel left="10" right="10" bottom="0" title="Serial Console" top="95" dropShadowVisible="false" width="100%" height="100%" borderVisible="false">

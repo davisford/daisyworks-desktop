@@ -13,13 +13,10 @@
 			<s:TextInput width="100%"/>
 		</mx:FormItem>
 		<mx:FormItem width="100%">
-			<mx:HRule width="100%"/>
-		</mx:FormItem>
-		<mx:FormItem width="100%">
-			<mx:LinkButton label="Import a Local App &gt;&gt;" color="#3A69D3" textDecoration="underline" width="100%" textAlign="right"/>
-		</mx:FormItem>
-		<mx:FormItem width="100%">
-			<mx:LinkButton label="Submit an App &gt;&gt;" width="100%" textAlign="right" color="#3A69D3" textDecoration="underline"/>
 		</mx:FormItem>
 	</mx:Form>
+	<mx:LinkButton label="Import a Local App &gt;&gt;" color="#3A69D3" textDecoration="underline" width="100%" textAlign="right"/>
+	<mx:FormItem width="100%">
+		<mx:LinkButton label="Submit an App &gt;&gt;" width="100%" textAlign="right" color="#3A69D3" textDecoration="underline"/>
+	</mx:FormItem>
 </s:Group>
