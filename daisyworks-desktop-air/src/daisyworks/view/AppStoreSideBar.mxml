@@ -5,12 +5,26 @@
 	<s:layout>
 		<s:VerticalLayout paddingTop="15" paddingLeft="15" paddingRight="15" paddingBottom="15"/>
 	</s:layout>
+
+
+	<fx:Script>
+		<![CDATA[
+			import daisyworks.event.AppStoreEvent;
+			protected function searchBox_keyDownHandler(event:KeyboardEvent):void
+			{
+				if(event.keyCode == Keyboard.ENTER) {
+					dispatchEvent(new AppStoreEvent(AppStoreEvent.SEARCH, searchBox.text));
+				}
+			}
+		]]>
+	</fx:Script>
+
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<mx:Form width="100%" x="10" y="30">
 		<mx:FormItem label="Search AppStore" width="100%">
-			<s:TextInput width="100%"/>
+			<s:TextInput id="searchBox" width="100%" keyDown="searchBox_keyDownHandler(event)"/>
 		</mx:FormItem>
 		<mx:FormItem width="100%">
 		</mx:FormItem>

@@ -12,6 +12,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import spark.utils.TextFlowUtil; 
 			
 			private var _app:XML;
 			
@@ -57,9 +58,12 @@
 			</mx:Form>
 		</s:VGroup>
 		<s:VGroup width="75%" height="100%">
-			<s:Label text="{app.name}" width="100%" height="35" verticalAlign="middle" fontSize="20" fontWeight="bold"/>
+			<s:Label text="{app.name}" width="100%" height="35" verticalAlign="middle" fontSize="20" fontWeight="bold" maxDisplayedLines="1" showTruncationTip="true"/>
 			<s:Label text="Description" fontSize="16"/>
-			<s:TextArea width="100%" borderVisible="false" text="{app.description}"/>
+			<s:Scroller width="100%" height="100%">
+				<s:RichEditableText width="100%" editable="false" height="100%" textFlow="{TextFlowUtil.importFromString(app.description)}"/>
+			</s:Scroller>
+
 		</s:VGroup>
 	</s:HGroup>
 </s:Group>

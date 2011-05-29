@@ -33,7 +33,7 @@
 					
 			[EventHandler(event="DaisyWorksEvent.JVM_STARTED")]
 			public function postJvmStarted():void {
-				dispatchEvent(new BluetoothLocalEvent(BluetoothLocalEvent.GET_LOCAL_DEVICE));
+				//dispatchEvent(new BluetoothLocalEvent(BluetoothLocalEvent.GET_LOCAL_DEVICE));
 			}
 			
 			[EventHandler(event="BluetoothLocalEvent.FOUND_LOCAL_DEVICE", properties="device")]

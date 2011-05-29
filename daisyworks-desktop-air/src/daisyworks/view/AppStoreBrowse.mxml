@@ -12,14 +12,31 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import daisyworks.event.AppStoreEvent;
+			
+			import mx.collections.XMLListCollection;
+			
 			import spark.events.IndexChangeEvent;
 			
 			[Bindable]
 			public var selected:XML;
+			
+			[Bindable]
+			public var results:XMLListCollection;
+			
+			[PostConstruct]
+			public function init() {
+				dispatchEvent(new AppStoreEvent(AppStoreEvent.SEARCH, ""));
+			}
 
 			protected function tileList_changeHandler(event:IndexChangeEvent):void
 			{
 				dispatchEvent(new Event("appSelected"));
+			}
+			
+			[EventHandler(event="AppStoreEvent.RESULTS", properties="results")]
+			public function onResults(xmlList:XMLListCollection):void {
+				results = xmlList;
 			}
 
 		]]>
@@ -33,6 +50,7 @@
 	<s:List id="tileList"
 			itemRenderer="daisyworks.view.AppRenderer"
 			left="0" right="0" top="0" bottom="0" width="100%" height="100%" borderVisible="false"
+			dataProvider="{results}"
 			change="tileList_changeHandler(event)">
 		<s:layout>
 			<s:TileLayout horizontalGap="5"
@@ -41,64 +59,6 @@
 						  verticalAlign="middle"
 						  orientation="rows"/>
 		</s:layout>
-		<s:dataProvider>
-			<s:XMLListCollection>
-				<fx:XMLList xmlns="">
-					<app>
-						<name>Daisy Shell</name>
-						<description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vel dolor enim, sed pellentesque lorem. Quisque ac vulputate enim. Nulla vel turpis sit amet augue eleifend ultricies. Curabitur mattis metus nec neque interdum at euismod mi commodo. Suspendisse potenti. Mauris in urna tortor, a luctus mauris. Nam gravida pharetra justo. Quisque non velit quam, vel vestibulum diam. Nunc nec mauris lectus. Ut at tristique augue. Mauris tempor, tellus posuere dictum tempor, mauris turpis venenatis magna, sit amet egestas magna leo egestas eros. Fusce cursus nisl non enim imperdiet sit amet accumsan diam tempor. Etiam vitae lectus rutrum mi volutpat tempor. Aenean sed nisl nunc. Quisque sodales ultricies sapien, pretium egestas lectus gravida non. Etiam elementum arcu non nunc condimentum nec tincidunt libero gravida. Mauris vel egestas dolor.</description>
-						<version>1.0</version>
-						<category>general</category>
-						<author>DaisyWorks, Inc.</author>
-						<authorWebsite>http://daisyworks.com</authorWebsite>
-						<requirements>Daisy v1</requirements>
-						<installed>true</installed>
-						<installUrl>file:///some/where</installUrl>
-						<imageUrl>http://t3.gstatic.com/images?q=tbn:ANd9GcThjEphtclGp-KUKjYnE4rxtzEaEcn2hCou9LZ_cQABqmnFUvcIkA</imageUrl>
-						<released>June 1, 2011</released>
-					</app>
-					<app>
-						<name>Daisy Servo</name>
-						<description>Nunc aliquet sodales purus, sed eleifend justo iaculis eget. Duis eget odio fringilla nibh luctus porta. Phasellus lobortis velit convallis augue consequat hendrerit lobortis leo scelerisque. Suspendisse potenti. Etiam mi felis, sagittis quis aliquam at, ultrices vitae risus. Proin eget leo sapien. Pellentesque vel justo neque. Donec non nunc tortor. Mauris at nulla magna. Etiam aliquam cursus libero, et lobortis arcu faucibus quis.</description>
-						<version>1.0</version>
-						<category>servo</category>
-						<author>DaisyWorks, Inc.</author>
-						<authorWebsite>http://daisyworks.com</authorWebsite>
-						<requirements>Daisy v1</requirements>
-						<installed>true</installed>
-						<installUrl>file:///some/where</installUrl>
-						<imageUrl>http://t0.gstatic.com/images?q=tbn:ANd9GcSkCxEN_vI7SPtn0QKdHV531TzsuqClxkWJjKqCu5d76CmmocLXcg</imageUrl>
-						<released>June 1, 2011</released>
-					</app>
-					<app>
-						<name>Daisy Power Switch</name>
-						<description>Mauris volutpat eros venenatis nulla eleifend ac tempor augue ultricies. Duis molestie consectetur nunc eget condimentum. Fusce faucibus mauris ac lorem semper sit amet lobortis tellus placerat. Maecenas imperdiet dui in sem sodales id eleifend arcu adipiscing. Mauris consequat ipsum at est pharetra vehicula.</description>
-						<version>1.0</version>
-						<category>power</category>
-						<author>DaisyWorks, Inc.</author>
-						<authorWebsite>http://daisyworks.com</authorWebsite>
-						<requirements>Daisy v1</requirements>
-						<installed>true</installed>
-						<installUrl>file:///some/where</installUrl>
-						<imageUrl>http://t0.gstatic.com/images?q=tbn:ANd9GcQCnDU4X_ICjWemWRx44hffXp02TUMkRWOYvLwuyqEHQPvh94Zf</imageUrl>
-						<released>June 1, 2011</released>
-					</app>
-					<app>
-						<name>Daisy Plant Monitor</name>
-						<description>Vivamus ullamcorper commodo ultricies. Nam neque nibh, aliquet in mollis quis, scelerisque nec dolor. Proin rutrum sem a justo consectetur iaculis ac id magna. Mauris nec diam in risus gravida dignissim sit amet eu augue. Fusce lacus risus, luctus sed volutpat a, volutpat ut urna. Suspendisse iaculis dictum lorem, egestas condimentum lacus mollis non. Morbi sagittis varius urna sed semper. Quisque in elit id metus accumsan feugiat at a ante. Aliquam posuere, est vitae lacinia lobortis, purus nibh malesuada mauris, ac faucibus lectus nunc in nisl. Sed placerat consequat ipsum ut congue. Aliquam consectetur tempor augue, id faucibus neque euismod vitae. Maecenas eget suscipit purus.</description>
-						<version>1.0</version>
-						<category>botany</category>
-						<author>DaisyWorks, Inc.</author>
-						<authorWebsite>http://daisyworks.com</authorWebsite>
-						<requirements>Daisy v1</requirements>
-						<installed>true</installed>
-						<installUrl>file:///some/where</installUrl>
-						<imageUrl>http://t3.gstatic.com/images?q=tbn:ANd9GcSNeNuELVZ8FmJ1NGTvPJi5M1EG8nv9b4zbPAd_2eo_OtmtV_DgXw</imageUrl>
-						<released>June 1, 2011</released>
-					</app>
-				</fx:XMLList>
-			</s:XMLListCollection>
-		</s:dataProvider>
 	</s:List>
 	<s:HGroup width="100%" height="35" verticalAlign="middle" textAlign="center" horizontalAlign="center" paddingRight="10" paddingLeft="10">
 		<s:Button label="&lt;&lt;" width="35"/>

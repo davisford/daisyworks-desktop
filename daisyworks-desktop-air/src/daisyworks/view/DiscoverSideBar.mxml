@@ -43,10 +43,10 @@
 			
 			[EventHandler(event="DaisyWorksEvent.JVM_STARTED")]
 			public function postJvmStarted():void {
-				if(currentState == 'Disconnected') {
+/* 				if(currentState == 'Disconnected') {
 					currentState='Scanning';
 					dispatchEvent(new BluetoothDiscoveryEvent(BluetoothDiscoveryEvent.DISCOVER_DEVICES));
-				}
+				} */
 			}
 			
 			private function discoverBtn_clickHandler(event:MouseEvent):void {
