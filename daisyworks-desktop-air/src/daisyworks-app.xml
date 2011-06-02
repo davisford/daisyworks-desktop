@@ -93,10 +93,10 @@
 	<!-- The icon the system uses for the application. For at least one resolution,
 		 specify the path to a PNG file included in the AIR package. Optional. -->
 	<icon>
-		<image16x16>daisyworks-logo-16x16.png</image16x16>
-		<image32x32>daisyworks-logo-32x32.png</image32x32>
-		<image48x48>daisyworks-logo-48x48.png</image48x48>
-		<image128x128>daisyworks-logo-128x128.png</image128x128>
+		<image16x16>daisyworks-badge-16x16.png</image16x16>
+		<image32x32>daisyworks-badge-32x32.png</image32x32>
+		<image48x48>daisyworks-badge-48x48.png</image48x48>
+		<image128x128>daisyworks-badge-128x128.png</image128x128>
 	</icon>  
 
 	<!-- Whether the application handles the update when a user double-clicks an update version

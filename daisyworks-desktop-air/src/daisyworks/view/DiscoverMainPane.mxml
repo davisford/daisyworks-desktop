@@ -79,6 +79,12 @@
 			
 			private const crToolTip:String = "Most commands will not need a trailing carriage return <CR>; however, some special debug modes do require it.  Use the radio button to toggle sending a carriage return or not.";
 
+			private function smoothImage(evt:Event):void{
+				var myBitmap:Bitmap = ((evt.target as Image).content as Bitmap);
+				if (myBitmap != null) {
+					myBitmap.smoothing = true;
+				}
+			}
 	
 		]]>
 	</fx:Script>
@@ -98,7 +104,16 @@
 		</fx:String>
 	</fx:Declarations>
 	<mx:TabNavigator id="tabNavigator" width="100%" height="100%">
-		<mx:VBox label="Help" width="100%" height="100%" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10">
+		<mx:VBox label="Help" 
+				 width="100%" 
+				 height="100%" 
+				 horizontalAlign="center"
+				 paddingLeft="10" 
+				 paddingRight="10" 
+				 paddingTop="10" 
+				 paddingBottom="10" 
+				 textAlign="left">
+			<mx:Image source="{Icons.DAISYWORKS}" complete="smoothImage(event)"/>
 			<s:TextArea text="{helpText}" width="100%" height="100%"/>
 		</mx:VBox>
 		<mx:VBox label="Serial Console" width="100%" height="100%" borderVisible="false">
