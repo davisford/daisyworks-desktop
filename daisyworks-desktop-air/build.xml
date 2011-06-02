@@ -110,11 +110,10 @@
 			<arg value="daisyworks.swf"/>
 			<arg value="daisyworks-server.jar"/>	
 			<arg value="jre"/>		
-<!--			<arg value="biblioflip_logo_16x16.png"/>
-			<arg value="biblioflip_logo_32x32.png"/>
-			<arg value="biblioflip_logo_48x48.png"/>
-			<arg value="biblioflip_logo_128x128.png"/> 
-			<arg value="ddl/"/> -->
+            <arg value="daisyworks-logo-16x16.png"/>
+			<arg value="daisyworks-logo-32x32.png"/>
+			<arg value="daisyworks-logo-48x48.png"/>
+			<arg value="daisyworks-logo-128x128.png"/> 
 		</exec>
 	</target>
 

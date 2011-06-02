@@ -1,6 +1,10 @@
 package daisyworks.model {
 
 	public class Icons {
+		[Embed(source="../../assets/images/daisyworks-full-logo-300x175.jpg")]
+		[Bindable]
+		public static var DAISYWORKS:Class;
+		
 		[Embed(source="../../assets/images/bluetooth.png")]
 		[Bindable]
 		public static var BLUETOOTH:Class;

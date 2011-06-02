@@ -61,10 +61,6 @@
 		</s:layout>
 	</s:List>
 	<s:HGroup width="100%" height="35" verticalAlign="middle" textAlign="center" horizontalAlign="center" paddingRight="10" paddingLeft="10">
-		<s:Button label="&lt;&lt;" width="35"/>
-		<s:Button label="&lt;" width="33"/>
-		<s:Label text="Showing 4 of 75 Applications"/>
-		<s:Button label="&gt;" width="33"/>
-		<s:Button label="&gt;&gt;" width="35" height="20" x="1150"/>
+		<mx:LinkButton label="Load More..." fontWeight="bold" textDecoration="underline" color="#0000FF" fontSize="16"/>
 	</s:HGroup>
 </s:Group>
