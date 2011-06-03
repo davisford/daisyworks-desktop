@@ -5,9 +5,38 @@
 	<s:layout>
 		<s:BasicLayout/>
 	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import daisyworks.event.AppEvent;
+			
+			import mx.collections.XMLListCollection;
+			
+			import spark.events.IndexChangeEvent;
+			[Bindable]
+			public var results:XMLListCollection;
+			
+			[PostConstruct]
+			public function init():void {
+				dispatchEvent(new AppEvent(AppEvent.LIST));
+			}
+			
+			[EventHandler(event="AppEvent.LIST_RESULTS", properties="list")]
+			public function onList(list:XMLListCollection):void {
+				results = list;
+			}
+
+			protected function appList_changeHandler(event:IndexChangeEvent):void
+			{
+				dispatchEvent(new AppEvent(AppEvent.DEPLOY, XML(appList.selectedItem)));
+			}
+
+		]]>
+	</fx:Script>
+	
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<s:Label text="Installed Applications" paddingLeft="5" paddingTop="5" paddingRight="5" verticalAlign="middle" paddingBottom="5" left="10" right="10" top="10" height="25"/>
-	<s:List top="35" left="10" right="10" bottom="10"></s:List>
+	<s:List id="appList" top="35" left="10" right="10" bottom="10"
+			dataProvider="{results}" labelField="name" change="appList_changeHandler(event)" ></s:List>
 </s:Group>

@@ -27,17 +27,13 @@ package daisyworks.controller
 	public class AppController
 	{
 		private static const LOG:ILogger = Logger.getLogger(AppController);
-		
-		private var urlLoader:URLLoader;
-		
-		// reference to the XML file on disk
+
+		// reference to the XML file on disk: appStorage:/application.xml
 		private var appMetadataFile:File = File.applicationStorageDirectory.resolvePath('applications.xml');
 		
+		// the directory where we install applications: appStorage:/applications/
 		private var appDir:File = File.applicationStorageDirectory.resolvePath('applications');
-		
-		// empty starter XML when file does not exist
-		private static const emptyXML:XML = <apps></apps>;
-		
+				
 		// in-memory XML of installed apps
 		private var appXML:XML;
 		
@@ -48,20 +44,22 @@ package daisyworks.controller
 		
 		[PostConstruct]
 		public function init():void {
-			urlLoader = new URLLoader();
-			urlLoader.addEventListener(Event.COMPLETE, loadComplete);
-			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, loadError);
+			
 			if(!appMetadataFile.exists) {
+				var outputString:String = '<?xml version="1.0" encoding="utf-8"?>\n';
+				outputString += '<apps></apps>';
+				outputString = outputString.replace(/\n/g, File.lineEnding);
 				// write the file out if it doesn't exist
 				var fs:FileStream = new FileStream();
 				try {
 					fs.open(appMetadataFile, FileMode.WRITE);
-					fs.writeObject(emptyXML.toString());
+					fs.writeUTFBytes(outputString);
 				}
 				finally {
 					fs.close();
 				}
 			}
+			appXML = new XML(outputString);
 		}
 		
 		/**
@@ -70,18 +68,17 @@ package daisyworks.controller
 		 */
 		[EventHandler(event="AppEvent.LIST")]
 		public function list():void {
-			urlLoader.load(new URLRequest(appMetadataFile.url));
+			var fs:FileStream = new FileStream();
+			try {
+				fs.open(appMetadataFile, FileMode.READ);
+				appXML = XML(fs.readUTFBytes(fs.bytesAvailable));
+				dispatcher.dispatchEvent(new AppEvent(AppEvent.LIST_RESULTS, null, new XMLListCollection(appXML.children())));	
+			} finally {
+				fs.close();
+			}
+			
 		}
-		
-		private function loadComplete(evt:Event):void {
-			var xml:XML = XML(urlLoader.data);
-			dispatcher.dispatchEvent(new AppEvent(AppEvent.LIST_RESULTS, null, new XMLListCollection(xml.children())));
-		}
-		
-		private function loadError(evt:IOErrorEvent):void {
-			LOG.error("Failed to load the installed app XML file " + evt.text);
-		}
-		
+				
 		/**
 		 * Handles AppEvent.DOWNLOAD event; downloads the zip file, saves it to /:appStorage, 
 		 * and then unzips the contents
@@ -119,6 +116,13 @@ package daisyworks.controller
 					// path should be appStorage:/applications/{app.name}/  ?
 					var outDir:File = appDir.resolvePath(appName);
 					
+					var installXML:XML = 
+						<install path=''>
+							<ui></ui>
+							<firmware></firmware>
+							<manifest></manifest>
+						</install>;
+					
 					// iterate through entries, and write them out
 					for(var i:uint=0; i<zipFile.entries.length; i++)
 					{
@@ -127,11 +131,26 @@ package daisyworks.controller
 						{
 							var file:File = outDir.resolvePath(zipEntry.name);
 							var stream:FileStream = new FileStream();
+							if(StringUtil.endsWith(file.name.toLowerCase(), ".swf")) { 
+								installXML.ui = file.url; 
+							} else if(StringUtil.endsWith(file.name.toLowerCase(), ".hex")) {
+								installXML.firmware = file.url;
+							} else if(StringUtil.endsWith(file.name.toLowerCase(), ".xml")) {
+								installXML.manifest = file.url;
+							}
+							// write the file
 							stream.open(file, FileMode.WRITE);
 							stream.writeBytes(zipFile.getInput(zipEntry));
 							stream.close();
 						}
 					}
+					installXML.@path = appDir.resolvePath(appName).url;
+					// tell the world that the app is installed
+					addAppAndSave(app, installXML);
+					
+					dispatcher.dispatchEvent(new AppEvent(AppEvent.DOWNLOAD_COMPLETE));
+					dispatcher.dispatchEvent(new AppEvent(AppEvent.LIST_RESULTS, null, new XMLListCollection(appXML.children()) ) );
+					
 				} finally {
 					fs.close();
 					// delete the zip file, we don't need it anymore
@@ -147,12 +166,29 @@ package daisyworks.controller
 			LOG.error("Failed to download the app " + evt.text);
 		}
 		
-		private function cleanName(name:String):String {
+		public static function cleanName(name:String):String {
 			// trim whitespace
 			name = StringUtil.trim(name);
 			name = StringUtil.replace(name, ' ', '');
 			// TODO check for illegal filename characters
 			return name;
+		}
+		
+		private function addAppAndSave(app:XML, installXML:XML):void {
+			app.appendChild(installXML);
+			appXML.appendChild(app);
+			var fs:FileStream = new FileStream();
+			try {
+				fs.open(appMetadataFile, FileMode.WRITE);
+				fs.writeUTFBytes(appXML);
+			}
+			finally {
+				fs.close();
+			}
+		}
+		
+		private function removeAppAndSave(app:XML, installPath:String):void {
+			// TODO
 		}
 		
 	}

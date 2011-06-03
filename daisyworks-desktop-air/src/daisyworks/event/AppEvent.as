@@ -8,11 +8,13 @@ package daisyworks.event
 	{
 		public static const LIST:String 				= "AppEvent.LIST";
 		public static const LIST_RESULTS:String 		= "AppEvent.LIST_RESULTS";
-		public static const ADD:String 					= "AppEvent.ADD";
+		
 		public static const REMOVE:String 				= "AppEvent.REMOVE";
 		
 		public static const DOWNLOAD:String 			= "AppEvent.DOWNLOAD";
 		public static const DOWNLOAD_COMPLETE:String 	= "AppEvent.DOWNLOAD_COMPLETE";
+		
+		public static const DEPLOY:String				= "AppEvent.DEPLOY";
 		
 		public var app:XML;
 		public var list:XMLListCollection;

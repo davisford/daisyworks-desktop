@@ -29,8 +29,15 @@
 
 			protected function downloadButton_clickHandler(event:MouseEvent):void
 			{
+				downloadButton.enabled = false;
 				// dispatch event to download .zip and store it. 
 				dispatchEvent(new AppEvent(AppEvent.DOWNLOAD, app));
+			}
+			
+			[EventHandler(event="AppEvent.DOWNLOAD_COMPLETE")]
+			public function downloadComplete():void {
+				// TODO manage installation state
+				downloadButton.enabled = true;
 			}
 
 		]]>
