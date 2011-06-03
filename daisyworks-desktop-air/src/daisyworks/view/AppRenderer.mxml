@@ -2,7 +2,7 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
 				xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:mx="library://ns.adobe.com/flex/mx" 
-				autoDrawBackground="true" width="172" height="193">
+				autoDrawBackground="true" width="172" height="193" click="clickHandler(event)">
 	<s:layout>
 		<s:VerticalLayout  paddingTop="8"/>
 	</s:layout>
@@ -18,6 +18,12 @@
 				super.data = value;
 				node = XML(data);
 			}
+
+			protected function clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+			}
+
 		]]>
 	</fx:Script>
 	

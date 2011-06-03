@@ -25,11 +25,16 @@
 			public var results:XMLListCollection;
 			
 			[PostConstruct]
-			public function init() {
+			public function init():void {
 				dispatchEvent(new AppStoreEvent(AppStoreEvent.SEARCH, ""));
 			}
 
 			protected function tileList_changeHandler(event:IndexChangeEvent):void
+			{
+				dispatchEvent(new Event("appSelected"));
+			}
+			
+			private function tileList_clickHandler(event:MouseEvent):void 
 			{
 				dispatchEvent(new Event("appSelected"));
 			}
@@ -50,7 +55,7 @@
 	<s:List id="tileList"
 			itemRenderer="daisyworks.view.AppRenderer"
 			left="0" right="0" top="0" bottom="0" width="100%" height="100%" borderVisible="false"
-			dataProvider="{results}"
+			dataProvider="{results}" click="tileList_clickHandler(event)"
 			change="tileList_changeHandler(event)">
 		<s:layout>
 			<s:TileLayout horizontalGap="5"

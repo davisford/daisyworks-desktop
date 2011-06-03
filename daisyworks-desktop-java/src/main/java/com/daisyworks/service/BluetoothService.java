@@ -48,7 +48,7 @@ public final class BluetoothService implements DiscoveryListener {
 
 	// object used for waiting
 	private static Object deviceLock = new Object();
-	private static Object serviceLock = new Object();
+	private static Object serviceLock = new Object();  
 
 	// map of discovered devices; key = device address
 	private final ConcurrentMap<String, RemoteDevice> deviceMap = new ConcurrentHashMap<String, RemoteDevice>();

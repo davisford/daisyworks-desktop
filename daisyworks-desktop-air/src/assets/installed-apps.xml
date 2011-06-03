@@ -1,7 +1,6 @@
 <apps>
 	<app>
 		<name>Daisy LED Control</name>
-		<url>file:///C:/Users/Davis%20Ford/Documents/daisyworks-app-store/com/daisyworks/led/1.0/led-1.0.zip</url>
 		<description>This simple app allows you to toggle the visible LED on the Daisy.</description>
 		<version>1.0</version>
 		<category>general</category>

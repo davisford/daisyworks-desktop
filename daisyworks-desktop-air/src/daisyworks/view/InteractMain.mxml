@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="100%" 
+		 height="100%" 
+		 currentState="Unloaded">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+
+			import mx.events.FlexEvent;
+
+			[Bindable]
+			private var app:Object;
+
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="Unloaded"/>
+		<s:State name="Loaded"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Label text="{app.name}" left="10" right="10" top="10"/>
+	<s:BorderContainer left="10" right="10" top="35" bottom="0">
+		<s:Label y="229" includeIn="Unloaded"
+				 text="Select App To Load It Here" 
+				 width="100%" 
+				 height="51" 
+				 verticalAlign="middle" 
+				 textAlign="center" 
+				 fontWeight="bold" 
+				 fontSize="24"/>
+	</s:BorderContainer>
+</s:Group>

@@ -18,6 +18,7 @@
 	<controller:WatchdogController id="watchdogController"/>
 	<controller:BluetoothController id="bluetoothController"/>
 	<controller:AppStoreController id="appStoreController" />
+	<controller:AppController id="appController" />
 	
 	<model:Device />
 	

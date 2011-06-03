@@ -118,10 +118,10 @@
 				<view:DiscoverSideBar width="100%" x="0" height="100%"/>
 			</s:NavigatorContent>
 			<s:NavigatorContent id="programSettings" left="5" right="5" width="100%" height="100%" label="App Store" icon="{Icons.APPLICATIONS}">
-				<view:AppStoreSideBar />
+				<view:AppStoreSideBar width="100%" x="0" height="100%" />
 			</s:NavigatorContent>
 			<s:NavigatorContent id="controlSettings" left="5" right="5" width="100%" height="100%" label="Interact" icon="{Icons.CONTROL}">
-				<s:Label text="control the daisy" />
+				<view:InteractSideBar width="100%" height="100%" x="0" />
 			</s:NavigatorContent>
 			<s:NavigatorContent id="cloudSettings" left="5" right="5" width="100%" height="100%" label="Settings" icon="{Icons.SETTINGS}">
 				<s:Label text="manage the cloud settings" />
@@ -129,14 +129,14 @@
 		</mx:Accordion>
 		<mx:ViewStack id="viewstack" width="75%" height="100%">
 			<s:NavigatorContent id="discovery">
-				<view:DiscoverMainPane />
+				<view:DiscoverMain />
 			</s:NavigatorContent>
 			<s:NavigatorContent id="appstore">
 				<view:AppStoreMain>
 				</view:AppStoreMain>
 			</s:NavigatorContent>
 			<s:NavigatorContent id="control">
-				<s:Label text="control" />
+				<view:InteractMain />
 			</s:NavigatorContent>
 			<s:NavigatorContent id="cloud">
 				<s:Label text="cloud" />

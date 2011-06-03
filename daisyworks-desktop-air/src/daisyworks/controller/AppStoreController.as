@@ -32,13 +32,12 @@ package daisyworks.controller
 		[PostConstruct]
 		public function init():void {
 			urlLoader = new URLLoader();
+			urlLoader.addEventListener(Event.COMPLETE, loadComplete);
+			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, loadError);
 		}
 		
 		[EventHandler(event="AppStoreEvent.SEARCH", properties="search")]
 		public function search(search:String):void {
-			urlLoader.addEventListener(Event.COMPLETE, loadComplete);
-			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, loadError);
-			
 			urlLoader.load(new URLRequest('assets/app-store-search-results.xml'));
 		}
 		
