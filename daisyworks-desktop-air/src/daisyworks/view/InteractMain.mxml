@@ -16,6 +16,7 @@
 			import mx.events.ModuleEvent;
 			import mx.modules.IModuleInfo;
 			import mx.modules.Module;
+			import mx.modules.ModuleLoader;
 			import mx.modules.ModuleManager;
 
 			[Bindable]
@@ -32,11 +33,28 @@
 				if(!swf.exists) {
 					throw new Error("UI SWF does not exist");
 				}
-				var info:IModuleInfo = ModuleManager.getModule(swf.url);
-				info.addEventListener(ModuleEvent.READY, function(evt:ModuleEvent):void {
-					border.contentGroup.addElement(info.factory.create() as IVisualElement);
-				});
-				info.load();
+				var moduleLoader:ModuleLoader = new ModuleLoader();
+				moduleLoader.url = swf.url;
+				moduleLoader.addEventListener(ModuleEvent.READY, 
+					function(evt:ModuleEvent):void {
+						var info:IModuleInfo = evt.module;
+						border.addElement(info.factory.create() as IVisualElement);
+					}
+				);
+				
+				var bytes:ByteArray = new ByteArray();
+				
+				var urlLoader:URLLoader = new URLLoader();
+				urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
+				urlLoader.addEventListener(Event.COMPLETE,
+					function(evt:Event):void {
+						bytes = ByteArray(evt.target.data);
+						moduleLoader.loadModule(swf.url, bytes);
+					}
+				);
+				urlLoader.load(new URLRequest(swf.url));
+					
+				
 			}
 
 		]]>
