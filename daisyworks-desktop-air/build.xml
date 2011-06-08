@@ -110,10 +110,16 @@
 			<arg value="daisyworks.swf"/>
 			<arg value="daisyworks-server.jar"/>	
 			<arg value="jre"/>		
-            <arg value="daisyworks-badge-16x16.png"/>
-			<arg value="daisyworks-badge-32x32.png"/>
-			<arg value="daisyworks-badge-48x48.png"/>
-			<arg value="daisyworks-badge-128x128.png"/> 
+            <arg value="dw-icon-16x16.png"/>
+			<arg value="dw-icon-29x29.png"/>
+			<arg value="dw-icon-32x32.png"/>
+			<arg value="dw-icon-36x36.png"/>
+			<arg value="dw-icon-48x48.png"/>
+			<arg value="dw-icon-57x57.png"/>
+			<arg value="dw-icon-72x72.png"/>
+			<arg value="dw-icon-114x114.png"/>
+			<arg value="dw-icon-128x128.png"/>
+			<arg value="dw-icon-512x512.png"/>
 		</exec>
 	</target>
 

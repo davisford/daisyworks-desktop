@@ -38,7 +38,7 @@ package daisyworks.controller
 		
 		[EventHandler(event="AppStoreEvent.SEARCH", properties="search")]
 		public function search(search:String):void {
-			urlLoader.load(new URLRequest('assets/app-store-search-results.xml'));
+			urlLoader.load(new URLRequest('http://dl.dropbox.com/u/4165049/daisyworks-app-store/app-store-inventory.xml'));
 		}
 		
 		private function loadComplete(evt:Event):void {

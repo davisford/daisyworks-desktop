@@ -1,37 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
-				xmlns:s="library://ns.adobe.com/flex/spark" 
-				xmlns:mx="library://ns.adobe.com/flex/mx" 
-				autoDrawBackground="true" width="172" height="193" click="clickHandler(event)">
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="true"
+				width="172"
+				height="193"
+				click="clickHandler(event)">
 	<s:layout>
-		<s:VerticalLayout  paddingTop="8"/>
+		<s:VerticalLayout paddingTop="8"/>
 	</s:layout>
-	
+
 	<fx:Script>
 		<![CDATA[
 			import daisyworks.model.Icons;
-			
+
 			[Bindable]
 			private var node:XML;
-			
-			override public function set data(value:Object):void {
-				super.data = value;
-				node = XML(data);
+
+			override public function set data(value:Object):void
+			{
+				super.data=value;
+				node=XML(data);
 			}
 
 			protected function clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
 			}
-
 		]]>
 	</fx:Script>
-	
-	<s:Label id="nameLabel" text="{node.name}" height="20" left="3" right="3" width="100%" verticalAlign="middle" textAlign="center" fontWeight="bold" fontSize="14" showTruncationTip="true" maxDisplayedLines="1"/>
-	<s:Label id="authorLabel" text="{node.author}" verticalAlign="middle" textAlign="center"  fontStyle="italic" paddingLeft="10" width="100%" showTruncationTip="true" maxDisplayedLines="1"/>
-	<s:HGroup width="100%" horizontalAlign="center" height="100%">
-		<mx:Image height="125" width="125" source="{node.iconUrl}"/>
+
+	<s:Label id="nameLabel"
+			 text="{node.name}"
+			 height="20"
+			 left="3"
+			 right="3"
+			 width="100%"
+			 verticalAlign="middle"
+			 textAlign="center"
+			 fontWeight="bold"
+			 fontSize="14"
+			 showTruncationTip="true"
+			 maxDisplayedLines="1"/>
+	<s:Label id="authorLabel"
+			 text="{node.author}"
+			 verticalAlign="middle"
+			 textAlign="center"
+			 fontStyle="italic"
+			 paddingLeft="10"
+			 width="100%"
+			 showTruncationTip="true"
+			 maxDisplayedLines="1"/>
+	<s:HGroup width="100%"
+			  horizontalAlign="center"
+			  height="100%">
+		<mx:Image height="128"
+				  width="128"
+				  source="{node.icons.icon128x128}"/>
 	</s:HGroup>
-	
-	
+
+
 </s:ItemRenderer>

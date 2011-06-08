@@ -11,6 +11,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import mx.core.IVisualElement;
 			import mx.events.FlexEvent;
 			import mx.events.ModuleEvent;
@@ -24,7 +25,7 @@
 			
 			[Bindable]
 			private var moduleUrl:String;
-			
+						
 			[EventHandler(event="AppEvent.DEPLOY", properties="app")]
 			public function deploy(app:XML):void {
 				this.app = app;
@@ -33,17 +34,24 @@
 				if(!swf.exists) {
 					throw new Error("UI SWF does not exist");
 				}
+				
+				// setup the module loader
 				var moduleLoader:ModuleLoader = new ModuleLoader();
-				moduleLoader.url = swf.url;
+						
 				moduleLoader.addEventListener(ModuleEvent.READY, 
 					function(evt:ModuleEvent):void {
 						var info:IModuleInfo = evt.module;
 						border.addElement(info.factory.create() as IVisualElement);
 					}
 				);
-				
+				moduleLoader.addEventListener(ModuleEvent.ERROR,
+					function(evt:ModuleEvent):void {
+						mx.controls.Alert.show(evt.errorText);
+					}
+				);
+							
+				// load the swf into a byte array
 				var bytes:ByteArray = new ByteArray();
-				
 				var urlLoader:URLLoader = new URLLoader();
 				urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
 				urlLoader.addEventListener(Event.COMPLETE,
@@ -53,8 +61,6 @@
 					}
 				);
 				urlLoader.load(new URLRequest(swf.url));
-					
-				
 			}
 
 		]]>

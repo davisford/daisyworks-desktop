@@ -1,84 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%"
+		 height="100%">
 	<s:layout>
-		<s:VerticalLayout paddingLeft="15" paddingRight="15" paddingTop="15" paddingBottom="15"/>
+		<s:VerticalLayout paddingLeft="15"
+						  paddingRight="15"
+						  paddingTop="15"
+						  paddingBottom="15"/>
 	</s:layout>
-	
+
 	<fx:Metadata>
 		[Event(name="navigateAway")]
 	</fx:Metadata>
-	
+
 	<fx:Script>
 		<![CDATA[
 			import daisyworks.event.AppEvent;
 			
-			import spark.utils.TextFlowUtil; 
-			
+			import spark.utils.TextFlowUtil;
+
 			private var _app:XML;
-			
-			public function set app(app:XML):void {
-				_app = app;
+
+			public function set app(app:XML):void
+			{
+				_app=app;
 			}
-			
+
 			[Bindable]
-			public function get app():XML {
-				return _app;	
+			public function get app():XML
+			{
+				return _app;
 			}
 
 			protected function downloadButton_clickHandler(event:MouseEvent):void
 			{
-				downloadButton.enabled = false;
+				downloadButton.enabled=false;
 				// dispatch event to download .zip and store it. 
 				dispatchEvent(new AppEvent(AppEvent.DOWNLOAD, app));
 			}
-			
-			[EventHandler(event="AppEvent.DOWNLOAD_COMPLETE")]
-			public function downloadComplete():void {
-				// TODO manage installation state
-				downloadButton.enabled = true;
-			}
 
+			[EventHandler(event="AppEvent.DOWNLOAD_COMPLETE")]
+			public function downloadComplete():void
+			{
+				// TODO manage installation state
+				downloadButton.enabled=true;
+			}
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<s:DateTimeFormatter id="dateTimeFormatter"
+		 timeStyle="none" dateStyle="long"/>
 	</fx:Declarations>
-	<s:HGroup width="100%" height="30" verticalAlign="middle">
-		<mx:LinkButton label="&lt;&lt; Back" textDecoration="underline" click="dispatchEvent(new Event('navigateAway'));" color="#0000FF"/>
+	<s:HGroup width="100%"
+			  height="30"
+			  verticalAlign="middle">
+		<mx:LinkButton label="&lt;&lt; Back"
+					   textDecoration="underline"
+					   click="dispatchEvent(new Event('navigateAway'));"
+					   color="#0000FF"/>
 	</s:HGroup>
-	<s:HGroup width="100%" height="100%">
-		<s:VGroup width="25%" height="100%" horizontalAlign="center">
-			<mx:Image width="125" height="125" source="{app.imageUrl}"/>
-			<s:Button label="Download" id="downloadButton" click="downloadButton_clickHandler(event)"/>
-			<mx:Form width="100%" height="100%">
-				<mx:FormItem label="Author" width="100%">
-					<s:Label text="{app.author}" width="100%" height="100%" verticalAlign="middle" maxDisplayedLines="3"/>
+	<s:HGroup width="100%"
+			  height="100%">
+
+		<s:VGroup width="100%"
+				  height="100%">
+			<s:HGroup width="100%"
+					  height="166">
+				<s:VGroup horizontalAlign="center">
+					<mx:Image width="128"
+							  height="128"
+							  source="{app.icons.icon128x128}"/>
+					<s:Button label="Free"
+							  id="downloadButton"
+							  click="downloadButton_clickHandler(event)"/>
+				</s:VGroup>
+				<s:VGroup horizontalAlign="center" width="100%">
+					<s:Label text="{app.name}"
+							 width="100%"
+							 height="35"
+							 verticalAlign="middle"
+							 fontSize="20"
+							 fontWeight="bold"
+							 maxDisplayedLines="1"
+							 showTruncationTip="true"
+							 textAlign="center"/>
+					<mx:Form width="100%">
+						<mx:FormItem label="Author" 
+									 width="100%">
+							<s:Label text="{app.author}"
+									 width="100%"
+									 height="100%"
+									 verticalAlign="middle"
+									 maxDisplayedLines="3"/>
+						</mx:FormItem>
+						<mx:FormItem label="Web"
+									 width="100%"
+									 textAlign="left">
+							<mx:LinkButton label="{app.authorUrl}"
+										   width="100%"
+										   textAlign="left"
+										   paddingLeft="0"
+										   paddingRight="0"
+										   height="100%"/>
+						</mx:FormItem>
+						<mx:FormItem label="Released"
+									 width="100%">
+							<s:Label text="{dateTimeFormatter.format(new Date(app.released))}"
+									 width="100%"
+									 maxDisplayedLines="10"
+									 lineBreak="explicit"
+									 height="100%" verticalAlign="middle"/>
+						</mx:FormItem>
+						<mx:FormItem label="Description" width="100%">
+							<s:RichText text="{app.description}" width="100%" height="100%" verticalAlign="middle"/>
+						</mx:FormItem>
+					</mx:Form>
+				</s:VGroup>
+
+			</s:HGroup>
+			<mx:Form width="100%"
+					 height="234">
+				
+				<mx:FormItem label="Category"
+							 width="100%">
+					<s:Label text="todo"
+							 width="100%"
+							 maxDisplayedLines="10"
+							 lineBreak="explicit"
+							 verticalAlign="middle"
+							 height="100%"/>
 				</mx:FormItem>
-				<mx:FormItem label="Web" width="100%" textAlign="left">
-					<mx:LinkButton label="{app.authorWebsite}" width="100%" textAlign="left" paddingLeft="0" paddingRight="0" height="100%"/>
+				<mx:FormItem label="Version"
+							 width="100%">
+					<s:Label text="to"
+							 width="100%"
+							 maxDisplayedLines="10"
+							 lineBreak="explicit"
+							 height="100%"/>
 				</mx:FormItem>
-				<mx:FormItem label="Category" width="100%">
-					<s:Label text="{app.category}" width="100%" maxDisplayedLines="10" lineBreak="explicit"  verticalAlign="middle" height="100%"/>
-				</mx:FormItem>
-				<mx:FormItem label="Released" width="100%">
-					<s:Label text="{app.released}" width="100%" maxDisplayedLines="10" lineBreak="explicit" height="100%"/>
-				</mx:FormItem>
-				<mx:FormItem label="Version" width="100%">
-					<s:Label text="{app.version}" width="100%" maxDisplayedLines="10" lineBreak="explicit" height="100%"/>
-				</mx:FormItem>
-				<mx:FormItem label="Requirements" width="100%">
-					<s:Label text="{app.requirements}" width="100%" maxDisplayedLines="10" lineBreak="explicit" height="100%"/>
+				<mx:FormItem label="Requirements"
+							 width="100%">
+					
+					<s:Label text="todo"
+							 width="100%"
+							 maxDisplayedLines="10"
+							 lineBreak="explicit"
+							 height="100%"/>
 				</mx:FormItem>
 			</mx:Form>
-		</s:VGroup>
-		<s:VGroup width="75%" height="100%">
-			<s:Label text="{app.name}" width="100%" height="35" verticalAlign="middle" fontSize="20" fontWeight="bold" maxDisplayedLines="1" showTruncationTip="true"/>
-			<s:Label text="Description" fontSize="16"/>
-			<s:Scroller width="100%" height="100%">
-				<s:RichEditableText width="100%" editable="false" height="100%" textFlow="{TextFlowUtil.importFromString(app.description)}"/>
-			</s:Scroller>
 
 		</s:VGroup>
 	</s:HGroup>

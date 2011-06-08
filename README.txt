@@ -56,38 +56,29 @@ the Java server side is maven (just cuz' it is easier).
 
  * Maven (using 2.2.x or later) 
 
- * Flex SDK - You have to download and install the latest Flex SDK, unzip it to a directory
-and edit the build.properties file to tell the build where it is.
+ * Flex SDK - You have to download and install the latest Flex SDK, unzip it somewhere:
 
 You can download the Flex SDK here:
 
-http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+4
+http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+4.5
 
-As of this writing, we are using 4.1.0.16076 Adobe Flex SDK -- not the Open Source Flex SDK.
+$ mkdir -p /home/me/flex-sdks/flex_sdk_4.5.0.20967/
+$ unzip flex_sdk_4.5.0.20967.zip -d /home/me/flex-sdks/flex_sdk_4.5.0.20967
 
-!!! IMPORTANT !!! If you are going to build on Linux, it can be a little trickier.  I went
-through a lot of headache to get this to work properly.  I posted to the Adobe Forums
-here:
+As of this writing, we are using 4.5.0.20967 Adobe Flex SDK -- not the Open Source Flex SDK.
 
-http://forums.adobe.com/message/3354091#3354091
+ * Air 2.6 SDK - You must have 2.6 or later to be able to build.
 
-Just downloading the Flex 4 SDK and running ant doesn't work.  I would get an error.  So, do 
-this stuff instead:
+You can download the Air 2.6 SDK here:
 
-Download this Flex 4 SDK =>
+http://www.adobe.com/products/air/sdk/
 
-http://fpdownload.adobe.com/pub/flex/sdk/builds/flex4/flex_sdk_4.1.0.16076.zip
+Now, unzip it into the same directory as the Flex SDK
 
-Unzip it somewhere, e.g. /home/<you>/flex-sdk/flex_sdk_4.1.0.16076
+$ unzip AdobeAirSDK.zip -d /home/me/flex-sdks/flex_sdk_4.5.0.20967
 
-Download this Air 2 SDK =>
-
-http://airdownload.adobe.com/air/lin/download/latest/AdobeAIRSDK.tbz2
-
-Unzip it on top of the same directory, e.g. /home/<you>/flex-sdk/flex_sdk_4.1.0.16076
-
-Now, when you build in Linux, the Ant build script *should* work.  It does for me on 
-Ubuntu 11.04 Desktop AMD64, with 64-bit Sun JDK.
+!!! IMPORTANT !!! It *must* unzip / overlay directly on top of it -- it has a similar directory
+structure.  If you get the path wrong, it won't work.  
 
 --------------------------------------------
 | How To Build
@@ -144,4 +135,37 @@ Tested with Targus ACB10US1 USB/Bluetooth Adapter: http://www.targus.com/us/prod
 | Mac OS X 10.6 i7 x86_64
 -------------------
 Should work out of the box; tested with built-in bluetooth for Mac Book Pro
+
+
+----------------------------------------------
+| DEPRECATED
+----------------------------------------------
+
+This was old advice related to Linux builds.  If you download the Flex SDK and the latest Air SDK and unzip 
+them as per the instructions below, this shouldn't be necessary..so ignore it.  It is here for 
+historical purposes.
+
+!!! IMPORTANT !!! If you are going to build on Linux, it can be a little trickier.  I went
+through a lot of headache to get this to work properly.  I posted to the Adobe Forums
+here:
+
+http://forums.adobe.com/message/3354091#3354091
+
+Just downloading the Flex 4 SDK and running ant doesn't work.  I would get an error.  So, do 
+this stuff instead:
+
+Download this Flex 4 SDK =>
+
+http://fpdownload.adobe.com/pub/flex/sdk/builds/flex4/flex_sdk_4.1.0.16076.zip
+
+Unzip it somewhere, e.g. /home/<you>/flex-sdk/flex_sdk_4.1.0.16076
+
+Download this Air 2 SDK =>
+
+http://airdownload.adobe.com/air/lin/download/latest/AdobeAIRSDK.tbz2
+
+Unzip it on top of the same directory, e.g. /home/<you>/flex-sdk/flex_sdk_4.1.0.16076
+
+Now, when you build in Linux, the Ant build script *should* work.  It does for me on 
+Ubuntu 11.04 Desktop AMD64, with 64-bit Sun JDK.
 
