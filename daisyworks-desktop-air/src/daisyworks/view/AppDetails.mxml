@@ -2,13 +2,9 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
 		 xmlns:s="library://ns.adobe.com/flex/spark"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
-		 width="100%"
-		 height="100%">
+		 width="100%" height="100%">
 	<s:layout>
-		<s:VerticalLayout paddingLeft="15"
-						  paddingRight="15"
-						  paddingTop="15"
-						  paddingBottom="15"/>
+		<s:VerticalLayout paddingBottom="15" paddingLeft="15" paddingRight="15" paddingTop="15"/>
 	</s:layout>
 
 	<fx:Metadata>
@@ -17,21 +13,38 @@
 
 	<fx:Script>
 		<![CDATA[
+			import com.adobe.utils.DateUtil;
+			
 			import daisyworks.event.AppEvent;
 			
+			import mx.collections.XMLListCollection;
+			
+			import spark.events.IndexChangeEvent;
 			import spark.utils.TextFlowUtil;
 
 			private var _app:XML;
+			[Bindable]
+			private var releaseDate:String;
 
 			public function set app(app:XML):void
 			{
 				_app=app;
+				releaseDate = getDate(app.released[0]);
 			}
 
 			[Bindable]
 			public function get app():XML
 			{
 				return _app;
+			}
+			
+			private function getDate(xml:XML):String {
+				try {
+					return dateTimeFormatter.format(DateUtil.parseW3CDTF(xml));
+				} catch(e:Error) { 
+					// don't crash the UI if this has an error, just display nothing
+				}
+				return ''; 
 			}
 
 			protected function downloadButton_clickHandler(event:MouseEvent):void
@@ -47,110 +60,98 @@
 				// TODO manage installation state
 				downloadButton.enabled=true;
 			}
+			
+			protected function softwareList_changeHandler(event:IndexChangeEvent):void
+			{
+				trace("on list change old index {0}, new index {1}", event.oldIndex, event.newIndex);
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<s:DateTimeFormatter id="dateTimeFormatter"
-		 timeStyle="none" dateStyle="long"/>
+		<s:DateTimeFormatter id="dateTimeFormatter" dateStyle="long" timeStyle="none"/>
 	</fx:Declarations>
-	<s:HGroup width="100%"
-			  height="30"
-			  verticalAlign="middle">
-		<mx:LinkButton label="&lt;&lt; Back"
-					   textDecoration="underline"
-					   click="dispatchEvent(new Event('navigateAway'));"
-					   color="#0000FF"/>
-	</s:HGroup>
-	<s:HGroup width="100%"
-			  height="100%">
 
-		<s:VGroup width="100%"
-				  height="100%">
-			<s:HGroup width="100%"
-					  height="166">
+			<s:HGroup width="100%" height="202">
 				<s:VGroup horizontalAlign="center">
-					<mx:Image width="128"
-							  height="128"
-							  source="{app.icons.icon128x128}"/>
-					<s:Button label="Free"
-							  id="downloadButton"
+					<mx:LinkButton label="&lt;&lt; Back"
+								   click="dispatchEvent(new Event('navigateAway'));" color="#0000FF"
+								   textDecoration="underline"/>
+					<mx:Image width="128" height="128" source="{app.icons.icon128x128}"/>
+					<s:Button id="downloadButton" label="Free"
 							  click="downloadButton_clickHandler(event)"/>
 				</s:VGroup>
-				<s:VGroup horizontalAlign="center" width="100%">
-					<s:Label text="{app.name}"
-							 width="100%"
-							 height="35"
-							 verticalAlign="middle"
-							 fontSize="20"
-							 fontWeight="bold"
-							 maxDisplayedLines="1"
-							 showTruncationTip="true"
-							 textAlign="center"/>
-					<mx:Form width="100%">
-						<mx:FormItem label="Author" 
-									 width="100%">
-							<s:Label text="{app.author}"
-									 width="100%"
-									 height="100%"
-									 verticalAlign="middle"
-									 maxDisplayedLines="3"/>
-						</mx:FormItem>
-						<mx:FormItem label="Web"
-									 width="100%"
-									 textAlign="left">
-							<mx:LinkButton label="{app.authorUrl}"
-										   width="100%"
-										   textAlign="left"
-										   paddingLeft="0"
-										   paddingRight="0"
-										   height="100%"/>
-						</mx:FormItem>
-						<mx:FormItem label="Released"
-									 width="100%">
-							<s:Label text="{dateTimeFormatter.format(new Date(app.released))}"
-									 width="100%"
-									 maxDisplayedLines="10"
-									 lineBreak="explicit"
-									 height="100%" verticalAlign="middle"/>
-						</mx:FormItem>
-						<mx:FormItem label="Description" width="100%">
-							<s:RichText text="{app.description}" width="100%" height="100%" verticalAlign="middle"/>
-						</mx:FormItem>
-					</mx:Form>
+				<s:VGroup width="100%" horizontalAlign="center">
+					<s:Label width="100%" height="35" fontSize="20" fontWeight="bold"
+							 maxDisplayedLines="1" showTruncationTip="true" text="{app.name}"
+							 textAlign="center" verticalAlign="middle"/>
+					<s:Scroller width="100%" height="150" horizontalScrollPolicy="off">
+						<s:Group >
+							<s:layout>
+								<s:BasicLayout/>
+							</s:layout>
+							<s:RichText left="10" right="10" top="10"
+										textFlow="{TextFlowUtil.importFromString(app.description)}"/>
+						</s:Group>	
+					</s:Scroller>
 				</s:VGroup>
 
 			</s:HGroup>
-			<mx:Form width="100%"
-					 height="234">
-				
-				<mx:FormItem label="Category"
-							 width="100%">
-					<s:Label text="todo"
-							 width="100%"
-							 maxDisplayedLines="10"
-							 lineBreak="explicit"
-							 verticalAlign="middle"
-							 height="100%"/>
-				</mx:FormItem>
-				<mx:FormItem label="Version"
-							 width="100%">
-					<s:Label text="to"
-							 width="100%"
-							 maxDisplayedLines="10"
-							 lineBreak="explicit"
-							 height="100%"/>
-				</mx:FormItem>
-				<mx:FormItem label="Requirements"
-							 width="100%">
-					
-					<s:Label text="todo"
-							 width="100%"
-							 maxDisplayedLines="10"
-							 lineBreak="explicit"
-							 height="100%"/>
-				</mx:FormItem>
-			</mx:Form>
+			<s:Scroller width="100%" height="100%" horizontalScrollPolicy="off">
+				<s:Group clipAndEnableScrolling="true">
+					<s:layout>
+						<s:BasicLayout />
+					</s:layout>
+					<s:Form left="10" right="10" top="10">
+						<s:FormItem width="100%" label="Author" fontWeight="normal">
+							<s:Label width="100%" height="100%" maxDisplayedLines="3"
+									 text="{app.author}" verticalAlign="middle"/>
+						</s:FormItem>
+						<s:FormItem width="100%" label="Web" fontWeight="normal" textAlign="left">
+							<mx:LinkButton width="100%" height="100%" label="{app.authorUrl}"
+										   paddingLeft="0" paddingRight="0" textAlign="left"/>
+						</s:FormItem>
+						<s:FormItem width="100%" label="Released" fontWeight="normal">
+							<s:Label width="100%" height="100%" lineBreak="explicit"
+									 maxDisplayedLines="10"
+									 text="{releaseDate}"
+									 verticalAlign="middle"/>
+						</s:FormItem>
+						<s:FormItem width="100%" label="Categories" fontWeight="normal">
+							<s:layout>
+								<s:TileLayout orientation="rows"/>
+							</s:layout>
 
-		</s:VGroup>
-	</s:HGroup>
+								<s:List borderVisible="false" enabled="false">
+									<s:layout>
+										<s:HorizontalLayout/>
+									</s:layout>
+									<s:dataProvider>
+										<s:XMLListCollection source="{app.categories.children()}"/>
+										
+									</s:dataProvider>
+								</s:List>
+						</s:FormItem>
+						<s:FormItem width="100%" label="Requirements" fontWeight="normal">
+							
+							<s:Label width="100%" height="100%" lineBreak="explicit" maxDisplayedLines="10"
+									 text="todo"/>
+						</s:FormItem>
+						<s:FormItem width="100%" label="Software" skinClass="daisyworks.view.skins.FormItemSkinWithButton">
+							<s:List id="softwareList" itemRenderer="daisyworks.view.itemrenderers.ExpandoItemRenderer" width="100%" 
+									allowMultipleSelection="true" change="softwareList_changeHandler(event)">
+								<s:layout>
+									<s:VerticalLayout gap="2" />
+								</s:layout>
+								<s:dataProvider>
+									<s:XMLListCollection source="{app.software.children()}"/>
+								</s:dataProvider>
+							</s:List>
+						</s:FormItem>
+					</s:Form>
+				</s:Group>
+				
+			</s:Scroller>
+			
+
 </s:Group>

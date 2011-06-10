@@ -110,7 +110,8 @@
 	</fx:Declarations>
 	
 	<mx:HDividedBox id="hdivide" width="100%" height="100%">
-		<mx:Accordion id="accordion" width="25%" headerHeight="40" height="100%" horizontalCenter="0" minWidth="300"  change="accordion_changeHandler(event)">
+		<mx:Accordion id="accordion" width="25%" height="100%" minWidth="300"
+					  change="accordion_changeHandler(event)" horizontalCenter="0">
 			<s:NavigatorContent id="discoverySettings" left="5" right="5" width="100%" height="100%" label="Discover / Connect" icon="{Icons.BLUETOOTH}">
 				<s:layout>
 					<s:BasicLayout/>

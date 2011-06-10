@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" click="itemrenderer_clickHandler(event)"
+				autoDrawBackground="true" width="100%">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.adobe.utils.DateUtil;
+			
+			[Bindable]
+			private var node:XML;
+			
+			[Bindable]
+			private var releaseDate:String;
+			
+			private static const FIRMWARE:String = "firmware";
+			private static const SWF:String = "swf";
+			private static const Firmware:String = "Firmware";
+			private static const UserInterface:String = "User Interface";
+			
+			override public function set data(value:Object):void {
+
+				if(!(value is XML)) {
+					trace('itemRenderer set data value is not XML');
+					node = null;
+					labelDisplay.text = '';
+					releaseDate = '';
+					return; 
+				}
+				super.data = value;
+				trace('itemRenderer set data value is XML '+value.@type);
+				node = XML(value);
+				if(FIRMWARE == node.@type) { labelDisplay.text = Firmware; }
+				else if(SWF == node.@type) { labelDisplay.text = UserInterface; }
+				
+				releaseDate = getDate(node.released[0]);
+			}
+			
+			private function getDate(xml:XML):String {
+				try {  
+					return dateTimeFormatter.format(DateUtil.parseW3CDTF(xml));
+				} catch(e:Error) { 
+					// don't crash the UI if this has an error, just display nothing
+				}
+				return ''; 
+			}
+			
+			protected function itemrenderer_clickHandler(event:MouseEvent):void
+			{
+				trace("clickHandler before, currentState: {0}", currentState);
+				if(currentState == "normal") { 
+					currentState="selected"; 
+				}
+				else if(currentState == "selected") { 
+					currentState="normal"; 
+				}
+				trace("clickHandler after, currentState: {0}", currentState);
+				event.stopImmediatePropagation();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:DateTimeFormatter id="dateTimeFormatter" dateStyle="long" timeStyle="none"/>
+	</fx:Declarations>
+	
+	<s:states>
+		<s:State name="normal"/>          
+		<s:State name="hovered"/>
+		<s:State name="selected"/>
+	</s:states>
+	
+	<s:Rect top="0" left="0" right="0" bottom="0">
+		<s:fill>
+			<s:SolidColor id="bg" color="0xe3e3e3" />
+		</s:fill>
+	</s:Rect>
+	
+	<s:Group top="5" left="5" right="5" bottom="5">
+		
+		<!-- twisty -->
+		<s:Path data="M 0 0 L 8 0 L 4 6 L 0 0 Z" top="3" left="3" rotation="-90" rotation.selected="0">
+			<s:fill>
+				<s:SolidColor color="0x999999" color.selected="0x000000" />
+			</s:fill>
+		</s:Path>
+		<s:Label id="labelDisplay"
+					 left="19" top="3"
+					 textAlign="start"
+					 fontWeight="bold"
+					 verticalAlign="middle"
+					 maxDisplayedLines="1"/>
+		<s:CheckBox id="checkBox"
+					top="3" right="3" selected="true"/>
+		
+	</s:Group>
+	
+	<s:VGroup includeIn="selected" left="10" right="10" top="30">
+		
+		<s:Form width="100%">
+			<s:FormItem width="100%" label="Released">
+				<s:Label width="100%" text="{releaseDate}"/>
+			</s:FormItem>
+			<s:FormItem width="100%" label="Version">
+				<s:Label width="100%" text="{node.version}"/>
+			</s:FormItem>
+			<s:FormItem width="100%" label="Release Notes">
+				<s:RichText width="100%" text="{node.notes}"/>
+			</s:FormItem>
+		</s:Form>
+	</s:VGroup>
+	
+</s:ItemRenderer>

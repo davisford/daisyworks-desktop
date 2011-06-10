@@ -10,7 +10,7 @@
 					   skinClass="assets.skins.WindowedApplicationSkin"
 					   closing="closingHandler(event)">
 
-<!--	<fx:Style source="assets/styles/daisyworks.css"/>-->
+	<fx:Style source="assets/styles/daisyworks.css"/>
 
 	<fx:Script>
 		<![CDATA[

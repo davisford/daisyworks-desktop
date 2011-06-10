@@ -3,73 +3,86 @@
 @namespace mx "library://ns.adobe.com/flex/mx";
 
 @font-face {
-	src: url('assets/fonts/avenir.swf');
-	fontFamily: "Avenir 95 Black";
+	src: url('assets/fonts/PTC55F.ttf');
+	fontFamily: "PT Sans Caption";
+	fontStyle: normal;
+	fontWeight: normal;
+	embedAsCFF: false;
 }
 
 @font-face {
-	src: url('assets/fonts/myriad.swf');
-	fontFamily: "Myriad Pro";
+	src: url('assets/fonts/PTC75F.ttf');
+	fontFamily: "PT Sans Caption Bold";
 	fontStyle: normal;
-	fontWeight: normal;
+	fontWeight: bold;
+	embedAsCFF: false;
 }
 
 @font-face {
-	src: url('assets/fonts/myriad.swf');
-	fontFamily: "Myriad Pro Bold";
+	src: url('assets/fonts/PTN57F.ttf');
+	fontFamily: "PT Sans Narrow";
 	fontStyle: normal;
 	fontWeight: normal;
+	embedAsCFF: false;
 }
 
+@font-face {
+	src: url('assets/fonts/PTN77F.ttf');
+	fontFamily: "PT Sans Narrow Bold";
+	fontStyle: normal;
+	fontWeight: bold;
+	embedAsCFF: false;
+}
+
+@font-face {
+	src: url('assets/fonts/PTS55F.ttf');
+	fontFamily: "PT Sans";
+	fontStyle: normal;
+	fontWeight: bold;
+	embedAsCFF: false;
+}
+
+@font-face {
+	src: url('assets/fonts/PTS56F.ttf');
+	fontFamily: "PT Sans Italic";
+	fontStyle: italic;
+	fontWeight: normal;
+	embedAsCFF: false;
+}
+
+@font-face {
+	src: url('assets/fonts/PTS75F.ttf');
+	fontFamily: "PT Sans Bold";
+	fontStyle: normal;
+	fontWeight: bold;
+	embedAsCFF: false;
+}
+
+@font-face {
+	src: url('assets/fonts/PTS76F.ttf');
+	fontFamily: "PT Sans Bold Italic";
+	fontStyle: bold;
+	fontWeight: bold;
+	embedAsCFF: false;
+}
 
 global
 {
-	/*content-background-color: #D59A66;
-	chrome-color: #BF8B5E;*/
+	content-background-color: #f3f3f3;
+	chrome-color: #e0e0ee;
+	font-family: Verdana;
+	headerHeight: 40;
 }
 
 s|WindowedApplication{
-	backgroundColor: #adadad;
-	font-family: "Myriad Pro";
+	/*backgroundColor: #adadad;*/
 }
 
-s|Button{
-	skinClass: ClassReference('assets.skins.SimpleButtonSkin');
-	fillColors: #666666, #333333;
-	overFillColors: #896396, #673d76;
-	downFillColors: #a567b9, #673d76;
-	disabledFillColors: #999999, #333333;
-	color: #ffffff;
-	cornerRadius: 20;
+s|Label{
+	font-family: "Verdana";
 }
 
-.buttonLabel{
-	fontFamily: "Avenir 95 Black";
-	fontSize: 22;
-}
-
-mx|TabNavigator
-{
-	background-color: #adadae;
-	font-weight: normal;
-	color: #ffffff;
-	text-roll-over-color: #896396, #673d76;
-	corner-radius: 20;
-	border-style: none;
-	
-	
-}
-
-mx|TabNavigator:selectedTab
-{
-	background-color: #ababab;
-	font-weight: bold;
-	color: #FFFFFF;
-	text-roll-over-color: #FFFFFF;
-	
-	corner-radius: 20;
-	
-	border-style: solid;
-	border-thickness: 1;
-	border-color: #000000;
+s|RichText {
+	font-family: "Verdana";
+	fontSize: 14;
 }
