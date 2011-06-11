@@ -2,11 +2,11 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
 		 xmlns:s="library://ns.adobe.com/flex/spark"
 		 xmlns:mx="library://ns.adobe.com/flex/mx"
-		 width="100%" height="100%">
+		 width="100%" height="100%" xmlns:components="daisyworks.view.components.*">
 	<s:layout>
 		<s:VerticalLayout paddingBottom="15" paddingLeft="15" paddingRight="15" paddingTop="15"/>
 	</s:layout>
-
+	
 	<fx:Metadata>
 		[Event(name="navigateAway")]
 	</fx:Metadata>
@@ -17,19 +17,29 @@
 			
 			import daisyworks.event.AppEvent;
 			
-			import mx.collections.XMLListCollection;
+			import flashx.textLayout.conversion.TextConverter;
+			import flashx.textLayout.elements.TextFlow;
 			
+			import mx.collections.XMLListCollection;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			
+			import spark.events.ElementExistenceEvent;
 			import spark.events.IndexChangeEvent;
 			import spark.utils.TextFlowUtil;
 
 			private var _app:XML;
 			[Bindable]
 			private var releaseDate:String;
+			
+			[Bindable]
+			private var descriptionTextFlow:TextFlow;
 
 			public function set app(app:XML):void
 			{
 				_app=app;
 				releaseDate = getDate(app.released[0]);
+				descriptionTextFlow = getTextFlow();
 			}
 
 			[Bindable]
@@ -43,13 +53,28 @@
 					return dateTimeFormatter.format(DateUtil.parseW3CDTF(xml));
 				} catch(e:Error) { 
 					// don't crash the UI if this has an error, just display nothing
+					trace(e.message);
 				}
 				return ''; 
+			}
+			
+			private function getTextFlow():TextFlow {
+				try {
+					if(app.description.children() != null) {
+						var text:String = app.description.toString();
+						return TextConverter.importToFlow(text, TextConverter.TEXT_FIELD_HTML_FORMAT)
+					} else {
+						return null;
+					}
+				} catch(e:Error) {
+					// don't crash the UI if this has an error, just display nothing
+					trace(e.message);
+				}
+				return null;
 			}
 
 			protected function downloadButton_clickHandler(event:MouseEvent):void
 			{
-				downloadButton.enabled=false;
 				// dispatch event to download .zip and store it. 
 				dispatchEvent(new AppEvent(AppEvent.DOWNLOAD, app));
 			}
@@ -57,96 +82,118 @@
 			[EventHandler(event="AppEvent.DOWNLOAD_COMPLETE")]
 			public function downloadComplete():void
 			{
-				// TODO manage installation state
-				downloadButton.enabled=true;
-			}
-			
-			protected function softwareList_changeHandler(event:IndexChangeEvent):void
-			{
-				trace("on list change old index {0}, new index {1}", event.oldIndex, event.newIndex);
-			}
+				mx.controls.Alert.show("App download complete");
+			}			
 			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
 		<s:DateTimeFormatter id="dateTimeFormatter" dateStyle="long" timeStyle="none"/>
 	</fx:Declarations>
-
-			<s:HGroup width="100%" height="202">
-				<s:VGroup horizontalAlign="center">
-					<mx:LinkButton label="&lt;&lt; Back"
-								   click="dispatchEvent(new Event('navigateAway'));" color="#0000FF"
-								   textDecoration="underline"/>
-					<mx:Image width="128" height="128" source="{app.icons.icon128x128}"/>
-					<s:Button id="downloadButton" label="Free"
-							  click="downloadButton_clickHandler(event)"/>
-				</s:VGroup>
-				<s:VGroup width="100%" horizontalAlign="center">
-					<s:Label width="100%" height="35" fontSize="20" fontWeight="bold"
-							 maxDisplayedLines="1" showTruncationTip="true" text="{app.name}"
-							 textAlign="center" verticalAlign="middle"/>
-					<s:Scroller width="100%" height="150" horizontalScrollPolicy="off">
-						<s:Group >
-							<s:layout>
-								<s:BasicLayout/>
-							</s:layout>
-							<s:RichText left="10" right="10" top="10"
-										textFlow="{TextFlowUtil.importFromString(app.description)}"/>
-						</s:Group>	
-					</s:Scroller>
-				</s:VGroup>
-
-			</s:HGroup>
-			<s:Scroller width="100%" height="100%" horizontalScrollPolicy="off">
-				<s:Group clipAndEnableScrolling="true">
+	
+			<!-- ______________________ GO BACK LINK ____________________________ -->
+			<s:Group width="100%" height="22">
 					<s:layout>
 						<s:BasicLayout />
 					</s:layout>
-					<s:Form left="10" right="10" top="10">
-						<s:FormItem width="100%" label="Author" fontWeight="normal">
-							<s:Label width="100%" height="100%" maxDisplayedLines="3"
+					<mx:LinkButton label="&lt;&lt; Back"
+								   click="dispatchEvent(new Event('navigateAway'));" color="#0000FF"
+								   textDecoration="underline"/>
+			</s:Group>
+	
+			<!-- ______________________________ SCROLLER ________________________________ -->
+			<s:Scroller id="scroller" width="100%" height="100%" horizontalScrollPolicy="off" >
+				<s:verticalScrollBar >
+					<s:VScrollBar stepSize="50" />
+				</s:verticalScrollBar>
+				<s:Group id="group" clipAndEnableScrolling="true" >
+					<s:layout>
+						<s:BasicLayout />
+					</s:layout>
+					<s:Form left="10" right="0" top="10">
+						
+						<!-- __________________________ FORM HEADER / APP NAME _________________________ -->
+						<s:FormHeading width="100%" label="{app.name}"/>
+						
+						<!-- _______________________ ICON _______________________________ -->
+						<s:Group width="100%">
+							<s:layout>
+								<s:HorizontalLayout verticalAlign="top" gap="10"/>
+							</s:layout>
+							<mx:Image height="128"
+									  width="128"
+									  source="{app.icons.icon128x128}"/>
+							<!-- _______________________ DESCRIPTION ____________________________________ -->
+							<s:RichEditableText selectable="true" editable="false" textFlow="{descriptionTextFlow}" multiline="true" width="100%" />
+						</s:Group>
+						
+						<!-- ___________________________ SOFTWARE INSTALL ____________________ -->
+						<s:FormItem width="100%" label="Install">
+							<s:layout>
+								<s:VerticalLayout gap="10" />
+							</s:layout>
+							<s:Button id="downloadButton" label="{app.@price}"/>
+							<components:SelectableList id="softwareList" horizontalScrollPolicy="off" 
+													   itemRenderer="daisyworks.view.itemrenderers.SoftwareItemRenderer" 
+													   width="100%">
+								<components:layout>
+									<s:VerticalLayout gap="2" />
+								</components:layout>
+								<components:dataProvider>
+									<s:XMLListCollection source="{app.software.children()}"/>
+								</components:dataProvider>
+							</components:SelectableList>
+						</s:FormItem>
+						
+						<!-- ___________________________ REQUIREMENTS ________________________ -->
+						<s:FormItem width="100%" label="Requirements" fontWeight="normal">						
+							<components:SelectableList id="requirementsList" horizontalScrollPolicy="off"
+													   itemRenderer="daisyworks.view.itemrenderers.RequirementsItemRenderer" 
+													   width="100%">
+								<components:layout>
+									<s:VerticalLayout gap="2"/>
+								</components:layout>
+								<components:dataProvider>
+									<s:XMLListCollection source="{app.requirements.children()}"/>
+								</components:dataProvider>
+							</components:SelectableList>
+						</s:FormItem>
+												
+						<!-- ___________________________ AUTHOR _____________________________ -->
+						<s:FormItem width="100%" label="Author" fontWeight="normal" >
+							<s:Label right="0" width="100%" height="100%" maxDisplayedLines="3"
 									 text="{app.author}" verticalAlign="middle"/>
 						</s:FormItem>
+						
+						<!-- ___________________________ WEBSITE ____________________________ -->
 						<s:FormItem width="100%" label="Web" fontWeight="normal" textAlign="left">
-							<mx:LinkButton width="100%" height="100%" label="{app.authorUrl}"
-										   paddingLeft="0" paddingRight="0" textAlign="left"/>
+							<mx:LinkButton right="0" width="100%" height="100%"
+										   label="{app.authorUrl}" paddingLeft="0" paddingRight="0"
+										   textAlign="left"/>
 						</s:FormItem>
+						
+						<!-- ___________________________ RELEASE DATE _______________________ -->
 						<s:FormItem width="100%" label="Released" fontWeight="normal">
 							<s:Label width="100%" height="100%" lineBreak="explicit"
 									 maxDisplayedLines="10"
 									 text="{releaseDate}"
 									 verticalAlign="middle"/>
 						</s:FormItem>
+						
+						<!-- ___________________________ CATEGORIES _________________________ -->
 						<s:FormItem width="100%" label="Categories" fontWeight="normal">
 							<s:layout>
-								<s:TileLayout orientation="rows"/>
+								<s:HorizontalLayout />
 							</s:layout>
-
-								<s:List borderVisible="false" enabled="false">
-									<s:layout>
-										<s:HorizontalLayout/>
-									</s:layout>
-									<s:dataProvider>
-										<s:XMLListCollection source="{app.categories.children()}"/>
-										
-									</s:dataProvider>
-								</s:List>
-						</s:FormItem>
-						<s:FormItem width="100%" label="Requirements" fontWeight="normal">
-							
-							<s:Label width="100%" height="100%" lineBreak="explicit" maxDisplayedLines="10"
-									 text="todo"/>
-						</s:FormItem>
-						<s:FormItem width="100%" label="Software" skinClass="daisyworks.view.skins.FormItemSkinWithButton">
-							<s:List id="softwareList" itemRenderer="daisyworks.view.itemrenderers.ExpandoItemRenderer" width="100%" 
-									allowMultipleSelection="true" change="softwareList_changeHandler(event)">
+							<s:DataGroup id="categories" width="100%"
+										 itemRenderer="spark.skins.spark.DefaultItemRenderer">
 								<s:layout>
-									<s:VerticalLayout gap="2" />
+									<s:TileLayout orientation="rows"/>
 								</s:layout>
 								<s:dataProvider>
-									<s:XMLListCollection source="{app.software.children()}"/>
+									<s:XMLListCollection source="{app.categories.children()}"/>
 								</s:dataProvider>
-							</s:List>
+							</s:DataGroup>
 						</s:FormItem>
 					</s:Form>
 				</s:Group>

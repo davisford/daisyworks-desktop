@@ -76,7 +76,17 @@ package daisyworks.controller
 			} finally {
 				fs.close();
 			}
+		}
+		
+		public function downloadApp(app:XML):void {
 			
+			for each(var item:XML in app.software.children()) {
+				if(item.@type == 'firmware') {
+					// download firmware
+				} else if(item.@type == 'swf') {
+					// download swf
+				}
+			}
 		}
 				
 		/**

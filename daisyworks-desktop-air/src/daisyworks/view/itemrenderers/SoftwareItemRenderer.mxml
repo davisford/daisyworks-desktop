@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
 				xmlns:s="library://ns.adobe.com/flex/spark" 
-				xmlns:mx="library://ns.adobe.com/flex/mx" click="itemrenderer_clickHandler(event)"
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
 				autoDrawBackground="true" width="100%">
 	
 	<fx:Script>
@@ -45,20 +45,6 @@
 				}
 				return ''; 
 			}
-			
-			protected function itemrenderer_clickHandler(event:MouseEvent):void
-			{
-				trace("clickHandler before, currentState: {0}", currentState);
-				if(currentState == "normal") { 
-					currentState="selected"; 
-				}
-				else if(currentState == "selected") { 
-					currentState="normal"; 
-				}
-				trace("clickHandler after, currentState: {0}", currentState);
-				event.stopImmediatePropagation();
-			}
-			
 		]]>
 	</fx:Script>
 	
@@ -91,10 +77,7 @@
 					 textAlign="start"
 					 fontWeight="bold"
 					 verticalAlign="middle"
-					 maxDisplayedLines="1"/>
-		<s:CheckBox id="checkBox"
-					top="3" right="3" selected="true"/>
-		
+					 maxDisplayedLines="1"/>		
 	</s:Group>
 	
 	<s:VGroup includeIn="selected" left="10" right="10" top="30">

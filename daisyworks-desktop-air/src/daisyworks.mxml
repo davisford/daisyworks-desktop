@@ -8,15 +8,24 @@
 					   width="1250"
 					   height="470"
 					   skinClass="assets.skins.WindowedApplicationSkin"
+					   creationComplete="creationCompleteHandler(event)"
 					   closing="closingHandler(event)">
 
 	<fx:Style source="assets/styles/daisyworks.css"/>
 
 	<fx:Script>
 		<![CDATA[
+			import mx.events.FlexEvent;
 			protected function closingHandler(event:Event):void {
 				mainView.close();
 			}
+			
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				// http://bugs.adobe.com/jira/browse/SDK-17288 default scroll delta is 1 f'ing pixel
+				systemManager.addEventListener("mouseWheel", function(evt:MouseEvent):void { evt.delta*=20;}, true);
+			}
+			
 		]]>
 	</fx:Script>
 

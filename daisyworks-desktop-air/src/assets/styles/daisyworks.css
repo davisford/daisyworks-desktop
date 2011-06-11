@@ -86,3 +86,21 @@ s|RichText {
 	font-family: "Verdana";
 	fontSize: 14;
 }
+
+/*
+s|FormItem s|Label#labelDisplay {
+	textAlign: right;
+}*/
+
+s|Form
+{
+	skinClass: ClassReference("spark.skins.spark.StackedFormSkin");
+}
+s|FormHeading
+{
+	skinClass: ClassReference("spark.skins.spark.StackedFormHeadingSkin");
+}        
+s|FormItem
+{
+	skinClass: ClassReference("spark.skins.spark.StackedFormItemSkin");
+}

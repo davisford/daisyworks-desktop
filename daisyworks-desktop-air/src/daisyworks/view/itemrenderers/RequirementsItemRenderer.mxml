@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true" width="100%">
+	
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+			import flashx.textLayout.elements.TextFlow;
+			
+			import spark.utils.TextFlowUtil;
+			
+			[Bindable]
+			private var node:XML;
+			
+			[Bindable]
+			private var instructionTextFlow:TextFlow;
+			
+			override public function set data(value:Object):void {
+				super.data = value;
+				if(!(value is XML)) {
+					node = null;
+					return; 
+				} else {
+					node = XML(value);
+					try {
+						if(node.instruction.children() != null) {
+							instructionTextFlow = TextFlowUtil.importFromXML(XML(node.instruction.children()));
+						} else {
+							instructionTextFlow = null;
+						}
+					} catch(e:Error) {
+						instructionTextFlow=null;
+						trace(e.message);
+					}
+				}
+			}
+						
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<s:states>
+		<s:State name="normal"/>          
+		<s:State name="hovered"/>
+		<s:State name="selected"/>
+	</s:states>
+	
+	<s:Rect top="0" left="0" right="0" bottom="0">
+		<s:fill>
+			<s:SolidColor id="bg" color="0xe3e3e3" />
+		</s:fill>
+	</s:Rect>
+	
+	<s:Group top="5" left="5" right="5" bottom="5">
+		
+		<!-- twisty -->
+		<s:Path data="M 0 0 L 8 0 L 4 6 L 0 0 Z" top="3" left="3" rotation="-90" rotation.selected="0">
+			<s:fill>
+				<s:SolidColor color="0x999999" color.selected="0x000000" />
+			</s:fill>
+		</s:Path>
+		<s:Label id="link" text="{node.name}" left="19" top="3" textAlign="start" fontWeight="bold" />
+	</s:Group>
+	
+	<s:VGroup includeIn="selected" left="10" right="10" top="30">
+		
+		<s:Form width="100%">
+			<s:FormItem width="100%" label="Model">
+				<s:Label width="100%" text="{node.model}"/>
+			</s:FormItem>
+			<s:FormItem width="100%" label="Version">
+				<s:Label width="100%" text="{node.version}"/>
+			</s:FormItem>
+			<s:FormItem width="100%" label="Instruction">
+				<s:RichText width="100%" textFlow="{instructionTextFlow}"/>
+			</s:FormItem>
+		</s:Form>
+	</s:VGroup>
+	
+</s:ItemRenderer>
