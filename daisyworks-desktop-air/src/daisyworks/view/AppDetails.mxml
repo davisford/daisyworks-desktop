@@ -188,7 +188,7 @@
 							<s:DataGroup id="categories" width="100%"
 										 itemRenderer="spark.skins.spark.DefaultItemRenderer">
 								<s:layout>
-									<s:TileLayout orientation="rows"/>
+									<s:TileLayout orientation="rows" requestedColumnCount="-1" requestedRowCount="-1"/>
 								</s:layout>
 								<s:dataProvider>
 									<s:XMLListCollection source="{app.categories.children()}"/>
