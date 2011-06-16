@@ -2,13 +2,14 @@ package daisyworks.controller
 {
 	import com.adobe.utils.StringUtil;
 	
+	import daisyworks.event.AppDownloadEvent;
 	import daisyworks.event.AppEvent;
-	import daisyworks.event.AppStoreEvent;
 	import daisyworks.log.Logger;
+	import daisyworks.model.App;
+	import daisyworks.model.Component;
 	
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
-	import flash.events.IOErrorEvent;
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
@@ -16,14 +17,22 @@ package daisyworks.controller
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
 	import flash.utils.ByteArray;
-	import flash.utils.IDataOutput;
 	
 	import mx.collections.XMLListCollection;
 	import mx.logging.ILogger;
 	
-	import nochump.util.zip.ZipEntry;
-	import nochump.util.zip.ZipFile;
+	import org.swizframework.events.ChainEvent;
+	import org.swizframework.utils.async.AsynchronousIOOperation;
+	import org.swizframework.utils.async.IAsynchronousOperation;
+	import org.swizframework.utils.chain.ChainType;
+	import org.swizframework.utils.chain.EventChain;
+	import org.swizframework.utils.chain.EventChainStep;
+	import org.swizframework.utils.chain.FunctionChainStep;
+	import org.swizframework.utils.services.URLRequestHelper;
 	
+	/**
+	 * Handles all events / control related to app managment (e.g. download, install, list, etc.)
+	 */
 	public class AppController
 	{
 		private static const LOG:ILogger = Logger.getLogger(AppController);
@@ -40,26 +49,49 @@ package daisyworks.controller
 		[Dispatcher]
 		public var dispatcher:IEventDispatcher;
 		
+		[Inject]public var urlRequestHelper:URLRequestHelper;
+		
 		public function AppController() {}
 		
 		[PostConstruct]
-		public function init():void {
-			
+		public function init():void {			
 			if(!appMetadataFile.exists) {
-				var outputString:String = '<?xml version="1.0" encoding="utf-8"?>\n';
-				outputString += '<apps></apps>';
-				outputString = outputString.replace(/\n/g, File.lineEnding);
-				// write the file out if it doesn't exist
-				var fs:FileStream = new FileStream();
-				try {
-					fs.open(appMetadataFile, FileMode.WRITE);
-					fs.writeUTFBytes(outputString);
-				}
-				finally {
-					fs.close();
-				}
+				appXML = bootstrapEmptyMetadata();
+			} else {
+				// load up app metadata
+				appXML = readAppMetadata();
+			}		
+			dispatcher.dispatchEvent(new AppEvent(AppEvent.LIST_RESULTS, null, new XMLListCollection(appXML.children())));
+		}
+		
+		/**
+		 * Creates an empty app metadata XML if it doesn't exist
+		 */
+		private function bootstrapEmptyMetadata():XML {
+			var outputString:String = "<?xml version='1.0' encoding='utf=8'?>"+File.lineEnding+"<apps></apps>";
+			var fs:FileStream = new FileStream();
+			try {
+				fs.open(appMetadataFile, FileMode.WRITE);
+				fs.writeUTFBytes(outputString);
+			} finally {
+				fs.close();
+				return new XML(outputString);			
 			}
-			appXML = new XML(outputString);
+		}
+		
+		/**
+		 * Reads the app metadata file contents, returns as XML
+		 */
+		private function readAppMetadata():XML {
+			var fs:FileStream = new FileStream();
+			var xml:XML;
+			try {
+				fs.open(appMetadataFile, FileMode.READ);
+				xml = XML(fs.readUTFBytes(fs.bytesAvailable));
+			} finally {
+				fs.close();
+				return xml;
+			}
 		}
 		
 		/**
@@ -68,137 +100,155 @@ package daisyworks.controller
 		 */
 		[EventHandler(event="AppEvent.LIST")]
 		public function list():void {
+			appXML = readAppMetadata();
+			dispatcher.dispatchEvent(new AppEvent(AppEvent.LIST_RESULTS, null, new XMLListCollection(appXML.children())));
+		}
+		
+		/**
+		 * Handles AppEvent.DOWNLOAD event; downloads all software components, saves them to appStorage, and updates
+		 * metadata regarding installed apps.
+		 */
+		[EventHandler(event="AppEvent.DOWNLOAD", properties="app")]
+		public function downloadApp(app:App):void {			
+
+			var chain:EventChain = new  EventChain(dispatcher, ChainType.SEQUENCE, true);
+			chain.addEventListener(ChainEvent.CHAIN_COMPLETE, commandChainComplete);
+			chain.addEventListener(ChainEvent.CHAIN_FAIL, commandChainFail);
+			
+			var firmwareFile:File;
+			var swfFile:File;
+			
+			// download firmware file via urlrequest
+			var firmware:Component = app.getFirmware();
+			if(firmware) {
+				firmwareFile = getFile('firmware', app.name);
+				chain.addStep( new EventChainStep( new AppDownloadEvent(AppDownloadEvent.DOWNLOAD, app, firmware, firmwareFile), dispatcher ) );
+			}
+			
+			// download swf file via urlrequest
+			var swf:Component = app.getSwf();	
+			if(swf) {
+				swfFile = getFile('swf', app.name);
+				chain.addStep( new EventChainStep( new AppDownloadEvent(AppDownloadEvent.DOWNLOAD, app, swf, swfFile), dispatcher ) );
+			}
+			
+			if(chain.steps.length <= 0) {
+				dispatcher.dispatchEvent(new AppEvent(AppEvent.DOWNLOAD_FAILED));
+			} else {
+				// start the chain
+				chain.addStep( new FunctionChainStep( saveAppMetadata, [app, firmwareFile, swfFile] ));
+				chain.start();		
+			}	
+		}
+		
+		/**
+		 * Fired when the download chain has completed all of its steps
+		 */
+		private function commandChainComplete(evt:ChainEvent):void {
+			dispatcher.dispatchEvent(new AppEvent(AppEvent.DOWNLOAD_COMPLETE));
+		}
+		
+		/**
+		 * Fired if any of the download chain steps fails
+		 */
+		private function commandChainFail(evt:ChainEvent):void {
+			dispatcher.dispatchEvent(new AppEvent(AppEvent.DOWNLOAD_FAILED));
+		}
+		
+		/**
+		 * Handles the actual file download for us
+		 */
+		[EventHandler(event="AppDownloadEvent.DOWNLOAD", properties="app, component, file")]
+		public function downloadSoftwareComponent(app:App, component:Component, file:File):IAsynchronousOperation {
+			var request : URLRequest = new URLRequest( component.url );
+			var loader : URLLoader = urlRequestHelper.executeURLRequest( request, downloadResult, downloadFailure, null, null, [app, component, file] );	
+			loader.dataFormat = URLLoaderDataFormat.BINARY;
+			return new AsynchronousIOOperation(loader);
+		}
+		
+		/**
+		 * Result handler when file data is ready
+		 */
+		private function downloadResult(evt:Event, app:App, component:Component, file:File):void {
+			var bytes:ByteArray = ByteArray(evt.target.data);
 			var fs:FileStream = new FileStream();
 			try {
-				fs.open(appMetadataFile, FileMode.READ);
-				appXML = XML(fs.readUTFBytes(fs.bytesAvailable));
-				dispatcher.dispatchEvent(new AppEvent(AppEvent.LIST_RESULTS, null, new XMLListCollection(appXML.children())));	
+				fs.open(file, FileMode.WRITE);
+				fs.writeBytes(bytes);
 			} finally {
 				fs.close();
 			}
 		}
 		
-		public function downloadApp(app:XML):void {
-			
-			for each(var item:XML in app.software.children()) {
-				if(item.@type == 'firmware') {
-					// download firmware
-				} else if(item.@type == 'swf') {
-					// download swf
-				}
-			}
-		}
-				
 		/**
-		 * Handles AppEvent.DOWNLOAD event; downloads the zip file, saves it to /:appStorage, 
-		 * and then unzips the contents
+		 * Fault handler if file download failed
 		 */
-		[EventHandler(event="AppEvent.DOWNLOAD", properties="app")]
-		public function download(app:XML):void {
-			var loader:URLLoader = new URLLoader();
-			loader.dataFormat = URLLoaderDataFormat.BINARY;
-			loader.addEventListener(IOErrorEvent.IO_ERROR, downloadError);
-			
-			// do this in-line so we can ref the app
-			loader.addEventListener(Event.COMPLETE, function(evt:Event):void {
-				var loader:URLLoader = URLLoader(evt.target);
-				var bytes:ByteArray = ByteArray(evt.target.data);
-				
-				var appName:String = cleanName(app.name);
-				// path should be appStorage:/applications/{app.name}/{app.name.zip} 
-				var zipName:String = appName + File.separator + appName+'.zip';
-				
-				// write out the zip file
-				var fs:FileStream = new FileStream();
-				try {
-					fs.open(appDir.resolvePath(zipName), FileMode.WRITE);
-					fs.writeBytes(bytes);
-				} finally { fs.close(); }
-				
-				// uncompress it
-				try {
-					// open the file for reading
-					fs = new FileStream();
-					fs.open(appDir.resolvePath(zipName), FileMode.READ);
-					// create a new ZipFile from the stream
-					var zipFile:ZipFile = new ZipFile(fs);
-					
-					// path should be appStorage:/applications/{app.name}/  ?
-					var outDir:File = appDir.resolvePath(appName);
-					
-					var installXML:XML = 
-						<install path=''>
-							<ui></ui>
-							<firmware></firmware>
-							<manifest></manifest>
-						</install>;
-					
-					// iterate through entries, and write them out
-					for(var i:uint=0; i<zipFile.entries.length; i++)
-					{
-						var zipEntry:ZipEntry = zipFile.entries[i] as ZipEntry;
-						if(!zipEntry.isDirectory())
-						{
-							var file:File = outDir.resolvePath(zipEntry.name);
-							var stream:FileStream = new FileStream();
-							if(StringUtil.endsWith(file.name.toLowerCase(), ".swf")) { 
-								installXML.ui = file.url; 
-							} else if(StringUtil.endsWith(file.name.toLowerCase(), ".hex")) {
-								installXML.firmware = file.url;
-							} else if(StringUtil.endsWith(file.name.toLowerCase(), ".xml")) {
-								installXML.manifest = file.url;
-							}
-							// write the file
-							stream.open(file, FileMode.WRITE);
-							stream.writeBytes(zipFile.getInput(zipEntry));
-							stream.close();
-						}
-					}
-					installXML.@path = appDir.resolvePath(appName).url;
-					// tell the world that the app is installed
-					addAppAndSave(app, installXML);
-					
-					dispatcher.dispatchEvent(new AppEvent(AppEvent.DOWNLOAD_COMPLETE));
-					dispatcher.dispatchEvent(new AppEvent(AppEvent.LIST_RESULTS, null, new XMLListCollection(appXML.children()) ) );
-					
-				} finally {
-					fs.close();
-					// delete the zip file, we don't need it anymore
-					appDir.resolvePath(zipName).deleteFile();
-				}
-			});
-			
-			// load the zip file from the URL
-			loader.load(new URLRequest(app.url));
-		}
-				
-		private function downloadError(evt:IOErrorEvent):void {
-			LOG.error("Failed to download the app " + evt.text);
+		private function downloadFailure(evt:Event, app:App, component:Component):void {
+			LOG.error('download '+component.url+' failed because '+evt.toString());
 		}
 		
+		/**
+		 * Runs as the last step in the download chain; updates the master XML metadata with the install
+		 * path of the firmware and/or swf 
+		 */
+		private function saveAppMetadata(app:App, firmwareFile:File=null, swfFile:File=null):void {
+			if(firmwareFile) {
+				app.getFirmware().path = firmwareFile.url;
+			}
+			if(swfFile) {
+				app.getSwf().path = swfFile.url;
+			}
+			
+			var xml:XML = app.toXml();
+			
+			LOG.info("Saving app metadata, appXML =>\n" + xml.toString());
+			
+			// if this app already exists, we will replace it in the app metadata XML
+			var oldNode:XML = appXML.app.(@id == app.@id)[0];
+			if(oldNode) {
+				// replace
+				appXML.replace(oldNode, xml);
+			} else {
+				// append
+				appXML.appendChild(xml);
+			}
+			
+			// write it out
+			var fs:FileStream = new FileStream();
+			try {
+				fs.open(appMetadataFile, FileMode.WRITE);
+				fs.writeUTFBytes(appXML);
+			} finally {
+				fs.close();
+			}
+			
+			LOG.info("After writing it out, appXML =>\n" + appXML.toString());
+		}
+		
+		/**
+		 * Resolve the File / path where we save the firmware or swf
+		 */
+		private function getFile(type:String, appName:String):File {
+			var outDir:File = appDir.resolvePath(cleanName(appName));
+			if(type == 'firmware') {
+				return outDir.resolvePath('firmware.hex');
+			} else if(type == 'swf') {
+				return outDir.resolvePath('ui.swf');
+			} else {
+				throw new Error('Unknown software component type '+type);
+			}
+		}
+		
+		/**
+		 * Sanitize the name of the directory where we store the application; 
+		 * Should remove illegal characters, spaces, etc.
+		 */
 		public static function cleanName(name:String):String {
 			// trim whitespace
 			name = StringUtil.trim(name);
 			name = StringUtil.replace(name, ' ', '');
 			// TODO check for illegal filename characters
 			return name;
-		}
-		
-		private function addAppAndSave(app:XML, installXML:XML):void {
-			app.appendChild(installXML);
-			appXML.appendChild(app);
-			var fs:FileStream = new FileStream();
-			try {
-				fs.open(appMetadataFile, FileMode.WRITE);
-				fs.writeUTFBytes(appXML);
-			}
-			finally {
-				fs.close();
-			}
-		}
-		
-		private function removeAppAndSave(app:XML, installPath:String):void {
-			// TODO
 		}
 		
 	}

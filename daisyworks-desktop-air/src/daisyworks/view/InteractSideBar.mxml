@@ -8,26 +8,25 @@
 	<fx:Script>
 		<![CDATA[
 			import daisyworks.event.AppEvent;
+			import daisyworks.model.App;
+			import daisyworks.model.presentation.AppPresentationModel;
 			
 			import mx.collections.XMLListCollection;
 			
 			import spark.events.IndexChangeEvent;
+
+			[Inject]
 			[Bindable]
-			public var results:XMLListCollection;
+			public var model:AppPresentationModel; 
 			
 			[PostConstruct]
 			public function init():void {
 				dispatchEvent(new AppEvent(AppEvent.LIST));
 			}
-			
-			[EventHandler(event="AppEvent.LIST_RESULTS", properties="list")]
-			public function onList(list:XMLListCollection):void {
-				results = list;
-			}
 
 			protected function appList_changeHandler(event:IndexChangeEvent):void
 			{
-				dispatchEvent(new AppEvent(AppEvent.DEPLOY, XML(appList.selectedItem)));
+				dispatchEvent(new AppEvent(AppEvent.DEPLOY, App(appList.selectedItem)));
 			}
 
 		]]>
@@ -38,5 +37,5 @@
 	</fx:Declarations>
 	<s:Label text="Installed Applications" paddingLeft="5" paddingTop="5" paddingRight="5" verticalAlign="middle" paddingBottom="5" left="10" right="10" top="10" height="25"/>
 	<s:List id="appList" top="35" left="10" right="10" bottom="10"
-			dataProvider="{results}" labelField="name" change="appList_changeHandler(event)" ></s:List>
+			dataProvider="{model.installedApps}" labelField="name" change="appList_changeHandler(event)" ></s:List>
 </s:Group>

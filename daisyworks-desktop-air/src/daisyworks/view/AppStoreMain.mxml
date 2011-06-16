@@ -7,14 +7,16 @@
 	</s:layout>
 	<fx:Script>
 		<![CDATA[
+			import daisyworks.model.App;
+			
 			import flash.events.Event;
 			
 			[Bindable]
-			private var selected:XML;
+			private var selected:App;
 
 			protected function appBrowse_appSelectedHandler(event:Event):void
 			{
-				selected = appBrowse.tileList.selectedItem as XML;
+				selected = appBrowse.tileList.selectedItem as App;
 				viewstack.selectedChild = details;
 			}
 

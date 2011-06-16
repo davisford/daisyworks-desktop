@@ -6,35 +6,23 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import daisyworks.model.Hardware;
+			
 			import flashx.textLayout.conversion.TextConverter;
 			import flashx.textLayout.elements.TextFlow;
 			
 			import spark.utils.TextFlowUtil;
 			
 			[Bindable]
-			private var node:XML;
+			private var hardware:Hardware;
 			
 			[Bindable]
 			private var instructionTextFlow:TextFlow;
 			
 			override public function set data(value:Object):void {
 				super.data = value;
-				if(!(value is XML)) {
-					node = null;
-					return; 
-				} else {
-					node = XML(value);
-					try {
-						if(node.instruction.children() != null) {
-							instructionTextFlow = TextFlowUtil.importFromXML(XML(node.instruction.children()));
-						} else {
-							instructionTextFlow = null;
-						}
-					} catch(e:Error) {
-						instructionTextFlow=null;
-						trace(e.message);
-					}
-				}
+				if(value)
+					hardware = Hardware(value);
 			}
 						
 		]]>
@@ -64,20 +52,20 @@
 				<s:SolidColor color="0x999999" color.selected="0x000000" />
 			</s:fill>
 		</s:Path>
-		<s:Label id="link" text="{node.name}" left="19" top="3" textAlign="start" fontWeight="bold" />
+		<s:Label id="link" text="{hardware.name}" left="19" top="3" textAlign="start" fontWeight="bold" />
 	</s:Group>
 	
 	<s:VGroup includeIn="selected" left="10" right="10" top="30">
 		
 		<s:Form width="100%">
 			<s:FormItem width="100%" label="Model">
-				<s:Label width="100%" text="{node.model}"/>
+				<s:Label width="100%" text="{hardware.model}"/>
 			</s:FormItem>
 			<s:FormItem width="100%" label="Version">
-				<s:Label width="100%" text="{node.version}"/>
+				<s:Label width="100%" text="{hardware.version}"/>
 			</s:FormItem>
 			<s:FormItem width="100%" label="Instruction">
-				<s:RichText width="100%" textFlow="{instructionTextFlow}"/>
+				<s:RichText width="100%" textFlow="{hardware.instruction}"/>
 			</s:FormItem>
 		</s:Form>
 	</s:VGroup>

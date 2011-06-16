@@ -3,17 +3,19 @@
 				   xmlns:s="library://ns.adobe.com/flex/spark"
 				   xmlns:mx="library://ns.adobe.com/flex/mx"
 				   xmlns:swiz="http://swiz.swizframework.org" 
-				   xmlns:controller="daisyworks.controller.*" xmlns:model="daisyworks.model.*" xmlns:view="daisyworks.view.*">
+				   xmlns:controller="daisyworks.controller.*" xmlns:model="daisyworks.model.*" xmlns:view="daisyworks.view.*" xmlns:presentation="daisyworks.model.presentation.*">
 
 	<fx:Script>
 		<![CDATA[
 			import daisyworks.model.Preferences;
+			import daisyworks.model.presentation.AppPresentationModel;
 		]]>
 	</fx:Script>
 
 	<!-- ______________________PROTOTYPE SCOPE______________________-->
 	
 	<swiz:Prototype type="{Preferences}" singleton="true"/>
+	<swiz:Prototype type="{AppPresentationModel}" id="appPresentationModel"/>
 	
 	<controller:WatchdogController id="watchdogController"/>
 	<controller:BluetoothController id="bluetoothController"/>

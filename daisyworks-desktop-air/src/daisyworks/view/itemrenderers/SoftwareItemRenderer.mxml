@@ -8,11 +8,10 @@
 		<![CDATA[
 			import com.adobe.utils.DateUtil;
 			
-			[Bindable]
-			private var node:XML;
+			import daisyworks.model.Component;
 			
 			[Bindable]
-			private var releaseDate:String;
+			private var component:Component;
 			
 			private static const FIRMWARE:String = "firmware";
 			private static const SWF:String = "swf";
@@ -20,30 +19,15 @@
 			private static const UserInterface:String = "User Interface";
 			
 			override public function set data(value:Object):void {
-
-				if(!(value is XML)) {
-					trace('itemRenderer set data value is not XML');
-					node = null;
-					labelDisplay.text = '';
-					releaseDate = '';
-					return; 
-				}
 				super.data = value;
-				trace('itemRenderer set data value is XML '+value.@type);
-				node = XML(value);
-				if(FIRMWARE == node.@type) { labelDisplay.text = Firmware; }
-				else if(SWF == node.@type) { labelDisplay.text = UserInterface; }
-				
-				releaseDate = getDate(node.released[0]);
-			}
-			
-			private function getDate(xml:XML):String {
-				try {  
-					return dateTimeFormatter.format(DateUtil.parseW3CDTF(xml));
-				} catch(e:Error) { 
-					// don't crash the UI if this has an error, just display nothing
+				if(value) {
+					component = Component(value);
+					if(FIRMWARE == component.type) { labelDisplay.text = Firmware; }
+					else if(SWF == component.type) { labelDisplay.text = UserInterface; }
+				} else {
+					labelDisplay.text = '';
 				}
-				return ''; 
+
 			}
 		]]>
 	</fx:Script>
@@ -84,13 +68,13 @@
 		
 		<s:Form width="100%">
 			<s:FormItem width="100%" label="Released">
-				<s:Label width="100%" text="{releaseDate}"/>
+				<s:Label width="100%" text="{dateTimeFormatter.format(component.released)}"/>
 			</s:FormItem>
 			<s:FormItem width="100%" label="Version">
-				<s:Label width="100%" text="{node.version}"/>
+				<s:Label width="100%" text="{component.version}"/>
 			</s:FormItem>
 			<s:FormItem width="100%" label="Release Notes">
-				<s:RichText width="100%" text="{node.notes}"/>
+				<s:RichText width="100%" textFlow="{component.notes}"/>
 			</s:FormItem>
 		</s:Form>
 	</s:VGroup>

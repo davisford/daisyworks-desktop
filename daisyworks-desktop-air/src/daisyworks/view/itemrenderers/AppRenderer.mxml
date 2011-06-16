@@ -12,15 +12,17 @@
 
 	<fx:Script>
 		<![CDATA[
+			import daisyworks.model.App;
 			import daisyworks.model.Icons;
 
 			[Bindable]
-			private var node:XML;
+			private var app:App;
 
 			override public function set data(value:Object):void
 			{
 				super.data=value;
-				node=XML(data);
+				if(value)
+					app = App(value);
 			}
 
 			protected function clickHandler(event:MouseEvent):void
@@ -31,7 +33,7 @@
 	</fx:Script>
 
 	<s:Label id="nameLabel"
-			 text="{node.name}"
+			 text="{app.name}"
 			 height="20"
 			 left="3"
 			 right="3"
@@ -43,7 +45,7 @@
 			 showTruncationTip="true"
 			 maxDisplayedLines="1"/>
 	<s:Label id="authorLabel"
-			 text="{node.author}"
+			 text="{app.author}"
 			 verticalAlign="middle"
 			 textAlign="center"
 			 fontStyle="italic"
@@ -56,7 +58,7 @@
 			  height="100%">
 		<mx:Image height="128"
 				  width="128"
-				  source="{node.icons.icon128x128}"/>
+				  source="{app.iconUrl}"/>
 	</s:HGroup>
 
 

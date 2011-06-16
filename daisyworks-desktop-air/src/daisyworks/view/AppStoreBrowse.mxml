@@ -13,16 +13,19 @@
 	<fx:Script>
 		<![CDATA[
 			import daisyworks.event.AppStoreEvent;
+			import daisyworks.model.App;
+			import daisyworks.model.presentation.AppPresentationModel;
 			
 			import mx.collections.XMLListCollection;
 			
 			import spark.events.IndexChangeEvent;
 			
 			[Bindable]
-			public var selected:XML;
+			public var selected:App;
 			
+			[Inject]
 			[Bindable]
-			public var results:XMLListCollection;
+			public var model:AppPresentationModel;
 			
 			[PostConstruct]
 			public function init():void {
@@ -38,11 +41,6 @@
 			{
 				dispatchEvent(new Event("appSelected"));
 			}
-			
-			[EventHandler(event="AppStoreEvent.RESULTS", properties="results")]
-			public function onResults(xmlList:XMLListCollection):void {
-				results = xmlList;
-			}
 
 		]]>
 	</fx:Script>
@@ -55,7 +53,7 @@
 	<s:List id="tileList"
 			itemRenderer="daisyworks.view.itemrenderers.AppRenderer"
 			left="0" right="0" top="0" bottom="0" width="100%" height="100%" borderVisible="false"
-			dataProvider="{results}" click="tileList_clickHandler(event)"
+			dataProvider="{model.appStoreApps}" click="tileList_clickHandler(event)"
 			change="tileList_changeHandler(event)">
 		<s:layout>
 			<s:TileLayout horizontalGap="5"
