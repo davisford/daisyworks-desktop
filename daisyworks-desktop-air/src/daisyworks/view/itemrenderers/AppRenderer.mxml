@@ -4,8 +4,7 @@
 				xmlns:mx="library://ns.adobe.com/flex/mx"
 				autoDrawBackground="true"
 				width="172"
-				height="193"
-				click="clickHandler(event)">
+				height="193">
 	<s:layout>
 		<s:VerticalLayout paddingTop="8"/>
 	</s:layout>
@@ -25,10 +24,6 @@
 					app = App(value);
 			}
 
-			protected function clickHandler(event:MouseEvent):void
-			{
-				// TODO Auto-generated method stub
-			}
 		]]>
 	</fx:Script>
 

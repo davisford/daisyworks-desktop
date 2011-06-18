@@ -8,19 +8,19 @@
 	<fx:Script>
 		<![CDATA[
 			import daisyworks.model.Preferences;
-			import daisyworks.model.presentation.AppPresentationModel;
 		]]>
 	</fx:Script>
 
 	<!-- ______________________PROTOTYPE SCOPE______________________-->
 	
 	<swiz:Prototype type="{Preferences}" singleton="true"/>
-	<swiz:Prototype type="{AppPresentationModel}" id="appPresentationModel"/>
 	
 	<controller:WatchdogController id="watchdogController"/>
 	<controller:BluetoothController id="bluetoothController"/>
 	<controller:AppStoreController id="appStoreController" />
 	<controller:AppController id="appController" />
+	
+	<presentation:AppPresentationModel id="appPresentationModel" />
 	
 	<model:Device />
 	

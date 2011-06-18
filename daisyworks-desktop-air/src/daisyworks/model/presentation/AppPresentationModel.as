@@ -1,8 +1,10 @@
 package daisyworks.model.presentation
 {
+	import daisyworks.event.AppEvent;
 	import daisyworks.model.App;
 	import daisyworks.model.Component;
 	
+	import flash.events.IEventDispatcher;
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
@@ -17,9 +19,14 @@ package daisyworks.model.presentation
 		private var _appStoreDict:Dictionary = new Dictionary(true);
 		private var _installedAppDict:Dictionary = new Dictionary(true);
 		
-		public function AppPresentationModel()
-		{
-
+		[Dispatcher]
+		public var dispatcher:IEventDispatcher;
+		
+		public function AppPresentationModel() { }
+		
+		[PostConstruct]
+		public function init():void {
+			dispatcher.dispatchEvent(new AppEvent(AppEvent.LIST));
 		}
 		
 		[Bindable]

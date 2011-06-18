@@ -11,6 +11,13 @@
 		[Event(name="navigateAway")]
 	</fx:Metadata>
 
+	<s:states>
+		<s:State name="Normal" />
+		<s:State name="Downloading" />
+		<s:State name="Installed" />
+		<s:State name="Update" />
+	</s:states>
+	
 	<fx:Script>
 		<![CDATA[
 			import com.adobe.utils.DateUtil;
@@ -22,6 +29,7 @@
 			import flashx.textLayout.elements.TextFlow;
 			
 			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import mx.events.ResizeEvent;
 			
@@ -35,13 +43,12 @@
 			{
 				_app=app;
 				if(app.installed) {
-					downloadButton.label = "Installed";
-					downloadButton.enabled = false;
+					currentState = "Installed";
 				} else {
-					downloadButton.enabled = true;
+					currentState = "Normal";
 				}
 				if(app.updateAvailable) {
-					downloadButton.label = "Update";
+					currentState = "Update";
 				}
 			}
 
@@ -55,21 +62,21 @@
 			{
 				// dispatch event to download .zip and store it. 
 				dispatchEvent(new AppEvent(AppEvent.DOWNLOAD, app));
-				downloadButton.label = "Downloading...";
-				downloadButton.enabled = false;
+				currentState = "Downloading";
 			}
 
 			[EventHandler(event="AppEvent.DOWNLOAD_COMPLETE")]
 			public function downloadComplete():void
 			{
-				downloadButton.label = "Installed";
+				currentState = "Installed";
 			}	
 			
 			[EventHandler(event="AppEvent.DOWNLOAD_FAILED")]
 			public function downloadFailed():void
 			{
-				downloadButton.label = app.price;
-				downloadButton.enabled = true;
+				// FIXME
+				mx.controls.Alert.show("Download failed");
+				currentState = "Normal";
 			}
 			
 		]]>
@@ -119,7 +126,16 @@
 							<s:layout>
 								<s:VerticalLayout gap="10" />
 							</s:layout>
-							<s:Button id="downloadButton" label="{app.price}" click="downloadButton_clickHandler(event)"/>
+							<s:Button id="downloadButton" 
+									  label.Normal="{app.price}"
+									  label.Downloading="Downloading..."
+									  label.Installed="Installed"
+									  label.Update="Update"
+									  enabled.Normal="true"
+									  enabled.Downloading="false"
+									  enabled.Installed="false"
+									  enabled.Update="true"
+									  click="downloadButton_clickHandler(event)"/>
 							<components:SelectableList id="softwareList" horizontalScrollPolicy="off" 
 													   itemRenderer="daisyworks.view.itemrenderers.SoftwareItemRenderer" 
 													   width="100%" dataProvider="{app.software}">

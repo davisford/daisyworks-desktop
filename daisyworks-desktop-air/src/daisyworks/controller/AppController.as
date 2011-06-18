@@ -61,7 +61,6 @@ package daisyworks.controller
 				// load up app metadata
 				appXML = readAppMetadata();
 			}		
-			dispatcher.dispatchEvent(new AppEvent(AppEvent.LIST_RESULTS, null, new XMLListCollection(appXML.children())));
 		}
 		
 		/**
