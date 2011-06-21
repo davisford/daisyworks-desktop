@@ -11,6 +11,8 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import daisyworks.model.App;
+			
 			import mx.controls.Alert;
 			import mx.core.IVisualElement;
 			import mx.events.FlexEvent;
@@ -21,16 +23,16 @@
 			import mx.modules.ModuleManager;
 
 			[Bindable]
-			private var app:XML;
+			private var app:App;
 			
 			[Bindable]
 			private var moduleUrl:String;
 						
 			[EventHandler(event="AppEvent.DEPLOY", properties="app")]
-			public function deploy(app:XML):void {
+			public function deploy(app:App):void {
 				this.app = app;
 				
-				var swf:File = new File(app.install.ui);
+				var swf:File = new File(app.getSwf().path);
 				if(!swf.exists) {
 					throw new Error("UI SWF does not exist");
 				}
@@ -72,8 +74,14 @@
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<s:Label text="{app.name}" left="10" right="10" top="10"/>
-	<s:BorderContainer id="border" left="10" right="10" top="35" bottom="0">
+	<s:HGroup left="10" right="10" top="10" height="45">
+		<s:Label text="{app.name}" left="10" right="10" top="10"/>
+		<s:Button label.Loaded="Unload" label.Unloaded="Load" />
+		<s:Button label="Program Daisy Firmware" />
+	</s:HGroup>
+	
+	<s:BorderContainer id="border" left="10" right="10" top="35" bottom="0"
+					   left.Unloaded="10" right.Unloaded="10" top.Unloaded="65" bottom.Unloaded="0">
 		
 		<s:Label id="helpLabel" y="229" includeIn="Unloaded"
 				 text="Select App To Load It Here" 

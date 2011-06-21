@@ -131,6 +131,9 @@ package daisyworks.controller
 				chain.addStep( new EventChainStep( new AppDownloadEvent(AppDownloadEvent.DOWNLOAD, app, swf, swfFile), dispatcher ) );
 			}
 			
+			// download the images
+			
+			
 			if(chain.steps.length <= 0) {
 				dispatcher.dispatchEvent(new AppEvent(AppEvent.DOWNLOAD_FAILED));
 			} else {
@@ -236,6 +239,14 @@ package daisyworks.controller
 			} else {
 				throw new Error('Unknown software component type '+type);
 			}
+		}
+		
+		/**
+		 * Resolve the File / path where we save icon images
+		 */
+		private function getImageFile(fileName:String, appName:String):File {
+			var outDir:File = appDir.resolvePath(cleanName(appName));
+			return outDir.resolvePath(fileName);
 		}
 		
 		/**

@@ -116,7 +116,7 @@
 							</s:layout>
 							<mx:Image height="128"
 									  width="128"
-									  source="{app.iconUrl}"/>
+									  source="{app.getIconUrl(128)}"/>
 							<!-- _______________________ DESCRIPTION ____________________________________ -->
 							<s:RichEditableText selectable="true" editable="false" textFlow="{app.description}" multiline="true" width="100%" />
 						</s:Group>

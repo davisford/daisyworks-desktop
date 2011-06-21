@@ -105,9 +105,10 @@ package daisyworks.model
 			</component>
 				xml.@type = type;
 				xml.@path = path;
-				xml.notes = notes;
+				xml.notes = notes.getText();
 				xml.released = DateUtil.toW3CDTF(released);
 				xml.version = version;
+				xml.url = url;
 				return xml;
 		}
 		

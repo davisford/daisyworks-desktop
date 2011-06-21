@@ -2,6 +2,8 @@ package daisyworks.model
 {
 	import com.adobe.utils.DateUtil;
 	
+	import flash.utils.Dictionary;
+	
 	import flashx.textLayout.conversion.TextConverter;
 	import flashx.textLayout.elements.TextFlow;
 	
@@ -16,7 +18,7 @@ package daisyworks.model
 		private var _authorUrl:String;
 		private var _categories:ArrayCollection;
 		private var _description:TextFlow;
-		private var _iconUrl:String;
+		private var _icons:ArrayCollection;
 		private var _name:String;
 		private var _released:Date;
 		private var _requirements:ArrayCollection;
@@ -89,14 +91,14 @@ package daisyworks.model
 			_description = value;
 		}
 		
-		public function get iconUrl():String
+		public function get icons():ArrayCollection
 		{
-			return _iconUrl;
+			return _icons;
 		}
 		
-		public function set iconUrl(value:String):void
+		public function set icons(value:ArrayCollection):void
 		{
-			_iconUrl = value;
+			_icons = value;
 		}
 		
 		public function get name():String
@@ -157,6 +159,16 @@ package daisyworks.model
 			_installed = val;
 		}
 		
+		public function getIconUrl(size:Number):String {
+			for each(var icon:Icon in icons) {
+				if(icon.size == size) {
+					if(icon.localUrl != null && icon.localUrl.length > 0) { return icon.localUrl; }
+					else if(icon.remoteUrl != null && icon.remoteUrl.length > 0) { return icon.remoteUrl; }
+				}
+			}
+			return null;
+		}
+		
 		/**
 		 * Compare their ArrayCollection of software components to mine.
 		 * if they end up having any component that has a newer version
@@ -208,10 +220,14 @@ package daisyworks.model
 			xml.author = author;
 			xml.authorUrl = authorUrl;
 			for each(var s:String in categories) { 
-				xml.categories.appendChild("<category>"+s+"</category>");
+				var x:XML = <category/>;
+				x.appendChild(s);
+				xml.categories.appendChild(x);
 			}
 			xml.description = description.getText();
-			xml.icons.appendChild("<icon128x128>"+iconUrl+"</icon128x128>");
+			for each(var icon:Icon in icons) {
+				xml.icons.appendChild(icon.toXml());
+			}
 			xml.name = name;
 			xml.released = DateUtil.toW3CDTF(released);
 			for each(var h:Hardware in requirements) {
@@ -238,13 +254,21 @@ package daisyworks.model
 			a.authorUrl = node.authorUrl;
 			a.categories = categoriesFromXmlList(node.categories.children());
 			a.description = getTextFlow(node, "description");
-			a.iconUrl = node.icons.icon128x128;
+			a.icons = getIcons(node);
 			a.name = node.name;
 			a.price = node.@price;
 			a.released = getDate(node.released[0]);
 			a.requirements = Hardware.fromXmlList(node.requirements.children());
 			a.software = Component.fromXmlList(node.software.children());
 			return a;
+		}
+		
+		public static function getIcons(node:XML):ArrayCollection {
+			var ac:ArrayCollection = new ArrayCollection();
+			for each(var xml:XML in node.icons.children()) {
+				ac.addItem(Icon.fromXML(xml));
+			}
+			return ac;
 		}
 		
 		public static function categoriesFromXmlList(list:XMLList):ArrayCollection {
@@ -278,9 +302,6 @@ package daisyworks.model
 			}
 			return null;
 		}
-
-
-
 
 	}
 }

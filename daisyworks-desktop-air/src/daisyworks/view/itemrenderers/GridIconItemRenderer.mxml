@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx" clipAndEnableScrolling="true">
+	
+	<fx:Script>
+		<![CDATA[
+			import daisyworks.model.App;
+
+			[Bindable]
+			private var iconUrl:String;
+			
+			private var _size:Number = 29;
+			
+			override public function prepare(hasBeenRecycled:Boolean):void {
+				//lblData.text = data[column.dataField]
+			}
+			
+			override public function set data(value:Object):void {
+				super.data = data;
+				if(value != null && value is App) {
+					iconUrl = App(value).getIconUrl(iconSize);
+				} else {
+					iconUrl = null;
+				}
+			}
+			
+			public function set iconSize(val:Number):void { _size = val; }
+			
+			[Bindable]
+			public function get iconSize():Number { return _size; }
+		]]>
+	</fx:Script>
+	
+	<mx:Image id="iconImage" height="{iconSize}" width="{iconSize}" source="{iconUrl}" />
+	
+</s:GridItemRenderer>

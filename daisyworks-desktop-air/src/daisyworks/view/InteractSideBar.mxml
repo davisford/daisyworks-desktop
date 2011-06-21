@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300">
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300" xmlns:itemrenderers="daisyworks.view.itemrenderers.*">
 	<s:layout>
 		<s:BasicLayout/>
 	</s:layout>
@@ -11,24 +11,28 @@
 			import daisyworks.model.App;
 			import daisyworks.model.presentation.AppPresentationModel;
 			
+			import mx.collections.ArrayCollection;
 			import mx.collections.XMLListCollection;
 			
+			import spark.events.GridSelectionEvent;
 			import spark.events.IndexChangeEvent;
 
 			[Inject]
 			[Bindable]
 			public var model:AppPresentationModel; 
 			
+			public var markedForDelete:ArrayCollection = new ArrayCollection();
+			
 			[PostConstruct]
 			public function init():void {
 				dispatchEvent(new AppEvent(AppEvent.LIST));
 			}
 
-			protected function appList_changeHandler(event:IndexChangeEvent):void
+			protected function appGrid_selectionChangeHandler(event:GridSelectionEvent):void
 			{
-				dispatchEvent(new AppEvent(AppEvent.DEPLOY, App(appList.selectedItem)));
+				dispatchEvent(new AppEvent(AppEvent.DEPLOY, App(appGrid.selectedItem)));
 			}
-
+						
 		]]>
 	</fx:Script>
 	
@@ -36,6 +40,25 @@
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<s:Label text="Installed Applications" paddingLeft="5" paddingTop="5" paddingRight="5" verticalAlign="middle" paddingBottom="5" left="10" right="10" top="10" height="25"/>
-	<s:List id="appList" top="35" left="10" right="10" bottom="10"
-			dataProvider="{model.installedApps}" labelField="name" change="appList_changeHandler(event)" ></s:List>
+	<s:HGroup left="10" right="10" top="35" height="28" verticalAlign="middle" horizontalAlign="right">
+		<s:Button label="Check For Updates"/>
+		
+	</s:HGroup>
+	
+	<s:DataGrid id="appGrid" top="65" left="10" right="10" bottom="10"
+				dataProvider="{model.installedApps}" selectionChange="appGrid_selectionChangeHandler(event)">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn headerText="" width="29" >
+					<s:itemRenderer>
+						<fx:Component>
+							<itemrenderers:GridIconItemRenderer iconSize="29" />
+						</fx:Component>
+					</s:itemRenderer>
+				</s:GridColumn>
+				<s:GridColumn headerText="Name" dataField="name" />
+			</s:ArrayList>
+		</s:columns>
+	</s:DataGrid>
+	
 </s:Group>

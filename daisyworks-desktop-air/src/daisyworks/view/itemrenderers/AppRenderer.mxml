@@ -53,7 +53,7 @@
 			  height="100%">
 		<mx:Image height="128"
 				  width="128"
-				  source="{app.iconUrl}"/>
+				  source="{app.getIconUrl(128)}"/>
 	</s:HGroup>
 
 
