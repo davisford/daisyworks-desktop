@@ -4,9 +4,13 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 width="100%" 
 		 height="100%" 
-		 currentState="Unloaded">
+		 creationComplete="creationCompleteHandler(event)"
+		 currentState="UnloadedWithoutFirmwareDisconnected" xmlns:view="daisyworks.view.*">
 	<s:layout>
-		<s:BasicLayout/>
+		<s:VerticalLayout paddingBottom.UnloadedWithFirmwareConnected="0"
+						  paddingLeft.UnloadedWithFirmwareConnected="10"
+						  paddingRight.UnloadedWithFirmwareConnected="10"
+						  paddingTop.UnloadedWithFirmwareConnected="10"/>
 	</s:layout>
 	
 	<fx:Script>
@@ -16,6 +20,7 @@
 			
 			import mx.controls.Alert;
 			import mx.core.IVisualElement;
+			import mx.events.FlexEvent;
 			import mx.events.ModuleEvent;
 			import mx.logging.ILogger;
 			import mx.modules.IModuleInfo;
@@ -28,49 +33,70 @@
 			[Bindable]
 			private var url:String;
 			
-			[Bindable]
-			private var connected:Boolean = false;
+			[Bindable] private var connected:Boolean = false;
+			[Bindable] private var loaded:Boolean = false;
+			[Bindable] private var hasFirmware:Boolean = false;
 			
-			private var moduleInfo:IModuleInfo;
+			/* you must keep a reference to ModuleLoader or it will get gc'd and events won't fire */
+			private var moduleLoader:ModuleLoader;
+			private var content:Object;
 			
 			private static const LOG:ILogger = Logger.getLogger(InteractMain);
+			
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				moduleLoader = new ModuleLoader();
+				moduleLoader.addEventListener(ModuleEvent.READY, onReady);
+				moduleLoader.addEventListener(ModuleEvent.ERROR, onError);
+				moduleLoader.addEventListener(ModuleEvent.PROGRESS, onProgress);
+				moduleLoader.addEventListener(ModuleEvent.SETUP, onSetup);
+				moduleLoader.addEventListener(ModuleEvent.UNLOAD, onUnload);
+				moduleLoader.addEventListener(mx.events.FlexEvent.LOADING, onLoading);
+				moduleLoader.addEventListener(mx.events.FlexEvent.URL_CHANGED, onUrlChanged);
+			}
+			
+			private function updateState():void {
+				if(loaded && hasFirmware && connected) { currentState = "LoadedWithFirmwareConnected"; }
+				else if(loaded && hasFirmware && !connected) { currentState = "LoadedWithFirmwareDisconnected"; }
+				else if(loaded && !hasFirmware && connected) { currentState = "LoadedWithoutFirmwareConnected"; }
+				else if(loaded && !hasFirmware && !connected) { currentState = "LoadedWithoutFirmwareDisconnected"; }
+				else if(!loaded && hasFirmware && connected) { currentState = "UnloadedWithFirmwareConnected"; }
+				else if(!loaded && hasFirmware && !connected) { currentState = "UnloadedWithFirmwareDisconnected"; }
+				else if(!loaded && !hasFirmware && connected) { currentState = "UnloadedWithoutFirmwareConnected"; }
+				else if(!loaded && !hasFirmware && !connected) { currentState = "UnloadedWithoutFirmwareDisconnected"; }
+			}
 			
 			[EventHandler(event="BluetoothControlEvent.CONNECTED")]
 			public function onConnected():void {
 				connected = true;
+				updateState();
 			}
 			
 			[EventHandler(event="BluetoothControlEvent.DISCONNECTED")]
 			public function onDisconnected():void {
 				connected = false;
+				updateState();
 			}
 						
 			[EventHandler(event="AppEvent.DEPLOY", properties="app")]
 			public function deploy(app:App):void {
-				
+				// remove content from the border container if it exists
+				if(content) {
+					border.removeChild(content as DisplayObject);
+				}
+				// unload the module if it is loaded
+				moduleLoader.unloadModule();
 				
 				this.app = app;
 				url = app.getSwf().path;
+				
+				hasFirmware = (app.getFirmware().path != null && app.getFirmware().path.length > 0);
 				
 				var swf:File = new File(url);
 				if(!swf.exists) {
 					LOG.error("Could not load SWF module from path {0} b/c the file does not exist.", url);
 				} else {
 					LOG.info("Trying to load " + url);
-					// setup the module loader; this sucks.  You have to load the byte array first, and
-					// pass it into the ModuleLoader's load( ) function. If you don't it will fail to
-					// cast the byte content it loads to IFlexModuleFactory, and it won't properly load
-					// -- detailed here: http://aaronhardy.com/flex/loading-a-remote-module-into-a-local-app
-					var moduleLoader:ModuleLoader = new ModuleLoader();
-					
-					//moduleLoader.addEventListener(ModuleEvent.READY, onReady);
-					moduleLoader.addEventListener(ModuleEvent.ERROR, onError);
-					moduleLoader.addEventListener(ModuleEvent.PROGRESS, onProgress);
-					moduleLoader.addEventListener(ModuleEvent.SETUP, onSetup);
-					moduleLoader.addEventListener(ModuleEvent.UNLOAD, onUnload);
-					moduleLoader.addEventListener(mx.events.FlexEvent.LOADING, onLoading);
-					moduleLoader.addEventListener(mx.events.FlexEvent.URL_CHANGED, onUrlChanged);
-					
 					
 					// load the swf into a byte array first
 					var bytes:ByteArray = new ByteArray();
@@ -92,9 +118,11 @@
 			private function onReady(evt:ModuleEvent):void {
 				LOG.info("Module is ready");
 				var info:IModuleInfo = evt.module;
-				var obj:Object = info.factory.create();
-				border.addElement(obj as IVisualElement);
-				currentState = 'Loaded';
+				content = info.factory.create();
+				//border.addElement(content as IVisualElement);
+				border.addElementAt(content as IVisualElement, 1);
+				loaded = true;
+				updateState();
 			}
 			
 			private function onError(evt:ModuleEvent):void {
@@ -103,7 +131,8 @@
 			
 			private function onUnload(evt:ModuleEvent):void { 
 				LOG.info("Module was unloaded");
-				currentState='Unloaded';
+				loaded = false;
+				updateState();
 			}
 			
 			/**
@@ -117,8 +146,6 @@
 			 */
 			private function onSetup(evt:ModuleEvent):void { 
 				LOG.info("Module was initialized");
-				moduleInfo = evt.module;
-				moduleInfo.addEventListener(ModuleEvent.READY, onReady);
 			}
 			
 			private function onProgress(evt:ModuleEvent):void { 
@@ -132,39 +159,43 @@
 			private function onLoading(evt:Event):void {
 				LOG.info("Module is loading");
 			}			
+			
 		]]>
 	</fx:Script>
 	<s:states>
-		<s:State name="Unloaded"/>
-		<s:State name="Loaded"/>
+		<s:State name="UnloadedWithFirmwareConnected" stateGroups="Unloaded, WithFirmware, Connected" />
+		<s:State name="UnloadedWithFirmwareDisconnected" stateGroups="Unloaded, WithFirmware, Disconnected" />
+		<s:State name="UnloadedWithoutFirmwareConnected" stateGroups="Unloaded, WithoutFirmware, Connected"/>
+		<s:State name="UnloadedWithoutFirmwareDisconnected" stateGroups="Unloaded, WithoutFirmware, Disconnected" />
+		<s:State name="LoadedWithFirmwareConnected" stateGroups="Loaded, WithFirmware, Connected"/>
+		<s:State name="LoadedWithFirmwareDisconnected" stateGroups="Loaded, WithFirmware, Disconnected" />
+		<s:State name="LoadedWithoutFirmwareConnected" stateGroups="Loaded, WithoutFirmware, Connected" />
+		<s:State name="LoadedWithoutFirmwareDisconnected" stateGroups="Loaded, WithoutFirmware, Disconnected" />
 	</s:states>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<s:HGroup left="10" right="10" top="10" height="45">
-		<s:Label text="{app.name}" left="10" right="10" top="10"/>
-		<s:Button label="Program Daisy Firmware" />
-	</s:HGroup>
+	<view:FirmwareProgrammer left="10" right="10" top="10" bottom="10" height="100%" app="{app}" connected="{connected}"
+							 width="100%" includeIn="WithFirmware"/>
 	
-	<s:BorderContainer id="border" left="10" right="10" top="65" bottom="0">
-		<!--<s:ModuleLoader url="{url}" 
-						width="100%" height="100%"
-						loading="onLoading(event)"
-						urlChanged="onUrlChanged(event)"
-						progress="onProgress(event)"
-						setup="onSetup(event)"
-						unload="onUnload(event)"
-						ready="onReady(event)"
-						error="onError(event)"
-						/>-->
-		<s:Label id="helpLabel" y="229" includeIn="Unloaded"
-				 text="Select App To Load It Here" 
+	<s:BorderContainer id="border" left="10" right="10" bottom="0" top="20" enabled="{connected}"
+					   width="100%"
+					   height="100%">
+		
+		<s:Label id="helpLabel" y="229" includeIn="Unloaded, Disconnected"
+				 text.UnloadedWithFirmwareConnected="Select App To Load It Here"
+				 text.UnloadedWithFirmwareDisconnected="Select App To Load It Here"
+				 text.UnloadedWithoutFirmwareConnected="Select App To Load It Here"
+				 text.UnloadedWithoutFirmwareDisconnected="Select App To Load It Here"
+				 text.LoadedWithFirmwareDisconnected="Please Connect To A Daisy"
+				 text.LoadedWithoutFirmwareDisconnected="Please Connect To A Daisy"
 				 width="100%" 
 				 height="51" 
 				 verticalAlign="middle" 
 				 textAlign="center" 
 				 fontWeight="bold" 
-				 fontSize="24"/>
+				 fontSize="24">
+		</s:Label>
 		
 	</s:BorderContainer>
 </s:Group>

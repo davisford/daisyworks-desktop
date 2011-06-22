@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 maxHeight="85">
+	
+	<s:layout>
+		<s:BasicLayout />
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import daisyworks.model.App;
+			
+			private var _app:App;
+			
+			[Bindable]
+			public function get app():App { return _app; }
+			public function set app(val:App):void { _app = val; }
+			
+			private var _connected:Boolean;
+			
+			[Bindable]
+			public function get connected():Boolean { return _connected; }
+			public function set connected(val:Boolean):void { _connected = val; }
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+
+	</fx:Declarations>
+	<mx:ProgressBar left="5" right="85" top="65" label=""/>
+	<s:TextArea left="5" right="5" top="5" maxHeight="55">
+		<s:content>
+			This application <s:span fontWeight="bold">
+				{app.name}
+			</s:span>, has a Daisy firmware component included with it.  You can re-program the Daisy with 
+			this firmware so the application can communicate with it if you have not already done so.
+		</s:content>
+	</s:TextArea>
+	<s:Button right="5" top="65" label="Program" enabled="{connected}"/>
+</s:Group>
