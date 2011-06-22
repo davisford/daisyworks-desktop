@@ -11,60 +11,127 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import daisyworks.log.Logger;
 			import daisyworks.model.App;
 			
 			import mx.controls.Alert;
 			import mx.core.IVisualElement;
-			import mx.events.FlexEvent;
 			import mx.events.ModuleEvent;
+			import mx.logging.ILogger;
 			import mx.modules.IModuleInfo;
-			import mx.modules.Module;
-			import mx.modules.ModuleLoader;
-			import mx.modules.ModuleManager;
+			
+			import spark.modules.ModuleLoader;
 
 			[Bindable]
 			private var app:App;
 			
 			[Bindable]
-			private var moduleUrl:String;
+			private var url:String;
+			
+			[Bindable]
+			private var connected:Boolean = false;
+			
+			private var moduleInfo:IModuleInfo;
+			
+			private static const LOG:ILogger = Logger.getLogger(InteractMain);
+			
+			[EventHandler(event="BluetoothControlEvent.CONNECTED")]
+			public function onConnected():void {
+				connected = true;
+			}
+			
+			[EventHandler(event="BluetoothControlEvent.DISCONNECTED")]
+			public function onDisconnected():void {
+				connected = false;
+			}
 						
 			[EventHandler(event="AppEvent.DEPLOY", properties="app")]
 			public function deploy(app:App):void {
+				
+				
 				this.app = app;
+				url = app.getSwf().path;
 				
-				var swf:File = new File(app.getSwf().path);
+				var swf:File = new File(url);
 				if(!swf.exists) {
-					throw new Error("UI SWF does not exist");
+					LOG.error("Could not load SWF module from path {0} b/c the file does not exist.", url);
+				} else {
+					LOG.info("Trying to load " + url);
+					// setup the module loader; this sucks.  You have to load the byte array first, and
+					// pass it into the ModuleLoader's load( ) function. If you don't it will fail to
+					// cast the byte content it loads to IFlexModuleFactory, and it won't properly load
+					// -- detailed here: http://aaronhardy.com/flex/loading-a-remote-module-into-a-local-app
+					var moduleLoader:ModuleLoader = new ModuleLoader();
+					
+					//moduleLoader.addEventListener(ModuleEvent.READY, onReady);
+					moduleLoader.addEventListener(ModuleEvent.ERROR, onError);
+					moduleLoader.addEventListener(ModuleEvent.PROGRESS, onProgress);
+					moduleLoader.addEventListener(ModuleEvent.SETUP, onSetup);
+					moduleLoader.addEventListener(ModuleEvent.UNLOAD, onUnload);
+					moduleLoader.addEventListener(mx.events.FlexEvent.LOADING, onLoading);
+					moduleLoader.addEventListener(mx.events.FlexEvent.URL_CHANGED, onUrlChanged);
+					
+					
+					// load the swf into a byte array first
+					var bytes:ByteArray = new ByteArray();
+					var urlLoader:URLLoader = new URLLoader();
+					urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
+					urlLoader.addEventListener(Event.COMPLETE,
+						function(evt:Event):void {
+							// give the byte array to the module loader (you must do this)
+							bytes = ByteArray(evt.target.data);
+							moduleLoader.loadModule(url, bytes);
+						}
+					);
+					
+					// load the swf file
+					urlLoader.load(new URLRequest(url)); 
 				}
-				
-				// setup the module loader
-				var moduleLoader:ModuleLoader = new ModuleLoader();
-						
-				moduleLoader.addEventListener(ModuleEvent.READY, 
-					function(evt:ModuleEvent):void {
-						var info:IModuleInfo = evt.module;
-						border.addElement(info.factory.create() as IVisualElement);
-					}
-				);
-				moduleLoader.addEventListener(ModuleEvent.ERROR,
-					function(evt:ModuleEvent):void {
-						mx.controls.Alert.show(evt.errorText);
-					}
-				);
-							
-				// load the swf into a byte array
-				var bytes:ByteArray = new ByteArray();
-				var urlLoader:URLLoader = new URLLoader();
-				urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
-				urlLoader.addEventListener(Event.COMPLETE,
-					function(evt:Event):void {
-						bytes = ByteArray(evt.target.data);
-						moduleLoader.loadModule(swf.url, bytes);
-					}
-				);
-				urlLoader.load(new URLRequest(swf.url));
 			}
-
+			
+			private function onReady(evt:ModuleEvent):void {
+				LOG.info("Module is ready");
+				var info:IModuleInfo = evt.module;
+				var obj:Object = info.factory.create();
+				border.addElement(obj as IVisualElement);
+				currentState = 'Loaded';
+			}
+			
+			private function onError(evt:ModuleEvent):void {
+				LOG.error("Module failed to load because {0} ", evt.errorText);
+			}
+			
+			private function onUnload(evt:ModuleEvent):void { 
+				LOG.info("Module was unloaded");
+				currentState='Unloaded';
+			}
+			
+			/**
+			 * This is a ridiculous workaround for a bug in the Flex SDK
+			 * I summarized here: http://aaronhardy.com/flex/loading-a-remote-module-into-a-local-app/
+			 * 
+			 * ...in the comments section.  You have to attach a handler to ModuleEvent.READY on the
+			 * IModuleInfo object -- NOT the ModuleLoader as you would expect.  The event doesn't 
+			 * consistently fire from ModuleLoader.  It seems like something is GC'd and the event is
+			 * lost.  Thus, if you attach it here, it seems to work consistently.
+			 */
+			private function onSetup(evt:ModuleEvent):void { 
+				LOG.info("Module was initialized");
+				moduleInfo = evt.module;
+				moduleInfo.addEventListener(ModuleEvent.READY, onReady);
+			}
+			
+			private function onProgress(evt:ModuleEvent):void { 
+				LOG.info("Module loaded {0} / {1} bytes ", evt.bytesLoaded, evt.bytesTotal);
+			}
+			
+			private function onUrlChanged(evt:Event):void {
+				LOG.info("Module url changed");
+			}
+			
+			private function onLoading(evt:Event):void {
+				LOG.info("Module is loading");
+			}			
 		]]>
 	</fx:Script>
 	<s:states>
@@ -76,13 +143,20 @@
 	</fx:Declarations>
 	<s:HGroup left="10" right="10" top="10" height="45">
 		<s:Label text="{app.name}" left="10" right="10" top="10"/>
-		<s:Button label.Loaded="Unload" label.Unloaded="Load" />
 		<s:Button label="Program Daisy Firmware" />
 	</s:HGroup>
 	
-	<s:BorderContainer id="border" left="10" right="10" top="35" bottom="0"
-					   left.Unloaded="10" right.Unloaded="10" top.Unloaded="65" bottom.Unloaded="0">
-		
+	<s:BorderContainer id="border" left="10" right="10" top="65" bottom="0">
+		<!--<s:ModuleLoader url="{url}" 
+						width="100%" height="100%"
+						loading="onLoading(event)"
+						urlChanged="onUrlChanged(event)"
+						progress="onProgress(event)"
+						setup="onSetup(event)"
+						unload="onUnload(event)"
+						ready="onReady(event)"
+						error="onError(event)"
+						/>-->
 		<s:Label id="helpLabel" y="229" includeIn="Unloaded"
 				 text="Select App To Load It Here" 
 				 width="100%" 
