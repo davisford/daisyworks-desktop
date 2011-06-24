@@ -8,6 +8,7 @@ package daisyworks.event
 	public class BluetoothDiscoveryEvent extends Event
 	{
 		public static const DISCOVER_DEVICES:String 		= "BluetoothDiscoveryEvent.DISCOVER_DEVICES";
+		public static const DISCOVER_CACHED_DEVICES:String  = "BluetoothDiscoveryEvent.DISCOVER_CACHED_DEVICES";
 		public static const DISCOVER_DEVICES_FAULT:String	= "BluetoothDiscoveryEvent.DISCOVER_DEVICES_FAULT";
 		public static const FOUND_DEVICES:String			= "BluetoothDiscoveryEvent.FOUND_DEVICES";
 		

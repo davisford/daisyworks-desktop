@@ -5,6 +5,8 @@ package com.daisyworks.service;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,6 +35,10 @@ import org.springframework.flex.remoting.RemotingDestination;
 import org.springframework.flex.remoting.RemotingInclude;
 import org.springframework.stereotype.Service;
 
+import com.daisyworks.common.intelhex.BufferedIntelHexReader;
+import com.daisyworks.common.stk500.STK500Event;
+import com.daisyworks.common.stk500.STK500EventListener;
+import com.daisyworks.common.stk500.STK500v1;
 import com.daisyworks.exception.ExceptionUtil;
 import com.daisyworks.model.Device;
 
@@ -48,7 +54,7 @@ public final class BluetoothService implements DiscoveryListener {
 
 	// object used for waiting
 	private static Object deviceLock = new Object();
-	private static Object serviceLock = new Object();  
+	private static Object serviceLock = new Object();
 
 	// map of discovered devices; key = device address
 	private final ConcurrentMap<String, RemoteDevice> deviceMap = new ConcurrentHashMap<String, RemoteDevice>();
@@ -56,13 +62,13 @@ public final class BluetoothService implements DiscoveryListener {
 	private final ConcurrentMap<String, String> serviceMap = new ConcurrentHashMap<String, String>();
 	// map of device address to connection
 	private final ConcurrentMap<String, StreamConnection> connectionMap = new ConcurrentHashMap<String, StreamConnection>();
-	
+
 	private DeviceDiscoveryResult lastDeviceDiscoveryResult;
 	private ServiceDiscoveryResult lastServiceDiscoveryResult;
 
 	// our main entry point into Java Bluetooth
 	private DiscoveryAgent agent;
-	
+
 	// for reading from the UART
 	private InputStream input;
 	// for posting to the UART
@@ -73,27 +79,26 @@ public final class BluetoothService implements DiscoveryListener {
 
 	// Spring template for AMF pub/sub
 	private MessageTemplate template;
-	
+
 	private static final UUID[] uuidSet = new UUID[] {
-		// new UUID(0x0001), // SDP
-		new UUID(0x0003) // RFCOMM
-		// new UUID(0x0008), // OBEX
-		// new UUID(0x000C), // HTTP
-		// new UUID(0x0100) // L2CAP
-		// new UUID(0x000F), // BNEP
-		// new UUID(0x1101), // Serial Port
-		// new UUID(0x1000), // ServiceDiscoveryServerServiceClassID
-		// new UUID(0x1001), // BrowseGroupDescriptorServiceClassID
-		// new UUID(0x1002), // PublicBrowseGroup
-		// new UUID(0x1105), // OBEX Oject Push
-		// new UUID(0x1106), // OBEX File Transfer
-		// new UUID(0x1115), // PAN
-		// new UUID(0x1116), // Network Access Point
-		// new UUID(0x1117), // Group Network
+	// new UUID(0x0001), // SDP
+	new UUID(0x0003) // RFCOMM
+	// new UUID(0x0008), // OBEX
+	// new UUID(0x000C), // HTTP
+	// new UUID(0x0100) // L2CAP
+	// new UUID(0x000F), // BNEP
+	// new UUID(0x1101), // Serial Port
+	// new UUID(0x1000), // ServiceDiscoveryServerServiceClassID
+	// new UUID(0x1001), // BrowseGroupDescriptorServiceClassID
+	// new UUID(0x1002), // PublicBrowseGroup
+	// new UUID(0x1105), // OBEX Oject Push
+	// new UUID(0x1106), // OBEX File Transfer
+	// new UUID(0x1115), // PAN
+	// new UUID(0x1116), // Network Access Point
+	// new UUID(0x1117), // Group Network
 	};
 
-	private static int[] attrSet = new int[] { 
-		0x0100 // Service name
+	private static int[] attrSet = new int[] { 0x0100 // Service name
 	};
 
 	/**
@@ -105,6 +110,7 @@ public final class BluetoothService implements DiscoveryListener {
 
 	/**
 	 * Spring injected {@link MessageTemplate}
+	 * 
 	 * @param template
 	 */
 	@Autowired
@@ -147,7 +153,7 @@ public final class BluetoothService implements DiscoveryListener {
 
 			agent = localDevice.getDiscoveryAgent();
 
-			LOGGER.info("Starting Device Inquiry");
+			LOGGER.info("Starting Device Inquiry");  
 			agent.startInquiry(DiscoveryAgent.GIAC, this);
 			try {
 				synchronized (deviceLock) {
@@ -157,10 +163,13 @@ public final class BluetoothService implements DiscoveryListener {
 				LOGGER.error(e);
 				throw new RuntimeException(e);
 			}
-			LOGGER.debug("Device Inquiry Complete => " + lastDeviceDiscoveryResult);
-			if(!DeviceDiscoveryResult.INQUIRY_COMPLETED.equals(lastDeviceDiscoveryResult)) {
+			LOGGER.debug("Device Inquiry Complete => "
+					+ lastDeviceDiscoveryResult);
+			if (!DeviceDiscoveryResult.INQUIRY_COMPLETED
+					.equals(lastDeviceDiscoveryResult)) {
 				// something went wrong
-				throw new BluetoothServiceException(lastDeviceDiscoveryResult.asString());
+				throw new BluetoothServiceException(
+						lastDeviceDiscoveryResult.asString());
 			}
 
 			if (deviceMap.size() == 0) {
@@ -177,37 +186,80 @@ public final class BluetoothService implements DiscoveryListener {
 			throw new BluetoothServiceException(e);
 		}
 	}
+	
+	/**
+	 * Returns a list of cached devices that the bluetooth stack knows about.  
+	 * @return
+	 * @throws Exception
+	 */
+	@RemotingInclude
+	public Set<Device> findCachedDevices() throws Exception {
+		
+		try {
+			final LocalDevice localDevice = LocalDevice.getLocalDevice();
+			LOGGER.info("Local Bluetooth Name/Addres: "
+					+ localDevice.getFriendlyName() + "/"
+					+ localDevice.getBluetoothAddress());
+
+			agent = localDevice.getDiscoveryAgent();
+
+			LOGGER.info("Returning a list of cached devices");
+			RemoteDevice[] devices = agent.retrieveDevices(DiscoveryAgent.CACHED);
+			
+			if(devices == null) { return new HashSet<Device>(0); }
+			
+			Set<Device> set = new HashSet<Device>(devices.length);
+			for(RemoteDevice rd : devices) {
+				set.add(toDevice(rd));
+			}
+			return set;
+		} catch(Exception e) {
+			LOGGER.error(e);
+			throw new BluetoothServiceException(e);
+		}
+	}
 
 	/**
-	 * Find the RFCOMM service for the given address; the address is cached so when you call
-	 * connect, the service URL will be used that this method looked up
-	 * @param address the Bluetooth address of the device 
-	 * @throws Exception 
+	 * Find the RFCOMM service for the given address; the address is cached so
+	 * when you call connect, the service URL will be used that this method
+	 * looked up
+	 * 
+	 * @param address
+	 *            the Bluetooth address of the device
+	 * @throws Exception
 	 */
 	@RemotingInclude
 	public void findServices(final String address) throws Exception {
 		LOGGER.info("Searching for services on remote device " + address);
 		final RemoteDevice remoteDevice = deviceMap.get(address);
 		if (remoteDevice == null) {
-			throw new BluetoothServiceException("Unknown device address: " + address);
+			throw new BluetoothServiceException("Unknown device address: "
+					+ address);
 		}
 
 		synchronized (serviceLock) {
 			try {
 				agent.searchServices(attrSet, uuidSet, remoteDevice, this);
 			} catch (BluetoothStateException e) {
-				LOGGER.error("Exception searching for services on remote device address: "+address+" \n" + ExceptionUtil.getStackTraceAsString(e)); 
+				LOGGER.error("Exception searching for services on remote device address: "
+						+ address
+						+ " \n"
+						+ ExceptionUtil.getStackTraceAsString(e));
 				throw new RuntimeException(e);
 			} finally {
 				try {
 					serviceLock.wait();
 				} catch (InterruptedException e) {
-					LOGGER.error("We've got threading issues <service search> \n" + ExceptionUtil.getStackTraceAsString(e));
-					throw new BluetoothServiceException("Connection was not successful.  Please try again.");
+					LOGGER.error("We've got threading issues <service search> \n"
+							+ ExceptionUtil.getStackTraceAsString(e));
+					throw new BluetoothServiceException(
+							"Connection was not successful.  Please try again.");
 				}
 				// anything but SERVICE_SEARCH_COMPLETED means we had a problem
-				if(!ServiceDiscoveryResult.SERVICE_SEARCH_COMPLETED.equals(lastServiceDiscoveryResult)) {
-					throw new BluetoothServiceException(lastServiceDiscoveryResult.asString());
+				if (!ServiceDiscoveryResult.SERVICE_SEARCH_COMPLETED
+						.equals(lastServiceDiscoveryResult)) {
+					throw new BluetoothServiceException(
+							lastServiceDiscoveryResult.asString());
 				}
 			}
 		}
@@ -216,54 +268,64 @@ public final class BluetoothService implements DiscoveryListener {
 	/**
 	 * Connect to the SPP on the given address
 	 * 
-	 * @param address the Bluetooth address
+	 * @param address
+	 *            the Bluetooth address
 	 * @throws Exception
 	 */
 	@RemotingInclude
 	public void connectRFComm(String address) throws Exception {
-		LOGGER.info("attempting to connect to "+address);
+		LOGGER.info("attempting to connect to " + address);
 		StreamConnection connection = null;
-		if(connectionMap.containsKey(address)) {
+		if (connectionMap.containsKey(address)) {
 			connection = connectionMap.get(address);
 		} else {
-			connection = (StreamConnection) Connector.open(serviceMap.get(address));
+			connection = (StreamConnection) Connector.open(serviceMap
+					.get(address));
 			connectionMap.put(address, connection);
 		}
-		input  = connection.openInputStream();
+		input = connection.openInputStream();
 		output = connection.openDataOutputStream();
 		if (consoleReadThread == null) {
 			consoleReadThread = new ConsoleReadThread(input, template);
 		}
 		consoleReadThread.start();
 	}
-	
+
 	/**
 	 * Disconnect from the RFComm service
+	 * 
 	 * @param address
 	 * @throws Exception
 	 */
 	@SuppressWarnings("deprecation")
 	@RemotingInclude
-	public void disconnectRFComm(String address)  {
-		LOGGER.debug("disconnecting "+address);
+	public void disconnectRFComm(String address) {
+		LOGGER.debug("disconnecting " + address);
 		StreamConnection connection = connectionMap.get(address);
 		try {
 			// stop the thread
-			if(consoleReadThread != null) {
+			if (consoleReadThread != null) {
 				/*
-				 * This is deprecated, but the Bluecove implementation of InputStream
-				 * provides no possible way to interrupt a thread that is doing a blocking
-				 * read call;  This big hammer approach is the only sane way to deal
-				 * with this.
+				 * This is deprecated, but the Bluecove implementation of
+				 * InputStream provides no possible way to interrupt a thread
+				 * that is doing a blocking read call; This big hammer approach
+				 * is the only sane way to deal with this.
 				 */
-				consoleReadThread.stop(); 
+				consoleReadThread.stop();
 			}
-			if(input != null) { input.close(); }
-			if(output != null) { output.close(); }
-			if(connection != null) { connection.close(); }
+			if (input != null) {
+				input.close();
+			}
+			if (output != null) {
+				output.close();
+			}
+			if (connection != null) {
+				connection.close();
+			}
 			connectionMap.remove(address);
 		} catch (Exception e) {
-			LOGGER.error("Exception trying to disconnect from RFCOMM \n" +ExceptionUtil.getStackTraceAsString(e));
+			LOGGER.error("Exception trying to disconnect from RFCOMM \n"
+					+ ExceptionUtil.getStackTraceAsString(e));
 		} finally {
 			consoleReadThread = null;
 		}
@@ -284,24 +346,29 @@ public final class BluetoothService implements DiscoveryListener {
 			output.flush();
 		}
 	}
-	
+
 	/**
 	 * Set the device friendly name
-	 * @param name must be at least one character and not more than 20 characters
+	 * 
+	 * @param name
+	 *            must be at least one character and not more than 20 characters
 	 * @return true if successful, false otherwise
 	 * @throws Exception
 	 */
 	@SuppressWarnings("deprecation")
 	@RemotingInclude
 	public boolean rename(String address, String name) throws Exception {
-		if(name == null || name.isEmpty()) {
+		if (name == null || name.isEmpty()) {
 			throw new BluetoothServiceException("Name cannot be null or empty");
-		} else if(name.length() > 20) {
-			throw new BluetoothServiceException("Name cannot exceed 20 characters");
+		} else if (name.length() > 20) {
+			throw new BluetoothServiceException(
+					"Name cannot exceed 20 characters");
 		}
 		try {
 			// stop the read thread
-			if(consoleReadThread != null) { consoleReadThread.stop(); }
+			if (consoleReadThread != null) {
+				consoleReadThread.stop();
+			}
 
 			// switch to command mode
 			LOGGER.debug("switching to bluetooth command mode");
@@ -314,8 +381,8 @@ public final class BluetoothService implements DiscoveryListener {
 			output.flush();
 			Thread.sleep(1000);
 			// set the friendly name
-			LOGGER.debug("setting new name to "+name);
-			output.writeBytes("sn,"+name+"\r");
+			LOGGER.debug("setting new name to " + name);
+			output.writeBytes("sn," + name + "\r");
 			output.flush();
 			Thread.sleep(1000);
 			// now we need to reset the modem
@@ -323,14 +390,74 @@ public final class BluetoothService implements DiscoveryListener {
 			output.writeBytes("r,1\r");
 			output.flush();
 			Thread.sleep(1000);
-			
+
 			// tear down the connection
 			disconnectRFComm(address);
-		} catch(Exception e) {
-			LOGGER.error("Exception trying to rename the device \n"+ExceptionUtil.getStackTraceAsString(e));
+		} catch (Exception e) {
+			LOGGER.error("Exception trying to rename the device \n"
+					+ ExceptionUtil.getStackTraceAsString(e));
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Update the firmware on the device
+	 * 
+	 * @param filePath
+	 */
+	@RemotingInclude
+	public void updateFirmware(String filePath) {
+		
+		final File file = new File(filePath);
+		if (!file.exists()) {
+			throw new BluetoothServiceException("The file " + filePath
+					+ " does not exist");
+		}
+		
+		final STK500v1 programmer = new STK500v1(output, consoleReadThread.inputStream, new ProgramEventListener(template));
+		
+		if (consoleReadThread == null || !consoleReadThread.isAlive()) {
+			throw new BluetoothServiceException(
+					"Can't update firmware because you are not conencted");
+		} else {
+			// stop the regular console read thread
+			consoleReadThread.stop();
+		}
+		try {
+			// switch to command mode
+			LOGGER.debug("switching to bluetooth command mode");
+			output.writeBytes("$$$");
+			output.flush();
+			Thread.sleep(200);
+			LOGGER.debug("resetting micro");
+			// set pin 10 high
+			output.writeBytes("S*,0404\n");
+			output.flush();
+			Thread.sleep(100);
+			// set pin 10 low
+			output.writeBytes("S*,0400\n");
+			output.flush();
+			Thread.sleep(100);
+			// set pin 10 high
+			output.writeBytes("S*,0404\n");
+			output.flush();
+			Thread.sleep(100);
+			LOGGER.debug("exit bluetooth command mode");
+			output.writeBytes("---\n");
+			output.flush();
+			
+			LOGGER.info("Going to update firmware with "+filePath);
+			final BufferedIntelHexReader reader = new BufferedIntelHexReader(new BufferedReader(new FileReader(file)));
+
+			programmer.updateFirmware(reader, file.length());
+			
+		} catch (Exception e) {
+			LOGGER.error("Failed to update firmware \n"
+					+ ExceptionUtil.getStackTraceAsString(e));
+			throw new BluetoothServiceException(
+					"Failed to update firmware because " + e.getMessage());
+		}
 	}
 
 	/**
@@ -341,20 +468,22 @@ public final class BluetoothService implements DiscoveryListener {
 	 * @return
 	 * @throws IOException
 	 */
-	private Set<Device> toDeviceSet(final Map<String, RemoteDevice> map) throws IOException {
+	private Set<Device> toDeviceSet(final Map<String, RemoteDevice> map)
+			throws IOException {
 		final Set<Device> set = new HashSet<Device>();
 		for (final String key : map.keySet()) {
 			set.add(toDevice(map.get(key)));
 		}
 		return set;
 	}
-	
+
 	private Device toDevice(final RemoteDevice remoteDevice) throws IOException {
-		final Device device = new Device(remoteDevice.getFriendlyName(true), remoteDevice.getBluetoothAddress());
+		final Device device = new Device(remoteDevice.getFriendlyName(true),
+				remoteDevice.getBluetoothAddress());
 		device.setAuthenticated(remoteDevice.isAuthenticated());
 		device.setEncrypted(remoteDevice.isEncrypted());
 		device.setTrusted(remoteDevice.isTrustedDevice());
-		LOGGER.debug("discovered: "+device);
+		LOGGER.debug("discovered: " + device);
 		return device;
 	}
 
@@ -376,7 +505,7 @@ public final class BluetoothService implements DiscoveryListener {
 	 */
 	@Override
 	public void inquiryCompleted(int discType) {
-		LOGGER.debug("inquiry completed: "+discType);
+		LOGGER.debug("inquiry completed: " + discType);
 		switch (discType) {
 		case DiscoveryListener.INQUIRY_COMPLETED:
 			lastDeviceDiscoveryResult = DeviceDiscoveryResult.INQUIRY_COMPLETED;
@@ -405,14 +534,18 @@ public final class BluetoothService implements DiscoveryListener {
 	 */
 	public void servicesDiscovered(int transID, ServiceRecord[] records) {
 		for (int i = 0; i < records.length; i++) {
-			String url = records[i].getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
+			String url = records[i].getConnectionURL(
+					ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 			if (url == null) {
-				LOGGER.error("\tService url was null for "+ records[i].toString());
+				LOGGER.error("\tService url was null for "
+						+ records[i].toString());
 			}
-			serviceMap.put(records[i].getHostDevice().getBluetoothAddress(), url);
+			serviceMap.put(records[i].getHostDevice().getBluetoothAddress(),
+					url);
 			DataElement serviceName = records[i].getAttributeValue(0x0100);
 			if (serviceName != null) {
-				LOGGER.info("\tService " + serviceName.getValue() + " found " + url);
+				LOGGER.info("\tService " + serviceName.getValue() + " found "
+						+ url);
 			} else {
 				LOGGER.info("\tService found " + url);
 			}
@@ -456,20 +589,25 @@ public final class BluetoothService implements DiscoveryListener {
 	 * for UI
 	 */
 	private final class ConsoleReadThread extends Thread {
-		
+
 		private final BufferedReader reader;
+		private final InputStream inputStream;
 		private final MessageTemplate template;
 
-		public ConsoleReadThread(InputStream input, MessageTemplate template) throws IOException {
-			this.reader = new BufferedReader(new InputStreamReader(input));
+		public ConsoleReadThread(InputStream input, MessageTemplate template)
+				throws IOException {
+			this.inputStream = input;
+			this.reader = new BufferedReader(new InputStreamReader(inputStream));
 			this.template = template;
 		}
-		
+
 		/**
-		 * {@link BufferedReader#readLine()} and all read methods are blocking I/O that
-		 * can't be interrupted.  Even if I wrap it with NIO, the underlying input
-		 * stream is of type com.intel.bluetooth.BluetoothRFCommInputStream which can't
-		 * be interrupted.  The only way to stop this is to use {@link Thread#stop()}
+		 * {@link BufferedReader#readLine()} and all read methods are blocking
+		 * I/O that can't be interrupted. Even if I wrap it with NIO, the
+		 * underlying input stream is of type
+		 * com.intel.bluetooth.BluetoothRFCommInputStream which can't be
+		 * interrupted. The only way to stop this is to use
+		 * {@link Thread#stop()}
 		 */
 		@Override
 		public void run() {
@@ -477,10 +615,32 @@ public final class BluetoothService implements DiscoveryListener {
 			try {
 				while (true) {
 					template.send("serialPort", reader.readLine());
-				}		
+				}
 			} catch (IOException e) {
 				LOGGER.error(e);
-			} 
+			}
 		}
+	}
+
+	private final class ProgramEventListener implements STK500EventListener {
+
+		private final MessageTemplate template;
+		
+		public ProgramEventListener(MessageTemplate template) {
+			this.template = template;
+		}
+		
+		@Override
+		public void notify(final STK500Event event) {
+			LOGGER.info(event);
+			template.send("serialPort", "FOTA,"+event.toString());
+		}
+
+		@Override
+		public void notify(final STK500Event event, final int progress) {
+			LOGGER.info(event + ": " + progress + "%");
+			template.send("serialPort", "FOTA,"+event.toString()+","+progress);
+		}
+
 	}
 }

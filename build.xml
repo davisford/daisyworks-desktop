@@ -7,6 +7,18 @@
 	<property name="ui" value="daisyworks-desktop-air"/>
 	<property name="webapp" value="daisyworks-desktop-java"/>
 	
+	<target name="install-deps" depends="init" description="Installs jars in local maven repo that are not available on the web">
+		<exec executable="${mvn}">
+			<arg value="install:install-file"/>
+			<arg value="-DgroupId=com.daisyworks"/>
+			<arg value="-DartifactId=stk500"/>
+			<arg value="-Dversion=1.0-SNAPSHOT"/>
+			<arg value="-Dpackaging=jar"/>
+			<arg value="-Dfile=./daisyworks-desktop-java/lib/stk500-1.0-SNAPSHOT.jar"/>
+			<arg value="-DgeneratePom=true"/>
+		</exec>
+	</target>
+	
 	<target name="init">
 		<!-- Mac OS Build -->
 		<condition property="mvn" value="mvn">

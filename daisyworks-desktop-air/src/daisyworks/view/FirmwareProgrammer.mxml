@@ -9,19 +9,32 @@
 	</s:layout>
 	<fx:Script>
 		<![CDATA[
+			import daisyworks.event.FirmwareEvent;
 			import daisyworks.model.App;
+			import daisyworks.model.presentation.StatePresentationModel;
+			
+			import mx.controls.Alert;
 			
 			private var _app:App;
+			
+			[Inject]
+			[Bindable]
+			public var connectionModel:StatePresentationModel;
 			
 			[Bindable]
 			public function get app():App { return _app; }
 			public function set app(val:App):void { _app = val; }
 			
-			private var _connected:Boolean;
+			protected function programButton_clickHandler(event:MouseEvent):void
+			{
+				var file:File = new File(app.getFirmware().path);
+				if(!file.exists) {
+					mx.controls.Alert.show("Firmware file "+app.getFirmware().path+" does not exist", "Error");
+					return;
+				}
+				dispatchEvent(new FirmwareEvent(FirmwareEvent.FOTA_START, file.nativePath));
+			}
 			
-			[Bindable]
-			public function get connected():Boolean { return _connected; }
-			public function set connected(val:Boolean):void { _connected = val; }
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -36,5 +49,5 @@
 			this firmware so the application can communicate with it if you have not already done so.
 		</s:content>
 	</s:TextArea>
-	<s:Button right="5" top="65" label="Program" enabled="{connected}"/>
+	<s:Button id="programButton" right="5" top="65" label="Program" enabled="{connectionModel.connected}" click="programButton_clickHandler(event)"/>
 </s:Group>

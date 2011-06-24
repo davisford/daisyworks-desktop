@@ -21,6 +21,7 @@
 	<controller:AppController id="appController" />
 	
 	<presentation:AppPresentationModel id="appPresentationModel" />
+	<presentation:StatePresentationModel id="statePresentationModel" />
 	
 	<model:Device />
 	

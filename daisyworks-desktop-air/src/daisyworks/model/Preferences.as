@@ -10,6 +10,7 @@ package daisyworks.model { 
 		
 		public static const HEIGHT:String = "height";
 		public static const WIDTH:String = "width";
+		public static const CACHED_DEVICE_LOOKUP:String = "cachedDeviceLookup";
 
 		private var _prefs:Preference
 		

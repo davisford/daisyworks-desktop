@@ -17,6 +17,7 @@
 		<![CDATA[
 			import daisyworks.log.Logger;
 			import daisyworks.model.App;
+			import daisyworks.model.presentation.StatePresentationModel;
 			
 			import mx.controls.Alert;
 			import mx.core.IVisualElement;
@@ -33,7 +34,10 @@
 			[Bindable]
 			private var url:String;
 			
-			[Bindable] private var connected:Boolean = false;
+			[Inject]
+			[Bindable]
+			public var connectionModel:StatePresentationModel;
+			
 			[Bindable] private var loaded:Boolean = false;
 			[Bindable] private var hasFirmware:Boolean = false;
 			
@@ -56,25 +60,23 @@
 			}
 			
 			private function updateState():void {
-				if(loaded && hasFirmware && connected) { currentState = "LoadedWithFirmwareConnected"; }
-				else if(loaded && hasFirmware && !connected) { currentState = "LoadedWithFirmwareDisconnected"; }
-				else if(loaded && !hasFirmware && connected) { currentState = "LoadedWithoutFirmwareConnected"; }
-				else if(loaded && !hasFirmware && !connected) { currentState = "LoadedWithoutFirmwareDisconnected"; }
-				else if(!loaded && hasFirmware && connected) { currentState = "UnloadedWithFirmwareConnected"; }
-				else if(!loaded && hasFirmware && !connected) { currentState = "UnloadedWithFirmwareDisconnected"; }
-				else if(!loaded && !hasFirmware && connected) { currentState = "UnloadedWithoutFirmwareConnected"; }
-				else if(!loaded && !hasFirmware && !connected) { currentState = "UnloadedWithoutFirmwareDisconnected"; }
+				if(loaded && hasFirmware && connectionModel.connected) { currentState = "LoadedWithFirmwareConnected"; }
+				else if(loaded && hasFirmware && !connectionModel.connected) { currentState = "LoadedWithFirmwareDisconnected"; }
+				else if(loaded && !hasFirmware && connectionModel.connected) { currentState = "LoadedWithoutFirmwareConnected"; }
+				else if(loaded && !hasFirmware && !connectionModel.connected) { currentState = "LoadedWithoutFirmwareDisconnected"; }
+				else if(!loaded && hasFirmware && connectionModel.connected) { currentState = "UnloadedWithFirmwareConnected"; }
+				else if(!loaded && hasFirmware && !connectionModel.connected) { currentState = "UnloadedWithFirmwareDisconnected"; }
+				else if(!loaded && !hasFirmware && connectionModel.connected) { currentState = "UnloadedWithoutFirmwareConnected"; }
+				else if(!loaded && !hasFirmware && !connectionModel.connected) { currentState = "UnloadedWithoutFirmwareDisconnected"; }
 			}
 			
 			[EventHandler(event="BluetoothControlEvent.CONNECTED")]
 			public function onConnected():void {
-				connected = true;
 				updateState();
 			}
 			
 			[EventHandler(event="BluetoothControlEvent.DISCONNECTED")]
 			public function onDisconnected():void {
-				connected = false;
 				updateState();
 			}
 						
@@ -175,10 +177,10 @@
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<view:FirmwareProgrammer left="10" right="10" top="10" bottom="10" height="100%" app="{app}" connected="{connected}"
+	<view:FirmwareProgrammer left="10" right="10" top="10" bottom="10" height="100%" app="{app}"
 							 width="100%" includeIn="WithFirmware"/>
 	
-	<s:BorderContainer id="border" left="10" right="10" bottom="0" top="20" enabled="{connected}"
+	<s:BorderContainer id="border" left="10" right="10" bottom="0" top="20" enabled="{connectionModel.connected}"
 					   width="100%"
 					   height="100%">
 		

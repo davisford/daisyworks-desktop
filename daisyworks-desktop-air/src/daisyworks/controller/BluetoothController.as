@@ -86,6 +86,11 @@ package daisyworks.controller
 			op.addEventListener(FaultEvent.FAULT, findDevicesFault);
 			operations["findDevices"] = op;
 			
+			op = new Operation(null, "findCachedDevices");
+			op.addEventListener(ResultEvent.RESULT, findDevicesResult);
+			op.addEventListener(FaultEvent.FAULT, findDevicesFault);
+			operations["findCachedDevices"] = op;
+			
 			op = new Operation(null, "findServices");
 			op.addEventListener(ResultEvent.RESULT, findServicesResult);
 			op.addEventListener(FaultEvent.FAULT, findServicesFault);
@@ -100,6 +105,11 @@ package daisyworks.controller
 			op.addEventListener(ResultEvent.RESULT, disconnectResult);
 			op.addEventListener(FaultEvent.FAULT, disconnectFault);
 			operations["disconnectRFComm"] = op;
+			
+			op = new Operation(null, "updateFirmware");
+			op.addEventListener(ResultEvent.RESULT, updateFirmwareResult);
+			op.addEventListener(FaultEvent.FAULT, updateFirmwareFault);
+			operations["updateFirmware"] = op;
 			
 			controlRemoteObj.operations = operations;
 			
@@ -153,6 +163,11 @@ package daisyworks.controller
 		[EventHandler(event="BluetoothDiscoveryEvent.DISCOVER_DEVICES")]
 		public function findDevices():void {
 			controlRemoteObj.findDevices();
+		}
+		
+		[EventHandler(event="BluetoothDiscoveryEvent.DISCOVER_CACHED_DEVICES")]
+		public function findCachedDevices():void {
+			controlRemoteObj.findCachedDevices();
 		}
 		
 		private function findDevicesResult(evt:ResultEvent):void {
@@ -238,7 +253,9 @@ package daisyworks.controller
 		
 		// _____________ RECEIVE _________________ //
 		private function messageReceived(event:MessageEvent):void	{
-			dispatcher.dispatchEvent(new BluetoothTxRxEvent(BluetoothTxRxEvent.RX, String(event.message.body)));
+			var msg:String = String(event.message.body);
+			LOG.info(msg);
+			dispatcher.dispatchEvent(new BluetoothTxRxEvent(BluetoothTxRxEvent.RX, msg));
 		}
 		
 		private function channelConnected(event:ChannelEvent):void {
@@ -270,6 +287,20 @@ package daisyworks.controller
 			});
 			rescan.start();
 		} 
+		
+		[EventHandler(event="FirmwareEvent.FOTA_START", properties="filePath")]
+		public function updateFirmware(filePath:String):void {
+			controlRemoteObj.updateFirmware(filePath);
+		}
+		
+		public function updateFirmwareResult(evt:ResultEvent):void {
+			LOG.info("Update firmware result");
+		}
+		
+		public function updateFirmwareFault(evt:FaultEvent):void {
+			LOG.error("Update firmware fault: "+evt.fault.faultString);
+			dispatcher.dispatchEvent(new FirmwareEvent(FirmwareEvent.FOTA_ERROR, null, evt.fault));
+		}
 		
 	}
 }
