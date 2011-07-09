@@ -1,10 +1,9 @@
 package com.daisyworks.common.stk500;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.daisyworks.common.debug.LoggingInputStream;
+import com.daisyworks.common.debug.LoggingAsyncInputStream;
 import com.daisyworks.common.debug.LoggingOutputStream;
 import com.daisyworks.common.intelhex.BufferedIntelHexReader;
 import com.daisyworks.common.intelhex.IntelHexChunk;
@@ -21,6 +20,8 @@ public class STK500v1
 {
   private static final boolean DEBUG = true;
   private static final int MAX_SYNC_COUNT = 3;
+  private static final int READ_TIMEOUT = 100;
+  private static final int FLUSH_TIMEOUT = 100;
 
   public static final byte Resp_STK_OK                = 0x10;
   public static final byte Resp_STK_FAILED            = 0x11;
@@ -71,15 +72,20 @@ public class STK500v1
   public static final int UNIVERSAL_CMD_DEVICE_SIGNATURE = 0x30;
 
   private final OutputStream out;
-  private final InputStream in;
+  private final AsyncInputStream in;
   private final STK500EventListener eventListener;
   private final byte[] buf = new byte[256];
 
-  public STK500v1(final OutputStream out, final InputStream in, final STK500EventListener eventListener)
+  public STK500v1(final OutputStream out, final AsyncInputStream in, final STK500EventListener eventListener)
   {
     this.out = DEBUG ? new LoggingOutputStream(out) : out;
-    this.in  = DEBUG ? new LoggingInputStream(in)   : in;
+    this.in  = DEBUG ? new LoggingAsyncInputStream(in)   : in;
     this.eventListener = eventListener;
+  }
+
+  protected void flushInput() throws IOException
+  {
+    while (in.read(FLUSH_TIMEOUT) >= 0);
   }
 
   protected void writeSync() throws IOException
@@ -105,21 +111,28 @@ public class STK500v1
     int counter = 0;
     int read = 0;
 
+    // avrdude always does a sync 3 times
+    for (int i = 0; i < 2; i++)
+    {
+      writeSync();
+      flushInput();
+    }
+
     do
     {
       counter ++;
       writeSync();
-      read = in.read();
+      read = in.read(READ_TIMEOUT);
       if (read == Resp_STK_INSYNC)
       {
-        read = in.read();
+        read = in.read(READ_TIMEOUT);
         synced = read == Resp_STK_OK;
       }
       else
       {
         STKUtil.sleep(100, "Halted sync attempt due to interrupted exception");
       }
-    } while (!synced && counter < 100);
+    } while (!synced && counter < 10);
 
     if (!synced)
     {
@@ -137,7 +150,7 @@ public class STK500v1
       out.write(buf, 0, bufferLength);
       out.flush();
 
-      if (Resp_STK_INSYNC == in.read() && Resp_STK_OK == in.read())
+      if (Resp_STK_INSYNC == in.read(READ_TIMEOUT) && Resp_STK_OK == in.read(100))
       {
         return;
       }
@@ -156,10 +169,10 @@ public class STK500v1
       out.write(buf, 0, bufferLength);
       out.flush();
 
-      if (Resp_STK_INSYNC == in.read())
+      if (Resp_STK_INSYNC == in.read(READ_TIMEOUT))
       {
-        int result = in.read();
-        int resultCode = in.read();
+        int result = in.read(READ_TIMEOUT);
+        int resultCode = in.read(READ_TIMEOUT);
         if (resultCode == Resp_STK_OK)
         {
           return result;
@@ -178,62 +191,6 @@ public class STK500v1
   }
 
   /**
-   * Parameter Name | Field Usage
-   * -------------------------------------------------------------------------
-   * devicecode     | Device code as defined in â€œdevices.hâ€�
-   * ------------------------------------------------------------------------
-   * revision       | Device revision. Currently not used. Should be set to 0.
-   * -------------------------------------------------------------------------
-   * progtype       | Defines which Program modes is supported:
-   *                |    â€œ0â€� â€“ Both Parallel/High-voltage and Serial mode
-   *                |    â€œ1â€� â€“ Only Parallel/High-voltage mode
-   * -------------------------------------------------------------------------
-   * parmode        | Defines if the device has a full parallel interface or a
-   *                | pseudo parallel programming interface:
-   *                |    â€œ0â€� â€“ Pseudo parallel interface
-   *                |    â€œ1â€� â€“ Full parallel interface
-   * -------------------------------------------------------------------------
-   * polling        | Defines if polling may be used during SPI access:
-   *                |    â€œ0â€� â€“ No polling may be used
-   *                |    â€œ1â€� â€“ Polling may be used
-   * -------------------------------------------------------------------------
-   * selftimed      | Defines if programming instructions are self timed:
-   *                |    â€œ0â€� â€“ Not self timed
-   *                |    â€œ1â€� â€“ Self timed
-   * -------------------------------------------------------------------------
-   * lockbytes      | Number of Lock bytes. Currently not used. Should be set
-   *                | to actual number of Lock bytes for future compatibility.
-   * -------------------------------------------------------------------------
-   * fusebytes      | Number of Fuse bytes. Currently not used. Should be set
-   *                | to actual number of Fuse bytes for future compatibility.
-   * -------------------------------------------------------------------------
-   * flashpollval1  | FLASH polling value. See Data Sheet for the device.
-   * -------------------------------------------------------------------------
-   * flashpollval2  | FLASH polling value. Same as â€œflashpollval1â€�
-   * -------------------------------------------------------------------------
-   * eeprompollval1 | EEPROM polling value 1 (P1). See data sheet for the
-   *                | device.
-   * -------------------------------------------------------------------------
-   * eeprompollval2 | EEPROM polling value 2 (P2). See data sheet for device.
-   * -------------------------------------------------------------------------
-   * pagesizehigh   | Page size in bytes for pagemode parts, High Byte of 16-
-   *                | bit value.
-   * -------------------------------------------------------------------------
-   * pagesizelow    | Page size in bytes for pagemode parts, Low Byte of 16-
-   *                | bit value.
-   * -------------------------------------------------------------------------
-   * eepromsizehigh | EEPROM size in bytes, High Byte of 16-bit value.
-   * -------------------------------------------------------------------------
-   * eepromsizelow  | EEPROM size in bytes, Low Byte of 16-bit value.
-   * -------------------------------------------------------------------------
-   *  flashsize4    | FLASH size in bytes, byte 4 (High Byte) of 32-bit value.
-   * -------------------------------------------------------------------------
-   * flashsize3     | FLASH size in bytes, byte 3 of 32-bit value.
-   * -------------------------------------------------------------------------
-   * flashsize2     | FLASH size in bytes, byte 2 of 32-bit value.
-   * -------------------------------------------------------------------------
-   * flashsize1     | FLASH size in bytes, byte 1 (Low Byte) of 32-bit value.
-   * -------------------------------------------------------------------------
    */
   protected void setDeviceProgrammingParameters() throws IOException
   {
@@ -268,7 +225,7 @@ public class STK500v1
   /**
    * Parameter Name | Field Usage
    * ----------------------------------------------------------------------------------------------------------------
-   * commandsize    | Defines how many bytes of additional parameters the command contains. In this case itâ€™s value
+   * commandsize    | Defines how many bytes of additional parameters the command contains. In this case it’s value
    *                | should be 4 (for the eepromsize, signalpagel and signalbs2 parameters). The STK500 may
    *                | accept more parameters in later revisions.
    * ----------------------------------------------------------------------------------------------------------------
@@ -453,14 +410,12 @@ public class STK500v1
     throws IOException
   {
     sync();
-    sync();
-    sync();
 
     eventListener.notify(STK500Event.PARAMETERS_SET_START);
     setDeviceProgrammingParameters();
     setExtendedDeviceProgrammingParameters();
     eventListener.notify(STK500Event.PARAMETERS_SET_DONE);
-    //eraseChipWithUniversal();
+    eraseChipWithUniversal();
     enterProgrammingMode();
 
     writeProgram(reader, filesize);

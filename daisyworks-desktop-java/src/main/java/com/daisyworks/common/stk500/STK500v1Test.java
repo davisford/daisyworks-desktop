@@ -17,7 +17,8 @@ public class STK500v1Test
     final FileOutputStream out = new FileOutputStream(file.getFD());
     final FileInputStream in = new FileInputStream(file.getFD());
 
-    final File testFile = new File("/home/paul/workspace/daisyworks-firmware/shell/tmp/shell.hex");
+    //final File testFile = new File("/home/paul/workspace/daisyworks-firmware/shell/tmp/shell.hex");
+    final File testFile = new File("/home/paul/tmp/davis-firmware.hex");
 
     final BufferedIntelHexReader reader =
       new BufferedIntelHexReader(
@@ -39,8 +40,20 @@ public class STK500v1Test
       }
     };
 
-    final STK500v1 stk500Test = new STK500v1(out, in, listener);
-    stk500Test.updateFirmware(reader, testFile.length());
-    reader.close();
+    AsyncInputStreamThread asyncIn = new AsyncInputStreamThread(in);
+    asyncIn.setDaemon(true);
+    asyncIn.start();
+    try
+    {
+      final STK500v1 stk500Test = new STK500v1(out, asyncIn, listener);
+      stk500Test.updateFirmware(reader, testFile.length());
+      reader.close();
+    }
+    finally
+    {
+      in.close();
+      file.close();
+      asyncIn.interrupt();
+    }
   }
 }

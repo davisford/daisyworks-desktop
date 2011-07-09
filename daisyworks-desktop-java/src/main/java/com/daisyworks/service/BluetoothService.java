@@ -36,6 +36,7 @@ import org.springframework.flex.remoting.RemotingInclude;
 import org.springframework.stereotype.Service;
 
 import com.daisyworks.common.intelhex.BufferedIntelHexReader;
+import com.daisyworks.common.stk500.AsyncInputStreamThread;
 import com.daisyworks.common.stk500.STK500Event;
 import com.daisyworks.common.stk500.STK500EventListener;
 import com.daisyworks.common.stk500.STK500v1;
@@ -414,8 +415,11 @@ public final class BluetoothService implements DiscoveryListener {
 			throw new BluetoothServiceException("The file " + filePath
 					+ " does not exist");
 		}
+		final AsyncInputStreamThread asyncIn = new AsyncInputStreamThread(consoleReadThread.inputStream);
+	    asyncIn.setDaemon(true);
+	    asyncIn.start();
 		
-		final STK500v1 programmer = new STK500v1(output, consoleReadThread.inputStream, new ProgramEventListener(template));
+		final STK500v1 programmer = new STK500v1(output, asyncIn, new ProgramEventListener(template));
 		
 		if (consoleReadThread == null || !consoleReadThread.isAlive()) {
 			throw new BluetoothServiceException(
