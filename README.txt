@@ -73,6 +73,10 @@ You can download the Air 2.6 SDK here:
 
 http://www.adobe.com/products/air/sdk/
 
+For Linux, you can't go above 2.6 since Adobe stopped supporting it...bastards.
+
+http://airdownload.adobe.com/air/lin/download/2.6/AdobeAIRSDK.tbz2
+
 Now, unzip it into the same directory as the Flex SDK
 
 $ unzip AdobeAirSDK.zip -d /home/me/flex-sdks/flex_sdk_4.5.0.20967
