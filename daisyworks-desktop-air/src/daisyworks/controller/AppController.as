@@ -206,7 +206,7 @@ package daisyworks.controller
 			LOG.info("Saving app metadata, appXML =>\n" + xml.toString());
 			
 			// if this app already exists, we will replace it in the app metadata XML
-			var oldNode:XML = appXML.app.(@id == app.@id)[0];
+			var oldNode:XML = appXML.app.(@id == app.id)[0];
 			if(oldNode) {
 				// replace
 				appXML.replace(oldNode, xml);

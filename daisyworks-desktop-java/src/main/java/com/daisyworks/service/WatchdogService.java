@@ -29,7 +29,7 @@ public class WatchdogService {
 			public void run() {			
 				final Date now = new Date();
 				final Long diff = now.getTime() - currentTimestamp.getTime();
-				LOGGER.debug("running watchdog timer, last ping was at:" + currentTimestamp + " " + diff/1000 + " seconds ago" );
+				//LOGGER.debug("running watchdog timer, last ping was at:" + currentTimestamp + " " + diff/1000 + " seconds ago" );
 				if(diff >= PERIOD) {
 					LOGGER.error("Last ping from UI was "+currentTimestamp+" haven't received ping in "+diff/1000+"s so I'm quitting");
 					//System.exit(1);
@@ -39,7 +39,6 @@ public class WatchdogService {
 	
 	@RemotingInclude
 	public String ping(Long timestamp) {
-		LOGGER.info("Hey y'all hit my ping-pong");
 		currentTimestamp = new Date(timestamp);
 		return "pong";
 	}

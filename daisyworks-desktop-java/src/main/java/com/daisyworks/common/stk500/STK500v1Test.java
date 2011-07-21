@@ -55,5 +55,6 @@ public class STK500v1Test
       file.close();
       asyncIn.interrupt();
     }
+    System.exit(-1);
   }
 }

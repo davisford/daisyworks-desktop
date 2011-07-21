@@ -190,7 +190,7 @@
 			<mx:DataGridColumn headerText="Name" dataField="name"/>
 		</mx:columns>
 	</mx:DataGrid>
-	<s:CheckBox id="cachedCheckBox" includeIn="Disconnected" label="Scan For Cached Devices (faster)"
+	<s:CheckBox id="cachedCheckBox" label="Scan For Cached Devices (faster)"
 				click="cachedCheckBox_clickHandler(event)"
 				toolTip="Select this option if you want to scan for cached devices.  These are devices that have been previously found.
 				This will speed up the discovery process, but it makes no guarantee about the device actually being available.  You may

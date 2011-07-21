@@ -21,7 +21,7 @@ public class STK500v1
   private static final boolean DEBUG = true;
   private static final int MAX_SYNC_COUNT = 3;
   private static final int READ_TIMEOUT = 100;
-  private static final int FLUSH_TIMEOUT = 100;
+  private static final int FLUSH_TIMEOUT = 250;
 
   public static final byte Resp_STK_OK                = 0x10;
   public static final byte Resp_STK_FAILED            = 0x11;
@@ -75,6 +75,7 @@ public class STK500v1
   private final AsyncInputStream in;
   private final STK500EventListener eventListener;
   private final byte[] buf = new byte[256];
+  private final byte[] syncBuf = new byte[2];
 
   public STK500v1(final OutputStream out, final AsyncInputStream in, final STK500EventListener eventListener)
   {
@@ -85,14 +86,17 @@ public class STK500v1
 
   protected void flushInput() throws IOException
   {
-    while (in.read(FLUSH_TIMEOUT) >= 0);
+    while (in.read(FLUSH_TIMEOUT) >= 0)
+    {
+      // Read and discard from input until we hit a read timeout
+    }
   }
 
   protected void writeSync() throws IOException
   {
-    buf[0] = Cmnd_STK_GET_SYNC;
-    buf[1] = Sync_CRC_EOP;
-    out.write(buf, 0, 2);
+    syncBuf[0] = Cmnd_STK_GET_SYNC;
+    syncBuf[1] = Sync_CRC_EOP;
+    out.write(syncBuf, 0, 2);
     out.flush();
   }
 
@@ -107,9 +111,8 @@ public class STK500v1
   protected void sync() throws IOException
   {
     eventListener.notify(STK500Event.SYNC_STARTED);
-    boolean synced = false;
-    int counter = 0;
-    int read = 0;
+
+    flushInput();
 
     // avrdude always does a sync 3 times
     for (int i = 0; i < 2; i++)
@@ -118,25 +121,19 @@ public class STK500v1
       flushInput();
     }
 
-    do
-    {
-      counter ++;
-      writeSync();
-      read = in.read(READ_TIMEOUT);
-      if (read == Resp_STK_INSYNC)
-      {
-        read = in.read(READ_TIMEOUT);
-        synced = read == Resp_STK_OK;
-      }
-      else
-      {
-        STKUtil.sleep(100, "Halted sync attempt due to interrupted exception");
-      }
-    } while (!synced && counter < 10);
+    writeSync();
 
-    if (!synced)
+    int read = in.read(READ_TIMEOUT);
+    if (read != Resp_STK_INSYNC)
     {
-      throw new STK500SyncFailure("Failed to sync with device");
+      throw new STK500Exception("Invalid sync response. Expected '" + STKUtil.toHex(Resp_STK_INSYNC) + "'. Received '" + STKUtil.toHex(read) + "'");
+    }
+
+    read = in.read(READ_TIMEOUT);
+
+    if (read != Resp_STK_OK)
+    {
+      throw new STK500Exception("Invalid sync response. Expected '" + STKUtil.toHex(Resp_STK_OK) + "'. Received '" + STKUtil.toHex(read) + "'");
     }
 
     eventListener.notify(STK500Event.SYNC_DONE);
@@ -190,8 +187,7 @@ public class STK500v1
     throw new STK500Exception("Failed to write message. Gave up after " + MAX_SYNC_COUNT + " sync attempts");
   }
 
-  /**
-   */
+
   protected void setDeviceProgrammingParameters() throws IOException
   {
     //                  0      1      2      3      4      5      6      7      8     9       10     11     12     13     14     15     16     17     18     19     20     21
@@ -410,7 +406,7 @@ public class STK500v1
     throws IOException
   {
     sync();
-
+    readDeviceSignature();
     eventListener.notify(STK500Event.PARAMETERS_SET_START);
     setDeviceProgrammingParameters();
     setExtendedDeviceProgrammingParameters();

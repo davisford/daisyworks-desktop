@@ -50,7 +50,7 @@ package daisyworks.controller {
 		private static const JARFILE:String = "daisyworks-server.jar";
 		
 		// enable this is you want to start JVM in remote socket debug mode on port 8787
-		private var debug:Boolean = false;
+		private var debug:Boolean = true;
 		
 		private static var port:Number;
 		

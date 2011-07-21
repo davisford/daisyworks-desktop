@@ -212,6 +212,7 @@ public final class BluetoothService implements DiscoveryListener {
 			Set<Device> set = new HashSet<Device>(devices.length);
 			for(RemoteDevice rd : devices) {
 				set.add(toDevice(rd));
+				deviceMap.put(rd.getBluetoothAddress(), rd);
 			}
 			return set;
 		} catch(Exception e) {
@@ -407,6 +408,7 @@ public final class BluetoothService implements DiscoveryListener {
 	 * 
 	 * @param filePath
 	 */
+	@SuppressWarnings("deprecation")
 	@RemotingInclude
 	public void updateFirmware(String filePath) {
 		

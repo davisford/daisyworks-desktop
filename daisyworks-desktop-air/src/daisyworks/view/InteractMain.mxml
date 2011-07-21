@@ -84,7 +84,7 @@
 			public function deploy(app:App):void {
 				// remove content from the border container if it exists
 				if(content) {
-					border.removeChild(content as DisplayObject);
+					border.removeElement(content as IVisualElement);
 				}
 				// unload the module if it is loaded
 				moduleLoader.unloadModule();
