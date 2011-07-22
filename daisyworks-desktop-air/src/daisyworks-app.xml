@@ -17,24 +17,24 @@
 	<supportedProfiles>extendedDesktop desktop</supportedProfiles> 
 
 	<!-- The application identifier string, unique to this application. Required. -->
-	<id>daisyworks</id>
+	<id>com.daisyworks.desktop</id>
 
 	<!-- Used as the filename for the application. Required. -->
 	<filename>daisyworks</filename>
 
 	<!-- The name that is displayed in the AIR application installer. 
 	     May have multiple values for each language. See samples or xsd schema file. Optional. -->
-	<name>daisyworks</name>
+	<name>Daisyworks, Inc. Desktop</name>
 
 	<!-- An application version designator (such as "v1", "2.5", or "Alpha 1"). Required. -->
 	<versionNumber>1.0.0</versionNumber>
 	<versionLabel>v1</versionLabel>
 	
 	<description>
-		<text xml:lang="en">The DaisyWorks Desktop application</text>
+		<text xml:lang="en">The DaisyWorks Desktop Application allows you to interact with DaisyWorks hardware.  For more information, see our website at http://daisyworks.com</text>
 	</description>
 	
-	<copyright>Copyright 2011, DaisyWorks, Inc.</copyright>
+	<copyright>Copyright (c) 2011, DaisyWorks, Inc.</copyright>
 
 	<!-- Publisher ID. Used if you're updating an application created prior to 1.5.3 -->
 	<!-- <publisherID></publisherID> -->

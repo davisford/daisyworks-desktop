@@ -13,6 +13,10 @@ package daisyworks.event
 		
 		public static const BLUETOOTH_FAILURE:String="DaisyWorksEvent.BLUETOOTH_FAILURE";
 		
+		public static const APP_STORE_FAILURE:String="DaisyWorksEvent.APP_STORE_FAILURE";
+		
+		public static const EXIT:String = "DaisyWorksEvent.EXIT";
+		
 		public var message:String;
 		public var fault:Fault;
 		

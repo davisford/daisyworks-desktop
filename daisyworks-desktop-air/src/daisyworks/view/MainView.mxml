@@ -57,12 +57,27 @@
 			public function go():void {
 				// watchdog manages JVM lifecycle for us
 				dispatchEvent(new Event("startWatchdog", true));
+				// check for update if auto-update-check is on
+				if(prefs.getValue(Preferences.AUTO_CHECK_FOR_UPDATES, true)) {
+					dispatchEvent(new UpdateEvent(UpdateEvent.CHECK_FOR_UPDATE));
+				}
 			}
 			
 			public function close():void {
 				// tell the JVM to shutdown
 				dispatchEvent(new Event("shutdownJVM", true));
 				prefs.save();
+			}
+			
+			[EventHandler(event="DaisyWorksEvent.EXIT")]
+			public function closeGracefully():void {
+				close();
+				var t:Timer = new Timer(3, 1);
+				// wait 3 seconds so JVM can shut down and prefs are saved
+				t.addEventListener(TimerEvent.TIMER, function():void {
+					NativeApplication.nativeApplication.exit(0);
+				});
+				t.start();
 			}
 			
 			private function resizeHandler(event:ResizeEvent):void {

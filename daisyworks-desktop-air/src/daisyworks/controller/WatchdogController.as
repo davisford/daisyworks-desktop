@@ -1,6 +1,7 @@
 package daisyworks.controller {
 	import com.adobe.utils.StringUtil;
 	
+	import daisyworks.config.PlatformUtil;
 	import daisyworks.event.DaisyWorksEvent;
 	import daisyworks.log.Logger;
 	import daisyworks.model.Preferences;
@@ -50,7 +51,7 @@ package daisyworks.controller {
 		private static const JARFILE:String = "daisyworks-server.jar";
 		
 		// enable this is you want to start JVM in remote socket debug mode on port 8787
-		private var debug:Boolean = true;
+		private var debug:Boolean = false;
 		
 		private static var port:Number;
 		
@@ -217,28 +218,21 @@ package daisyworks.controller {
 			
 		}
 		
-		private static var WINDOWS:String = "Windows";
-		private static var MAC:String = "Macintosh";
-		private static var LINUX:String = "Linux";
+		
 		
 		/**
 		 * Figure out which operating system we are running on
 		 */
 		private function resolveJVM(startupInfo:NativeProcessStartupInfo, args:Vector.<String>):void {
-			var whoami:String = Capabilities.manufacturer.replace("Adobe ","");
-			switch(whoami) {
-				case WINDOWS:
-					resolveWindowsJVM(startupInfo, args);
-					break;
-				case MAC:
-					resolveMacJVM(startupInfo, args);
-					break;
-				case LINUX:
-					resolveLinuxJVM(startupInfo, args);
-					break;
-				default:
-					LOG.error("This application is running on an unsupported operating system: "+whoami);
-					throw new Error("This application is running on an unsupported operating system: "+whoami);
+			if(PlatformUtil.isWindows()) {
+				resolveWindowsJVM(startupInfo, args);
+			} else if(PlatformUtil.isMacOS()) {
+				resolveMacJVM(startupInfo, args);
+			} else if(PlatformUtil.isLinux32() || PlatformUtil.isLinux64()) {
+				resolveLinuxJVM(startupInfo, args);
+			} else {
+				LOG.error("This application is running on an unsupported operating system: "+PlatformUtil.platform);
+				throw new Error("This application is running on an unsupported operating system: "+PlatformUtil.platform);
 			}
 		}
 		
@@ -265,7 +259,7 @@ package daisyworks.controller {
 			var javahome:NativeProcess = new NativeProcess();
 			
 			javahome.addEventListener(NativeProcessExitEvent.EXIT, function(evt:NativeProcessExitEvent):void {
-				LOG.info("Mac OS java_home exited");
+				LOG.info("Mac OS java_home finder finished");
 			});
 			
 			javahome.addEventListener(ProgressEvent.STANDARD_OUTPUT_DATA, function(evt:ProgressEvent):void {

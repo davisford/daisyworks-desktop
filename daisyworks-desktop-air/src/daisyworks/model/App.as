@@ -2,6 +2,8 @@ package daisyworks.model
 {
 	import com.adobe.utils.DateUtil;
 	
+	import daisyworks.config.PlatformUtil;
+	
 	import flash.utils.Dictionary;
 	
 	import flashx.textLayout.conversion.TextConverter;
@@ -253,11 +255,11 @@ package daisyworks.model
 			a.author = node.author;
 			a.authorUrl = node.authorUrl;
 			a.categories = categoriesFromXmlList(node.categories.children());
-			a.description = getTextFlow(node, "description");
+			a.description = PlatformUtil.getTextFlow(node, "description");
 			a.icons = getIcons(node);
 			a.name = node.name;
 			a.price = node.@price;
-			a.released = getDate(node.released[0]);
+			a.released = PlatformUtil.getDate(node.released[0]);
 			a.requirements = Hardware.fromXmlList(node.requirements.children());
 			a.software = Component.fromXmlList(node.software.children());
 			return a;
@@ -279,29 +281,7 @@ package daisyworks.model
 			return ac;
 		}
 		
-		public static function getTextFlow(node:XML, propertyName:String):TextFlow {
-			try {  
-				if(node != null) {
-					var text:String = node[propertyName].toString();
-					return TextConverter.importToFlow(text, TextConverter.TEXT_FIELD_HTML_FORMAT)
-				} else {
-					return null;
-				}
-			} catch(e:Error) {
-				// don't crash the UI if this has an error, just display nothing
-				trace(e.message);
-			}
-			return null;
-		}
 		
-		public static function getDate(node:XML):Date {
-			try {
-				return DateUtil.parseW3CDTF(node);
-			} catch(e:Error) {
-				return new Date();
-			}
-			return null;
-		}
 
 	}
 }

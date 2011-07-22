@@ -11,6 +11,7 @@ package daisyworks.model { 
 		public static const HEIGHT:String = "height";
 		public static const WIDTH:String = "width";
 		public static const CACHED_DEVICE_LOOKUP:String = "cachedDeviceLookup";
+		public static const AUTO_CHECK_FOR_UPDATES:String = "autoCheckForUpdates";
 
 		private var _prefs:Preference
 		
@@ -18,7 +19,7 @@ package daisyworks.model { 
 		public var dispatcher:IEventDispatcher;
 
 		public function Preferences() {
-			_prefs=new Preference("biblioflip-prefs.dat");
+			_prefs=new Preference("daisywork-prefs.dat");
 			_prefs.load();
 		}
 

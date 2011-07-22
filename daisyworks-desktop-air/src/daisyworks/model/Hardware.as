@@ -2,6 +2,8 @@ package daisyworks.model
 {
 	import flashx.textLayout.elements.TextFlow;
 	
+	import daisyworks.config.PlatformUtil;
+	
 	import mx.collections.ArrayCollection;
 
 	[Bindable]
@@ -92,7 +94,7 @@ package daisyworks.model
 
 		public static function fromXml(node:XML):Hardware {
 			var h:Hardware = new Hardware();
-			h.instruction = App.getTextFlow(node, "instruction");
+			h.instruction = PlatformUtil.getTextFlow(node, "instruction");
 			h.model = node.model;
 			h.name = node.name;
 			h.url = node.url;

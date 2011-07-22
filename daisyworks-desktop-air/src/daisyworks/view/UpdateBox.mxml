@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="756" height="426" currentState="Normal" title="A New DaisyWorks Desktop Is Available">
+
+	<fx:Script>
+		<![CDATA[
+			import daisyworks.config.PlatformUtil;
+			import daisyworks.event.DaisyWorksEvent;
+			import daisyworks.model.Preferences;
+			
+			import mx.events.CloseEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			public var _info:XML;
+			
+			[Bindable]
+			public function get updateInfo():XML { 
+				return _info; 
+			}
+			public function set updateInfo(val:XML):void { 
+				_info = val; 
+				releaseDate = dateFormatter.format(PlatformUtil.getDate(_info.released[0]));
+			}
+			
+			private var _prefs:Preferences;
+			[Bindable]
+			[Inject]
+			public function get prefs():Preferences { return _prefs; }
+			
+			[Dispatcher]
+			public var dispatcher:IEventDispatcher;
+			
+			[Bindable]
+			private var loader:URLLoader;
+			
+			[Bindable] private var releaseDate:String;
+			
+			[Bindable] private var installFile:File;
+			
+			public function set prefs(val:Preferences):void {
+				_prefs = val;
+			}
+			
+			protected function downloadButton_clickHandler(event:MouseEvent):void
+			{
+				if(updateInfo.url == null || String(updateInfo.url).length == 0) {
+					errorLabel.text = "The url for the data is not valid. Please contact DaisyWorks support";
+					currentState = "Error";
+					return;
+				}
+				var request:URLRequest = new URLRequest(updateInfo.url);
+				loader = new URLLoader();	
+				loader.dataFormat = URLLoaderDataFormat.BINARY;
+				var tokens:Array = String(updateInfo.url).split("/");
+				var fileName:String = tokens[tokens.length-1];
+				installFile = File.desktopDirectory.resolvePath(fileName);
+								
+				loader.addEventListener(Event.COMPLETE, function(evt:Event):void {					
+					var bytes:ByteArray = ByteArray(evt.target.data);
+					var fs:FileStream = new FileStream();
+					try {
+						fs.open(installFile, FileMode.WRITE);
+						fs.writeBytes(bytes);
+					} finally {
+						fs.close();
+					}
+					currentState = "DownloadComplete";
+				});
+				
+				loader.addEventListener(IOErrorEvent.IO_ERROR, function(evt:IOErrorEvent):void {
+					errorLabel.text = "Failed to download update " + evt.text;
+					currentState = "Error";
+				});
+				
+				currentState = "Downloading";
+				loader.load(request);
+			}
+			
+			protected function installButton_clickHandler(event:MouseEvent):void {
+				var startupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+				startupInfo.executable = installFile; 
+				var installer:NativeProcess = new NativeProcess();
+				installer.start(startupInfo);
+				installText.text="Please wait...";
+				installButton.enabled = false;
+				
+				// wait 5 seconds and tell the app to exit
+				var t:Timer = new Timer(5000, 1);
+				t.addEventListener(TimerEvent.TIMER, function():void {
+					dispatcher.dispatchEvent(new DaisyWorksEvent(DaisyWorksEvent.EXIT));
+				});
+				t.start();
+			}
+						
+			protected function cancelButton_clickHandler(event:MouseEvent):void
+			{
+				// TODO -- abort any download in progress
+				if(loader != null && currentState == "Downloading") {
+					// this can throw error if not active
+					try { loader.close(); } catch(e:Error) { }
+				}
+				dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		
+		.error {
+			backgroundColor: #FF0000;
+			backgroundAlpha: 0.26;
+			fontStyle: italic;
+			fontWeight: bold;
+		}
+		
+		.form {
+			backgroundColor: #A8A8C4;
+			backgroundAlpha: 0.20;
+		}
+	</fx:Style>
+	
+	<s:states>
+		<s:State name="Normal"/>
+		<s:State name="Downloading"/>
+		<s:State name="Error"/>
+		<s:State name="DownloadComplete"/>
+	</s:states>
+	<fx:Declarations>
+		<s:DateTimeFormatter id="dateFormatter" timeStyle="none" />
+	</fx:Declarations>
+	<s:VGroup left="10" right="10" top="10" bottom="10">
+		<s:Label width="100%"
+				 text="It is recommended that you update now to take advantage of new features and bug fixes."
+				 fontStyle="italic"/>
+		<s:Label id="errorLabel" includeIn="Error" width="100%" styleName="error" text="Label"/>
+		
+		<s:BorderContainer width="100%" height="100%"
+						   borderWeight="2" cornerRadius="8"
+						   dropShadowVisible="true">
+			<s:layout>
+				<s:BasicLayout />
+			</s:layout>
+			<s:Form left="0" right="0" top="0" bottom="0" styleName="form">
+				<s:FormItem width="100%" label="Version" >
+					<s:HGroup width="100%" minHeight="25" verticalAlign="middle">
+						<s:Label text="Your Current Version = {PlatformUtil.getAppVersion()}, "/>
+						<s:Label text="New Version = {updateInfo.version} released {releaseDate}"/>
+					</s:HGroup>
+					
+				</s:FormItem>
+				<s:FormItem width="100%" minHeight="80" label="Release Notes">
+					<s:Scroller width="100%" height="100%">
+						<s:RichEditableText width="100%" height="100%" editable="false" multiline="true"
+											selectable="true" minHeight="0"
+											textFlow="{PlatformUtil.getTextFlow(updateInfo, 'notes')}"/>
+					</s:Scroller>
+					
+				</s:FormItem>
+			</s:Form>
+		</s:BorderContainer>
+		<s:BorderContainer width="100%" height="50" borderWeight="2" cornerRadius="8"
+						   dropShadowVisible="true"
+						   backgroundColor.DownloadComplete="#9EEC91">
+			<s:layout>
+				<s:BasicLayout />
+			</s:layout>
+			<s:HGroup left="10" right="10" top="0" bottom="0" verticalAlign="middle" excludeFrom="DownloadComplete">
+				<mx:ProgressBar id="progressBar" mode="event" source="{loader}" />
+				<s:Button id="downloadButton" label="Download" click="downloadButton_clickHandler(event)" enabled.Downloading="false" />
+				<s:Spacer width="180" height="10"/>
+				<s:CheckBox id="remindMeCB" label="Don't Remind Me Again" selected="{prefs.getValue(Preferences.AUTO_CHECK_FOR_UPDATES, true)}"
+							change="prefs.setValue(Preferences.AUTO_CHECK_FOR_UPDATES, remindMeCB.selected);"/>
+				<s:Button id="cancelButton" label="Cancel" click="cancelButton_clickHandler(event)"/>
+			</s:HGroup>
+			<s:HGroup left="10" right="10" top="0" bottom="0" verticalAlign="middle" includeIn="DownloadComplete">
+				<s:Button id="installButton" label="Install" click="installButton_clickHandler(event)" />
+				<s:Label id="installText" text="The installer {installFile.name} has been saved to your desktop. "/>				
+			</s:HGroup>
+		</s:BorderContainer>
+		
+	</s:VGroup>
+
+</s:TitleWindow>

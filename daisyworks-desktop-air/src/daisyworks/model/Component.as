@@ -2,6 +2,8 @@ package daisyworks.model
 {
 	import com.adobe.utils.DateUtil;
 	
+	import daisyworks.config.PlatformUtil;
+	
 	import flashx.textLayout.elements.TextFlow;
 	
 	import mx.collections.ArrayCollection;
@@ -122,9 +124,9 @@ package daisyworks.model
 
 		public static function fromXml(node:XML):Component {
 			var c:Component = new Component();
-			c.notes = App.getTextFlow(node, "notes");
+			c.notes = PlatformUtil.getTextFlow(node, "notes");
 			c.path = node.@path;
-			c.released = App.getDate(node.released[0]);
+			c.released = PlatformUtil.getDate(node.released[0]);
 			c.type = node.@type;
 			c.url = node.url;
 			c.version = node.version;

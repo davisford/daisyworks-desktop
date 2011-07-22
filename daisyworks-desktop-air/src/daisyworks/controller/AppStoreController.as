@@ -1,6 +1,7 @@
 package daisyworks.controller
 {
 	import daisyworks.event.AppStoreEvent;
+	import daisyworks.event.DaisyWorksEvent;
 	import daisyworks.log.Logger;
 	
 	import flash.events.Event;
@@ -48,6 +49,7 @@ package daisyworks.controller
 		
 		private function loadError(evt:IOErrorEvent):void {
 			LOG.error("Failed to load data from app store " + evt.text);
+			dispatcher.dispatchEvent(new DaisyWorksEvent(DaisyWorksEvent.APP_STORE_FAILURE, "Failed to connect to DaisyWorks AppStore: "+evt.text));
 		}
 	}
 }

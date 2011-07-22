@@ -19,6 +19,7 @@
 	<controller:BluetoothController id="bluetoothController"/>
 	<controller:AppStoreController id="appStoreController" />
 	<controller:AppController id="appController" />
+	<controller:UpdateController id="updateController" />
 	
 	<presentation:AppPresentationModel id="appPresentationModel" />
 	<presentation:StatePresentationModel id="statePresentationModel" />
