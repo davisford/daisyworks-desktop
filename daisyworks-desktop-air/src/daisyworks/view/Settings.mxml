@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				title="Settings"
+				width="500" height="400">
+	
+	<fx:Script>
+		<![CDATA[
+			import daisyworks.event.UpdateEvent;
+			import daisyworks.model.Preferences;
+			
+			import spark.events.TextOperationEvent;
+			
+			private var _prefs:Preferences;
+			[Bindable] public function get prefs():Preferences { return _prefs; }
+			[Inject] public function set prefs(val:Preferences):void { _prefs = val; }
+			
+			[Dispatcher]
+			public var dispatcher:IEventDispatcher;
+			
+			protected function jettyPort_changeHandler(event:TextOperationEvent):void
+			{
+				prefs.setValue(Preferences.JETTY_PORT, jettyPort.text);
+			}
+			
+			protected function checkForUpdates_changeHandler(event:Event):void
+			{
+				prefs.setValue(Preferences.AUTO_CHECK_FOR_UPDATES, checkForUpdates.selected);
+			}
+			
+			protected function checkNowButton_clickHandler(event:MouseEvent):void
+			{
+				dispatcher.dispatchEvent(new UpdateEvent(UpdateEvent.CHECK_FOR_UPDATE));
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		
+	</fx:Style>
+	
+	<s:Form left="10" right="10" top="10" bottom="10">
+		<s:FormItem width="100%" label="Port">
+			<s:helpContent>
+				<s:Label text="TCP Socket Port Number" />
+			</s:helpContent>
+			<s:TextInput id="jettyPort" text="{prefs.getValue(Preferences.JETTY_PORT, '8080')}" 
+						 change="jettyPort_changeHandler(event)"/>
+		</s:FormItem>
+		<s:FormItem width="100%" label="Auto Check For Updates">
+			<s:CheckBox id="checkForUpdates" selected="{prefs.getValue(Preferences.AUTO_CHECK_FOR_UPDATES, true)}"
+						change="checkForUpdates_changeHandler(event)" />
+			<s:Button id="checkNowButton" label="Check Now" click="checkNowButton_clickHandler(event)"/>
+		</s:FormItem>
+	</s:Form>
+</s:TitleWindow>

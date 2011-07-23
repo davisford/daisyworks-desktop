@@ -17,6 +17,7 @@
 		<![CDATA[
 			import daisyworks.event.UpdateEvent;
 			import daisyworks.view.About;
+			import daisyworks.view.Settings;
 			import daisyworks.view.UpdateBox;
 			
 			import mx.events.CloseEvent;
@@ -54,6 +55,13 @@
 						});
 						PopUpManager.addPopUp(about, this, true);
 						PopUpManager.centerPopUp(about);
+					} else if(funcName == "openSettings") {
+						var settings:Settings = new Settings();
+						settings.addEventListener(CloseEvent.CLOSE, function(evt:CloseEvent):void {
+							PopUpManager.removePopUp(Settings(evt.target));
+						});
+						PopUpManager.addPopUp(settings, this, true);
+						PopUpManager.centerPopUp(settings);
 					}
 				}
 			}
@@ -81,6 +89,9 @@
 			<root>
 				<menuitem label="Help">
 					<menuitem label="About..." action="openAbout"/>
+				</menuitem>
+				<menuitem label="Settings">
+					<menuitem label="Configure..." action="openSettings" />
 				</menuitem>
 			</root>
 		</fx:XML>

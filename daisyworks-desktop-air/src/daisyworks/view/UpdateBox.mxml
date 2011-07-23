@@ -79,20 +79,24 @@
 				loader.load(request);
 			}
 			
-			protected function installButton_clickHandler(event:MouseEvent):void {
+			protected function installButton_clickHandler(event:MouseEvent):void {				
+				installText.text="Please wait...";
+				installButton.enabled = false;
+							
+				if(PlatformUtil.isWindows()) {
+					launchInstaller();
+					pauseAndExit();
+				} else {
+					installFile.openWithDefaultApplication();
+					pauseAndExit();
+				}		
+			}
+			
+			private function launchInstaller():void {
 				var startupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
 				startupInfo.executable = installFile; 
 				var installer:NativeProcess = new NativeProcess();
 				installer.start(startupInfo);
-				installText.text="Please wait...";
-				installButton.enabled = false;
-				
-				// wait 5 seconds and tell the app to exit
-				var t:Timer = new Timer(5000, 1);
-				t.addEventListener(TimerEvent.TIMER, function():void {
-					dispatcher.dispatchEvent(new DaisyWorksEvent(DaisyWorksEvent.EXIT));
-				});
-				t.start();
 			}
 						
 			protected function cancelButton_clickHandler(event:MouseEvent):void
@@ -103,6 +107,19 @@
 					try { loader.close(); } catch(e:Error) { }
 				}
 				dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+			}
+			
+			private function chmodInstaller():void {
+				var startupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+			}
+			
+			private function pauseAndExit():void {
+				// wait 5 seconds and tell the app to exit
+				var t:Timer = new Timer(5000, 1);
+				t.addEventListener(TimerEvent.TIMER, function():void {
+					dispatcher.dispatchEvent(new DaisyWorksEvent(DaisyWorksEvent.EXIT));
+				});
+				t.start();
 			}
 			
 			

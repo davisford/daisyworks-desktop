@@ -88,7 +88,7 @@ package daisyworks.controller {
 		 *
 		 */
 		public function start():void {
-			port = prefs.getValue("port", "8080");
+			port = prefs.getValue(Preferences.JETTY_PORT, "8080");
 			remoteObj.endpoint = "http://localhost:"+port+"/daisyworks/messagebroker/amf";
 			
 			// start the JVM
@@ -210,7 +210,6 @@ package daisyworks.controller {
 				
 				LOG.debug('executing '+startupInfo.arguments.toString());
 				jvm.start(startupInfo);
-				dispatcher.dispatchEvent(new DaisyWorksEvent(DaisyWorksEvent.JVM_STARTED));
 			} catch (e:Error) {
 				dispatcher.dispatchEvent(new DaisyWorksEvent(DaisyWorksEvent.JVM_START_FAILURE, TOTAL_JVM_FAILURE));
 				javaFailed = true;

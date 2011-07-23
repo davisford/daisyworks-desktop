@@ -139,9 +139,7 @@
 			<s:NavigatorContent id="controlSettings" left="5" right="5" width="100%" height="100%" label="Interact" icon="{Icons.CONTROL}">
 				<view:InteractSideBar width="100%" height="100%" x="0" />
 			</s:NavigatorContent>
-			<s:NavigatorContent id="cloudSettings" left="5" right="5" width="100%" height="100%" label="Settings" icon="{Icons.SETTINGS}">
-				<s:Label text="manage the cloud settings" />
-			</s:NavigatorContent>
+			
 		</mx:Accordion>
 		<mx:ViewStack id="viewstack" width="75%" height="100%">
 			<s:NavigatorContent id="discovery">
@@ -154,9 +152,7 @@
 			<s:NavigatorContent id="control">
 				<view:InteractMain />
 			</s:NavigatorContent>
-			<s:NavigatorContent id="cloud">
-				<s:Label text="cloud" />
-			</s:NavigatorContent>
+			
 		</mx:ViewStack>
 	</mx:HDividedBox>
 </s:Group>

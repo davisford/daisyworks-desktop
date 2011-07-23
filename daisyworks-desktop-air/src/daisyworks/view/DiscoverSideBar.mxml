@@ -54,6 +54,8 @@
 					currentState='Scanning';
 					dispatchEvent(new BluetoothDiscoveryEvent(BluetoothDiscoveryEvent.DISCOVER_DEVICES));
 				} */
+				// FIXME: on Mac OS, if the user clicks the button before this event it will fail...
+				// maybe disable the button until this event is received
 			}
 			
 			private function discoverBtn_clickHandler(event:MouseEvent):void {
@@ -167,8 +169,7 @@
 		<mx:StringValidator id="nameValidator" minLength="1" maxLength="20" source="{nameTI}" property="text" />
 	</fx:Declarations>
 	
-	<s:HGroup width="100%" height="30" verticalAlign="middle">
-		
+	<s:HGroup width="100%" height="30" verticalAlign="middle">		
 		<s:Button label="Refresh" click="discoverBtn_clickHandler(event)" enabled.Disconnected="true" enabled.Scanning="false"  enabled.Connected="true"/>
 		<s:Label id="label" text.Disconnected="Disconnected" text.Scanning="Scanning..." text.Connected="Connected to {selected.name}"/>
 	</s:HGroup>

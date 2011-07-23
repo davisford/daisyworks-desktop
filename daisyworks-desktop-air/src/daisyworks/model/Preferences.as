@@ -7,7 +7,7 @@ package daisyworks.model { 
 	public class Preferences {
 		
 		public static const JAVA_PATH:String = "java";
-		
+		public static const JETTY_PORT:String = "jetty_port";
 		public static const HEIGHT:String = "height";
 		public static const WIDTH:String = "width";
 		public static const CACHED_DEVICE_LOOKUP:String = "cachedDeviceLookup";
