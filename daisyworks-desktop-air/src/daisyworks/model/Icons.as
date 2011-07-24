@@ -60,6 +60,10 @@ package daisyworks.model {
 		[Embed(source="../../assets/images/box_down.png")]
 		[Bindable]
 		public static var APP_DOWNLOAD:Class;
+		
+		[Embed(source="../../assets/images/information.png")]
+		[Bindable]
+		public static var INFO:Class;
 
 		public function Icons() {	}
 	}

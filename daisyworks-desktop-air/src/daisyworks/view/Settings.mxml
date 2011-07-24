@@ -9,6 +9,7 @@
 		<![CDATA[
 			import daisyworks.event.UpdateEvent;
 			import daisyworks.model.Preferences;
+			import daisyworks.model.Icons;
 			
 			import spark.events.TextOperationEvent;
 			
@@ -47,18 +48,22 @@
 		
 	</fx:Style>
 	
-	<s:Form left="10" right="10" top="10" bottom="10">
-		<s:FormItem width="100%" label="Port">
-			<s:helpContent>
-				<s:Label text="TCP Socket Port Number" />
-			</s:helpContent>
-			<s:TextInput id="jettyPort" text="{prefs.getValue(Preferences.JETTY_PORT, '8080')}" 
-						 change="jettyPort_changeHandler(event)"/>
-		</s:FormItem>
-		<s:FormItem width="100%" label="Auto Check For Updates">
-			<s:CheckBox id="checkForUpdates" selected="{prefs.getValue(Preferences.AUTO_CHECK_FOR_UPDATES, true)}"
-						change="checkForUpdates_changeHandler(event)" />
-			<s:Button id="checkNowButton" label="Check Now" click="checkNowButton_clickHandler(event)"/>
-		</s:FormItem>
-	</s:Form>
+	<s:BorderContainer left="10" right="10" top="10" bottom="10" borderWeight="2" cornerRadius="8"
+					   dropShadowVisible="true">
+		<s:Form width="100%" height="100%">
+			<s:FormItem width="100%" label="Port" requiredIndicatorSource="{Icons.INFO}" required="true" >
+				<s:helpContent>
+					<s:Label text="TCP Socket Port Number" />
+				</s:helpContent>
+				<s:TextInput id="jettyPort" text="{prefs.getValue(Preferences.JETTY_PORT, '8080')}" 
+							 change="jettyPort_changeHandler(event)"/>
+			</s:FormItem>
+			<s:FormItem width="100%" label="Auto Check For Updates">
+				<s:CheckBox id="checkForUpdates" selected="{prefs.getValue(Preferences.AUTO_CHECK_FOR_UPDATES, true)}"
+							change="checkForUpdates_changeHandler(event)" />
+			</s:FormItem>
+		</s:Form>
+		
+	</s:BorderContainer>
+	
 </s:TitleWindow>
