@@ -3,7 +3,7 @@
 				xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:mx="library://ns.adobe.com/flex/mx" 
 				title="Settings"
-				width="500" height="400">
+				width="356" height="288">
 	
 	<fx:Script>
 		<![CDATA[
@@ -32,14 +32,28 @@
 			
 			protected function checkNowButton_clickHandler(event:MouseEvent):void
 			{
-				dispatcher.dispatchEvent(new UpdateEvent(UpdateEvent.CHECK_FOR_UPDATE));
+				dispatcher.dispatchEvent(new UpdateEvent(UpdateEvent.CHECK_FOR_UPDATE_SILENTLY));
 			}
 			
 		]]>
 	</fx:Script>
 	
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<mx:Text id="portHelp">
+			<mx:text>
+			DaisyWorks needs to be able to bind to an available port number on your host computer for 
+			successful operation.  Normally, you shouldn't need to change this, but if you received an
+			error or warning about a port conflict, change the value here to some number between 1024-65534
+			and restart the application.
+			</mx:text>
+		</mx:Text>
+		<mx:Text id="autoCheckHelp">
+			<mx:text>
+			Set this to true if you want the application to automatically check for updates when it starts up.
+			If you set this to false you won't be notified of any new software updates, but you can still manually
+			check for updates in the settings menu.
+			</mx:text>
+		</mx:Text>
 	</fx:Declarations>
 	
 	<fx:Style>
@@ -51,14 +65,17 @@
 	<s:BorderContainer left="10" right="10" top="10" bottom="10" borderWeight="2" cornerRadius="8"
 					   dropShadowVisible="true">
 		<s:Form width="100%" height="100%">
-			<s:FormItem width="100%" label="Port" requiredIndicatorSource="{Icons.INFO}" required="true" >
+			<s:FormItem width="100%" label="Port" >
 				<s:helpContent>
-					<s:Label text="TCP Socket Port Number" />
+					<s:Image source="assets/images/information.png" toolTip="{portHelp.text}" />
 				</s:helpContent>
 				<s:TextInput id="jettyPort" text="{prefs.getValue(Preferences.JETTY_PORT, '8080')}" 
 							 change="jettyPort_changeHandler(event)"/>
 			</s:FormItem>
 			<s:FormItem width="100%" label="Auto Check For Updates">
+				<s:helpContent>
+					<s:Image source="assets/images/information.png" toolTip="{autoCheckHelp.text}"/>
+				</s:helpContent>
 				<s:CheckBox id="checkForUpdates" selected="{prefs.getValue(Preferences.AUTO_CHECK_FOR_UPDATES, true)}"
 							change="checkForUpdates_changeHandler(event)" />
 			</s:FormItem>

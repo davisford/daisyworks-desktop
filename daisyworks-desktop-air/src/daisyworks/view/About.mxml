@@ -3,7 +3,7 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 title="About DaisyWorks Desktop"
-		 width="568" height="192">
+		 width="568" height="206">
 	<fx:Script>
 		<![CDATA[
 			import daisyworks.config.PlatformUtil;
@@ -12,17 +12,21 @@
 	<fx:Style>
 		@namespace s "library://ns.adobe.com/flex/spark";
 		@namespace mx "library://ns.adobe.com/flex/mx";
-		.aboutForm {
-			backgroundColor: haloSilver;
-			backgroundAlpha: 0.55;
-		}
+
 	</fx:Style>
-	<s:Form styleName="aboutForm" left="10" right="10" top="10" bottom="10">
-		<s:FormItem width="100%" label="Version">
-			<s:Label width="100%" text="{PlatformUtil.getAppVersion()}"/>
-		</s:FormItem>
-		<s:FormItem label="For Help, Support, and Documentation please visit the website">
-			<mx:LinkButton label="http://daisyworks.com" enabled="true" click="navigateToURL(new URLRequest('http://daisyworks.com/'))"/>
-		</s:FormItem>
-	</s:Form>
+	<s:BorderContainer left="10" right="10" top="10" bottom="10" borderWeight="2" cornerRadius="8"
+					   dropShadowVisible="true">
+		<s:Form styleName="aboutForm" left="10" right="10" top="10" bottom="10">
+			<s:FormItem width="100%" label="Version">
+				<s:Label width="100%" text="{PlatformUtil.getAppVersion()}"/>
+			</s:FormItem>
+			<s:FormItem width="100%"
+						label="For Help, Support, and Documentation please visit the website">
+				<mx:LinkButton label="http://daisyworks.com"
+							   click="navigateToURL(new URLRequest('http://daisyworks.com/'))"
+							   enabled="true" paddingLeft="0" textAlign="left"/>
+			</s:FormItem>
+		</s:Form>
+	</s:BorderContainer>
+	
 </s:TitleWindow>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:components="daisyworks.view.components.*">
 	<fx:Script>
 		<![CDATA[
 			import daisyworks.event.BluetoothTxRxEvent;
@@ -86,8 +86,23 @@
 				}
 			}
 	
+			protected function debugPanel_collapseChangeHandler(event:Event):void
+			{
+				if(debugPanel.collapsed) {
+					currentState = "Collapsed";
+				} else {
+					currentState = "Expanded";
+				}
+			}
+			
 		]]>
 	</fx:Script>
+	
+	<s:states>
+		<s:State name="Collapsed" />
+		<s:State name="Expanded" />
+	</s:states>
+	
 	<fx:Declarations>
 		<s:RadioButtonGroup id="crRadioGroup"/>
 		
@@ -95,24 +110,15 @@
 			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget ligula a odio ullamcorper volutpat. Pellentesque malesuada rhoncus sapien, ut mollis ligula ornare ut. Ut rhoncus fermentum sagittis. Mauris ornare, augue non feugiat ultricies, purus orci lobortis nunc, ut pharetra velit nisl ut lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Pellentesque egestas viverra nisl id luctus. Etiam est lectus, dignissim sed luctus non, pellentesque at libero. Nunc elementum elit et augue lacinia hendrerit. Vivamus ligula velit, aliquam non vulputate at, posuere ac dui. Aenean sit amet nulla dui, vel varius eros. Ut quis enim eu mi semper mattis et et dolor.			
 		</fx:String>
 	</fx:Declarations>
-	<mx:TabNavigator id="tabNavigator" width="100%" height="100%">
-		<mx:VBox label="Help" 
-				 width="100%" 
-				 height="100%" 
-				 horizontalAlign="center"
-				 paddingLeft="10" 
-				 paddingRight="10" 
-				 paddingTop="10" 
-				 paddingBottom="10" 
-				 textAlign="left">
-			<mx:Image source="{Icons.DAISYWORKS}" complete="smoothImage(event)"/>
-			<s:RichText text="{helpText}" width="100%" height="100%" />
-		</mx:VBox>
-		<mx:VBox label="Serial Console" width="100%" height="100%" borderVisible="false">
-		<s:Panel left="10" right="10" bottom="0" title="Serial Console" top="95" dropShadowVisible="false" width="100%" height="100%" borderVisible="false">
-			<s:layout>
-				<s:VerticalLayout gap="0"/>
-			</s:layout>
+	
+	<s:layout>
+		<s:HorizontalLayout gap="10"/>
+	</s:layout>
+	<components:CollapsiblePanel id="debugPanel" width.Expanded="100%"  height="100%" title="Debug Console" skinClass="daisyworks.view.skins.CollapsiblePanelSkin"
+			collapseChange="debugPanel_collapseChangeHandler(event)">
+		<components:layout>
+			<s:VerticalLayout paddingRight="10" paddingLeft="10" paddingTop="10" paddingBottom="10" />
+		</components:layout>
 			<s:HGroup height="30" verticalAlign="middle" width="100%" paddingLeft="10">
 				<s:TextInput width="100%" id="sendTI" keyDown="sendTI_keyDownHandler(event)" enabled="{isConnected}"/>
 				<s:Button label="Send" id="sendButton" click="sendButton_clickHandler(event)" enabled="{isConnected}"/>
@@ -127,9 +133,19 @@
 						enabled="true" verticalScrollPolicy="on" 
 						valueCommit="scrollDown(event)"
 						resize="scrollDown(event)" contentBackgroundColor="#E6E7E2" borderVisible="false"/>
-		</s:Panel>
-		</mx:VBox>
-	</mx:TabNavigator>
-	
-	
+	</components:CollapsiblePanel>
+	<mx:VBox label="Help" 
+			 	 includeIn="Collapsed"
+				 width="100%" 
+				 height="100%" 
+				 horizontalAlign="center"
+				 paddingLeft="10" 
+				 paddingRight="10" 
+				 paddingTop="10" 
+				 paddingBottom="10" 
+				 textAlign="left">
+		<mx:Image source="{Icons.DAISYWORKS}" complete="smoothImage(event)"/>
+		<s:RichText text="{helpText}" width="100%" height="100%" />
+	</mx:VBox>
+		
 </s:Group>

@@ -15,6 +15,8 @@ package daisyworks.event
 		
 		public static const APP_STORE_FAILURE:String="DaisyWorksEvent.APP_STORE_FAILURE";
 		
+		public static const UPDATE_FAILURE:String="DaisyWorksEvent.UPDATE_FAILURE";
+		
 		public static const EXIT:String = "DaisyWorksEvent.EXIT";
 		
 		public var message:String;

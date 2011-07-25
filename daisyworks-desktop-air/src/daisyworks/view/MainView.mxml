@@ -59,7 +59,7 @@
 				dispatchEvent(new Event("startWatchdog", true));
 				// check for update if auto-update-check is on
 				if(prefs.getValue(Preferences.AUTO_CHECK_FOR_UPDATES, true)) {
-					dispatchEvent(new UpdateEvent(UpdateEvent.CHECK_FOR_UPDATE));
+					dispatchEvent(new UpdateEvent(UpdateEvent.CHECK_FOR_UPDATE_SILENTLY));
 				}
 			}
 			
@@ -111,6 +111,12 @@
 				Alert.show(fault.faultString, message);
 			}
 			
+			[EventHandler(event="DaisyWorksEvent.APP_STORE_FAILURE", properties="message")]
+			[EventHandler(event="DaisyWorksEvent.UPDATE_FAILURE", properties="message")]
+			public function onAppOrUpdateFailure(message:String):void {
+				Alert.show(message);
+			}
+			
 
 			protected function accordion_changeHandler(event:IndexChangedEvent):void
 			{
@@ -133,10 +139,10 @@
 				</s:layout>
 				<view:DiscoverSideBar width="100%" x="0" height="100%"/>
 			</s:NavigatorContent>
-			<s:NavigatorContent id="programSettings" left="5" right="5" width="100%" height="100%" label="App Store" icon="{Icons.APPLICATIONS}">
+			<s:NavigatorContent id="programSettings" left="5" right="5" width="100%" height="100%" label="DaisyWorks App Store" icon="{Icons.APPLICATIONS}">
 				<view:AppStoreSideBar width="100%" x="0" height="100%" />
 			</s:NavigatorContent>
-			<s:NavigatorContent id="controlSettings" left="5" right="5" width="100%" height="100%" label="Interact" icon="{Icons.CONTROL}">
+			<s:NavigatorContent id="controlSettings" left="5" right="5" width="100%" height="100%" label="Installed Applications" icon="{Icons.INSTALLED_APPS}">
 				<view:InteractSideBar width="100%" height="100%" x="0" />
 			</s:NavigatorContent>
 			

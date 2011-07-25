@@ -5,6 +5,10 @@ package daisyworks.model {
 		[Bindable]
 		public static var DAISYWORKS:Class;
 		
+		[Embed(source="../../assets/images/daisyworks-logo-32x32.png")]
+		[Bindable]
+		public static var DAISYWORKS_ICON:Class;
+		
 		[Embed(source="../../assets/images/bluetooth.png")]
 		[Bindable]
 		public static var BLUETOOTH:Class;
@@ -13,9 +17,9 @@ package daisyworks.model {
 		[Bindable]
 		public static var BLUETOOTH_SMALL:Class;
 		
-		[Embed(source="../../assets/images/control_panel.png")]
+		[Embed(source="../../assets/images/application_side_expand.png")]
 		[Bindable]
-		public static var CONTROL:Class;
+		public static var INSTALLED_APPS:Class;
 		
 		[Embed(source="../../assets/images/dns_setting.png")]
 		[Bindable]
@@ -53,7 +57,7 @@ package daisyworks.model {
 		[Bindable]
 		public static var SETTINGS:Class;
 		
-		[Embed(source="../../assets/images/box_open.png")]
+		[Embed(source="../../assets/images/application_view_tile.png")]
 		[Bindable]
 		public static var APPLICATIONS:Class;
 		
@@ -64,6 +68,14 @@ package daisyworks.model {
 		[Embed(source="../../assets/images/information.png")]
 		[Bindable]
 		public static var INFO:Class;
+		
+		[Embed(source="../../assets/images/bullet_toggle_plus.png")]
+		[Bindable]
+		public static var PLUS:Class;
+		
+		[Embed(source="../../assets/images/bullet_toggle_minus.png")]
+		[Bindable]
+		public static var MINUS:Class;
 
 		public function Icons() {	}
 	}

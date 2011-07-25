@@ -15,11 +15,13 @@
 
 	<fx:Script>
 		<![CDATA[
+			import daisyworks.config.PlatformUtil;
 			import daisyworks.event.UpdateEvent;
 			import daisyworks.view.About;
 			import daisyworks.view.Settings;
 			import daisyworks.view.UpdateBox;
 			
+			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.events.FlexNativeMenuEvent;
@@ -45,6 +47,11 @@
 				PopUpManager.centerPopUp(updater);
 			}
 			
+			[EventHandler(event="UpdateEvent.NO_UPDATE_AVAILABLE")]
+			public function onNoUpdateAvailable():void {
+				Alert.show("No update available.  You are already running the latest version ", "Current Version: "+PlatformUtil.getAppVersion());
+			}
+			
 			private function handleMenuItem(event:FlexNativeMenuEvent):void {
 				var funcName:String = event.item.@action;
 				if(funcName) {
@@ -62,6 +69,8 @@
 						});
 						PopUpManager.addPopUp(settings, this, true);
 						PopUpManager.centerPopUp(settings);
+					} else if(funcName == "checkForUpdate") {
+						dispatchEvent(new UpdateEvent(UpdateEvent.CHECK_FOR_UPDATE));
 					}
 				}
 			}
@@ -87,12 +96,14 @@
 		<fx:XML format="e4x"
 				id="menuitems">
 			<root>
+				<menuitem label="Settings">
+					<menuitem label="Configure..." action="openSettings" />
+					<menuitem label="Check For Update..." action="checkForUpdate" />
+				</menuitem>
 				<menuitem label="Help">
 					<menuitem label="About..." action="openAbout"/>
 				</menuitem>
-				<menuitem label="Settings">
-					<menuitem label="Configure..." action="openSettings" />
-				</menuitem>
+				
 			</root>
 		</fx:XML>
 	</fx:Declarations>
