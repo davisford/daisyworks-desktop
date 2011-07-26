@@ -166,7 +166,7 @@
 						<s:FormItem width="100%" label="Web" fontWeight="normal" textAlign="left">
 							<mx:LinkButton right="0" width="100%" height="100%"
 										   label="{app.authorUrl}" paddingLeft="0" paddingRight="0"
-										   textAlign="left"/>
+										   textAlign="left" click="navigateToURL(new URLRequest(app.authorUrl))"/>
 						</s:FormItem>
 						
 						<!-- ___________________________ RELEASE DATE _______________________ -->

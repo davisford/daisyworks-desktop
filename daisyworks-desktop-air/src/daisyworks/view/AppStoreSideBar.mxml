@@ -24,13 +24,10 @@
 	</fx:Declarations>
 	<mx:Form width="100%" x="10" y="30">
 		<mx:FormItem label="Search AppStore" width="100%">
-			<s:TextInput id="searchBox" width="100%" keyDown="searchBox_keyDownHandler(event)"/>
+			<s:TextInput id="searchBox" width="100%" enabled="false" keyDown="searchBox_keyDownHandler(event)"/>
 		</mx:FormItem>
 		<mx:FormItem width="100%">
 		</mx:FormItem>
 	</mx:Form>
-	<mx:LinkButton label="Import a Local App &gt;&gt;" color="#3A69D3" textDecoration="underline" width="100%" textAlign="right"/>
-	<mx:FormItem width="100%">
-		<mx:LinkButton label="Submit an App &gt;&gt;" width="100%" textAlign="right" color="#3A69D3" textDecoration="underline"/>
-	</mx:FormItem>
+	
 </s:Group>

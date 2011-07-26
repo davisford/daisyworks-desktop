@@ -43,6 +43,10 @@
 			protected function sendButton_clickHandler(event:MouseEvent):void {
 				sendTextCommand(sendTI.text);
 			}
+			
+			protected function clearButton_clickHandler(event:MouseEvent):void {
+				consoleTA.text = '';
+			}
 						
 			private function sendTextCommand(command:String):void {
 				// clear TI
@@ -66,7 +70,14 @@
 
 			[EventHandler(event="BluetoothTxRxEvent.RX", properties="data")]
 			public function messageReceived(data:String):void {
+				// short-circuit if the panel is not open
+				if(debugPanel.collapsed) { return; }
+				
 				if(consoleTA) {
+					if(consoleTA.text.length >= 1000) {
+						consoleTA.text = '';
+					}
+					
 					consoleTA.text += '\nrx> ' + data;
 					scrollDown();
 				}
@@ -74,7 +85,12 @@
 				
 			private function scrollDown(event:Event=null):void {
 				// scroll with the text
-				consoleTA.scroller.verticalScrollBar.value = consoleTA.scroller.verticalScrollBar.maximum + 100;
+				if(consoleTA) {
+					if(consoleTA.scroller != null) {
+						consoleTA.scroller.verticalScrollBar.value = consoleTA.scroller.verticalScrollBar.maximum + 100;
+					}
+					
+				}
 			}
 			
 			private const crToolTip:String = "Most commands will not need a trailing carriage return <CR>; however, some special debug modes do require it.  Use the radio button to toggle sending a carriage return or not.";
@@ -122,6 +138,8 @@
 			<s:HGroup height="30" verticalAlign="middle" width="100%" paddingLeft="10">
 				<s:TextInput width="100%" id="sendTI" keyDown="sendTI_keyDownHandler(event)" enabled="{isConnected}"/>
 				<s:Button label="Send" id="sendButton" click="sendButton_clickHandler(event)" enabled="{isConnected}"/>
+				<mx:VRule height="100%"/>
+				<s:Button label="Clear" id="clearButton" click="clearButton_clickHandler(event)" />
 				<mx:VRule height="100%"/>
 				<s:HGroup width="100%" height="100%" toolTip="{crToolTip}" verticalAlign="middle">
 					<s:Label text="Carriage Return"/>

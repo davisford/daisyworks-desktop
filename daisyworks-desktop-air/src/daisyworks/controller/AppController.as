@@ -185,7 +185,7 @@ package daisyworks.controller
 		/**
 		 * Fault handler if file download failed
 		 */
-		private function downloadFailure(evt:Event, app:App, component:Component):void {
+		private function downloadFailure(evt:Event, app:App, component:Component, file:File):void {
 			LOG.error('download '+component.url+' failed because '+evt.toString());
 		}
 		
