@@ -10,10 +10,15 @@
 	<fx:Script>
 		<![CDATA[
 			import daisyworks.event.FirmwareEvent;
+			import daisyworks.log.Logger;
 			import daisyworks.model.App;
 			import daisyworks.model.presentation.StatePresentationModel;
 			
 			import mx.controls.Alert;
+			import mx.logging.ILogger;
+			import mx.rpc.Fault;
+			
+			private static const LOG:ILogger = Logger.getLogger(FirmwareProgrammer);
 			
 			private var _app:App;
 			
@@ -32,7 +37,38 @@
 					mx.controls.Alert.show("Firmware file "+app.getFirmware().path+" does not exist", "Error");
 					return;
 				}
+				progress.setProgress(0, 100);
 				dispatchEvent(new FirmwareEvent(FirmwareEvent.FOTA_START, file.nativePath));
+				// disable so they can't jack the thing twice
+				programButton.enabled = false;
+			}
+			
+			[EventHandler(event="FirmwareEvent.FOTA_ERROR", properties="fault")]
+			public function onFirmwareError(fault:Fault):void {
+				programButton.enabled = true;
+				Alert.show("Programming failed "+fault.faultDetail, fault.faultString);
+			}
+			
+			[EventHandler(event="FirmwareEvent.FOTA_GENERAL", properties="message")]
+			public function onFirmwareEvent(message:String):void {
+				if(message == null || message.length == 0) {
+					LOG.warn("FirmwareEvent.FOTA_GENERAL with null or empty message");
+					return;
+				}
+				var tokens:Array = message.split(",");
+				if(message.indexOf(FirmwareEvent.FIRMWARE_SEND_UPDATE) != -1) {
+					// this is a progress update.
+					try {
+						var n:Number = Number(tokens[tokens.length - 1]);
+						progress.setProgress(n, 100);
+						if(n == 100) { programButton.enabled = true; }
+					} catch(e:Error) {
+						// what?
+					}
+				}
+				if(message.indexOf(FirmwareEvent.COMPLETE) != -1) {
+					programButton.enabled = true;
+				}
 			}
 			
 		]]>
@@ -40,7 +76,7 @@
 	<fx:Declarations>
 
 	</fx:Declarations>
-	<mx:ProgressBar left="5" right="85" top="65" label=""/>
+	<mx:ProgressBar id="progress" left="5" right="85" top="65" label="" mode="manual" minimum="0" maximum="100" />
 	<s:TextArea left="5" right="5" top="5" maxHeight="55">
 		<s:content>
 			This application <s:span fontWeight="bold">

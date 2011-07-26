@@ -65,11 +65,11 @@
 			<version>${jetty.version}</version>
 		</dependency>
 		
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.daisyworks</groupId> -->
-<!-- 			<artifactId>stk500</artifactId> -->
-<!-- 			<version>1.0-SNAPSHOT</version> -->
-<!-- 		</dependency> -->
+		<dependency> 
+			<groupId>com.daisyworks</groupId> 
+			<artifactId>stk500</artifactId> 
+ 			<version>1.0</version> 
+ 		</dependency> 
 
 		<!-- spring + blazeds integration -->
 		<dependency>

@@ -1,5 +1,7 @@
 package daisyworks.controller
 {
+	import com.adobe.utils.StringUtil;
+	
 	import daisyworks.event.*;
 	import daisyworks.log.Logger;
 	import daisyworks.model.Device;
@@ -254,8 +256,17 @@ package daisyworks.controller
 		// _____________ RECEIVE _________________ //
 		private function messageReceived(event:MessageEvent):void	{
 			var msg:String = String(event.message.body);
+			/* I don't want to parse out the different types of FOTA messages on every incoming, so
+			 * I made one FOTA_GENERAL event type, and let the FirmwareProgrammer parse out the text
+			 * This is more efficient than trying to figure it out here and dispatching diff events
+			 */
+			if(msg.indexOf("FOTA") != -1) {
+				dispatcher.dispatchEvent(new FirmwareEvent(FirmwareEvent.FOTA_GENERAL, null, msg, null));		
+			} else {
+				dispatcher.dispatchEvent(new BluetoothTxRxEvent(BluetoothTxRxEvent.RX, msg));
+			}
+			// TODO: comment this out
 			LOG.info(msg);
-			dispatcher.dispatchEvent(new BluetoothTxRxEvent(BluetoothTxRxEvent.RX, msg));
 		}
 		
 		private function channelConnected(event:ChannelEvent):void {
@@ -297,9 +308,12 @@ package daisyworks.controller
 			LOG.info("Update firmware result");
 		}
 		
+		/**
+		 * You'll hit this if we can't connect to Java or an exception is thrown
+		 */
 		public function updateFirmwareFault(evt:FaultEvent):void {
 			LOG.error("Update firmware fault: "+evt.fault.faultString);
-			dispatcher.dispatchEvent(new FirmwareEvent(FirmwareEvent.FOTA_ERROR, null, evt.fault));
+			dispatcher.dispatchEvent(new FirmwareEvent(FirmwareEvent.FOTA_ERROR, null, null, evt.fault));
 		}
 		
 	}

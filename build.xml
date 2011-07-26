@@ -12,9 +12,9 @@
 			<arg value="install:install-file"/>
 			<arg value="-DgroupId=com.daisyworks"/>
 			<arg value="-DartifactId=stk500"/>
-			<arg value="-Dversion=1.0-SNAPSHOT"/>
+			<arg value="-Dversion=1.0"/>
 			<arg value="-Dpackaging=jar"/>
-			<arg value="-Dfile=./daisyworks-desktop-java/lib/stk500-1.0-SNAPSHOT.jar"/>
+			<arg value="-Dfile=./daisyworks-desktop-java/lib/stk500-1.0.jar"/>
 			<arg value="-DgeneratePom=true"/>
 		</exec>
 	</target>

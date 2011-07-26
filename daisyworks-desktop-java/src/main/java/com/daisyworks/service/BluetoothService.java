@@ -36,7 +36,7 @@ import org.springframework.flex.remoting.RemotingInclude;
 import org.springframework.stereotype.Service;
 
 import com.daisyworks.common.intelhex.BufferedIntelHexReader;
-import com.daisyworks.common.stk500.AsyncInputStreamThread;
+import com.daisyworks.common.stk500.io.AsyncInputStreamThread;
 import com.daisyworks.common.stk500.STK500Event;
 import com.daisyworks.common.stk500.STK500EventListener;
 import com.daisyworks.common.stk500.STK500v1;
@@ -421,14 +421,14 @@ public final class BluetoothService implements DiscoveryListener {
 	    asyncIn.setDaemon(true);
 	    asyncIn.start();
 		
-		final STK500v1 programmer = new STK500v1(output, asyncIn, new ProgramEventListener(template));
+		final STK500v1 programmer = new STK500v1(output, asyncIn, new ProgramEventListener(template), true);
 		
 		if (consoleReadThread == null || !consoleReadThread.isAlive()) {
 			throw new BluetoothServiceException(
 					"Can't update firmware because you are not conencted");
 		} else {
-			// stop the regular console read thread
-			consoleReadThread.stop();
+			// suspend the regular console read thread
+			consoleReadThread.suspend();
 		}
 		try {
 			// switch to command mode
@@ -639,12 +639,20 @@ public final class BluetoothService implements DiscoveryListener {
 		@Override
 		public void notify(final STK500Event event) {
 			LOGGER.info(event);
+			if(STK500Event.COMPLETE.equals(event)) {
+				// restart the background read thread
+				if(consoleReadThread != null) { consoleReadThread.resume(); }
+			}
 			template.send("serialPort", "FOTA,"+event.toString());
 		}
 
 		@Override
 		public void notify(final STK500Event event, final int progress) {
 			LOGGER.info(event + ": " + progress + "%");
+			if(STK500Event.COMPLETE.equals(event)) {
+				// restart the background read thread
+				if(consoleReadThread != null) { consoleReadThread.resume(); }
+			}
 			template.send("serialPort", "FOTA,"+event.toString()+","+progress);
 		}
 
