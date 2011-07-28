@@ -3,15 +3,19 @@ package daisyworks.model.presentation
 	import daisyworks.event.AppEvent;
 	import daisyworks.model.App;
 	import daisyworks.model.Component;
+	import daisyworks.log.Logger;
 	
 	import flash.events.IEventDispatcher;
 	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.XMLListCollection;
+	import mx.logging.ILogger;
 
 	public class AppPresentationModel
 	{
+		private static const LOG:ILogger = Logger.getLogger(AppPresentationModel);
+		
 		private var _appStoreApps:ArrayCollection;
 		
 		private var _installedApps:ArrayCollection;
@@ -63,6 +67,22 @@ package daisyworks.model.presentation
 			mergeState(appStoreApps, _installedAppDict);
 		}
 		
+		[EventHandler(event="AppEvent.REMOVE", properties="app")]
+		public function onAppRemove(app:App):void {
+			var idx:int = installedApps.getItemIndex(app);
+			if(idx > -1) {
+				installedApps.removeItemAt(idx);
+			} else {
+				LOG.error("Did not find " + app.name + " in installedApps ");
+			}
+			
+			for each(var appStoreApp:App in appStoreApps) {
+				if(app.id == appStoreApp.id) {
+					appStoreApp.installed = false;
+				}
+			}
+		}
+		
 		private function mergeState(apps:ArrayCollection, installed:Dictionary):ArrayCollection {
 			for each(var app:App in apps) {
 				var installedApp:App = installed[app.id];
@@ -71,6 +91,7 @@ package daisyworks.model.presentation
 					if(installedApp.compare(app.software) == true) {
 						// mark for upgrade
 						app.updateAvailable = true;
+						installedApp.updateAvailable = true;
 					}
 				}
 			}

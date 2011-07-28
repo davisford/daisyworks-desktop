@@ -24,6 +24,7 @@
 			
 			import daisyworks.event.AppEvent;
 			import daisyworks.model.App;
+			import daisyworks.model.Icons;
 			
 			import flashx.textLayout.conversion.TextConverter;
 			import flashx.textLayout.elements.TextFlow;
@@ -86,13 +87,14 @@
 	</fx:Declarations>
 	
 			<!-- ______________________ GO BACK LINK ____________________________ -->
-			<s:Group width="100%" height="22">
+			<s:Group width="100%"
+					 height.Downloading="22"
+					 height.Installed="22"
+					 height.Update="22">
 					<s:layout>
 						<s:BasicLayout />
 					</s:layout>
-					<mx:LinkButton label="&lt;&lt; Back"
-								   click="dispatchEvent(new Event('navigateAway'));" color="#0000FF"
-								   textDecoration="underline"/>
+					<s:Button label="Back" icon="{Icons.ARROW_LEFT}" click="dispatchEvent(new Event('navigateAway'));" />
 			</s:Group>
 	
 			<!-- ______________________________ SCROLLER ________________________________ -->
@@ -112,13 +114,13 @@
 						<!-- _______________________ ICON _______________________________ -->
 						<s:Group width="100%">
 							<s:layout>
-								<s:HorizontalLayout verticalAlign="top" gap="10"/>
+								<s:VerticalLayout verticalAlign="top" gap="10"/>
 							</s:layout>
+							<!-- _______________________ DESCRIPTION ____________________________________ -->
+							<s:RichEditableText selectable="true" editable="false" textFlow="{app.description}" multiline="true" width="100%" />
 							<mx:Image height="128"
 									  width="128"
 									  source="{app.getIconUrl(128)}"/>
-							<!-- _______________________ DESCRIPTION ____________________________________ -->
-							<s:RichEditableText selectable="true" editable="false" textFlow="{app.description}" multiline="true" width="100%" />
 						</s:Group>
 						
 						<!-- ___________________________ SOFTWARE INSTALL ____________________ -->

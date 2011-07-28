@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:components="daisyworks.view.components.*">
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="100%" height="100%" xmlns:components="daisyworks.view.components.*">
 	<fx:Script>
 		<![CDATA[
 			import daisyworks.event.BluetoothTxRxEvent;
@@ -96,10 +97,10 @@
 			private const crToolTip:String = "Most commands will not need a trailing carriage return <CR>; however, some special debug modes do require it.  Use the radio button to toggle sending a carriage return or not.";
 
 			private function smoothImage(evt:Event):void{
-				var myBitmap:Bitmap = ((evt.target as Image).content as Bitmap);
+		/* 		var myBitmap:Bitmap = ((evt.target as Image).content as Bitmap);
 				if (myBitmap != null) {
 					myBitmap.smoothing = true;
-				}
+				} */
 			}
 	
 			protected function debugPanel_collapseChangeHandler(event:Event):void
@@ -114,6 +115,25 @@
 		]]>
 	</fx:Script>
 	
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		@namespace components "daisyworks.view.components.*";
+		
+		.formTextArea {
+			borderVisible: false;
+			contentBackgroundColor: #FFFFFF;
+		}
+		
+		.formItemMajorStep {
+			borderVisible: true;
+			borderThickness: 2;
+			dropShadowVisible: true;
+			cornerRadius: 8;
+			
+		}
+	</fx:Style>
+	
 	<s:states>
 		<s:State name="Collapsed" />
 		<s:State name="Expanded" />
@@ -121,10 +141,7 @@
 	
 	<fx:Declarations>
 		<s:RadioButtonGroup id="crRadioGroup"/>
-		
-		<fx:String id="helpText">
-			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget ligula a odio ullamcorper volutpat. Pellentesque malesuada rhoncus sapien, ut mollis ligula ornare ut. Ut rhoncus fermentum sagittis. Mauris ornare, augue non feugiat ultricies, purus orci lobortis nunc, ut pharetra velit nisl ut lacus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Pellentesque egestas viverra nisl id luctus. Etiam est lectus, dignissim sed luctus non, pellentesque at libero. Nunc elementum elit et augue lacinia hendrerit. Vivamus ligula velit, aliquam non vulputate at, posuere ac dui. Aenean sit amet nulla dui, vel varius eros. Ut quis enim eu mi semper mattis et et dolor.			
-		</fx:String>
+
 	</fx:Declarations>
 	
 	<s:layout>
@@ -156,14 +173,122 @@
 			 	 includeIn="Collapsed"
 				 width="100%" 
 				 height="100%" 
-				 horizontalAlign="center"
+				 horizontalAlign="left"
 				 paddingLeft="10" 
 				 paddingRight="10" 
 				 paddingTop="10" 
 				 paddingBottom="10" 
 				 textAlign="left">
-		<mx:Image source="{Icons.DAISYWORKS}" complete="smoothImage(event)"/>
-		<s:RichText text="{helpText}" width="100%" height="100%" />
+		<s:Scroller width="100%" height="100%">
+			<s:Group>
+			<s:layout>
+				<s:BasicLayout />
+			</s:layout>
+			<mx:Image left="10" top="10" complete="smoothImage(event)" source="{Icons.DAISYWORKS}" />
+			<s:Form left="10" right="10" top="175">
+				<s:FormHeading label="QuickStart" />
+				
+				<!-- ____________________________ DISCOVER / CONNECT __________________________ -->
+				<s:Image source="{Icons.BLUETOOTH}" />
+				<s:FormItem width="100%" label="Discover / Connect" sequenceLabel="1.">		
+					<s:BorderContainer width="100%" height="100%" styleName="formItemMajorStep">
+						<s:VGroup width="100%" height="100%" gap="0">
+							<s:FormItem width="100%" sequenceLabel="a)" skinClass="spark.skins.spark.FormItemSkin" >
+								<s:RichText width="100%">
+									<s:textFlow>
+										<s:TextFlow>Use <s:span textDecoration="underline">Discover/Connect</s:span> to discover any Bluetooth-enabled Daisy devices in proximity.</s:TextFlow>
+									</s:textFlow>
+								</s:RichText>
+							</s:FormItem>
+							<s:FormItem sequenceLabel="b)" width="100%" skinClass="spark.skins.spark.FormItemSkin">
+								<s:RichText width="100%">
+									<s:textFlow>
+										<s:TextFlow>Connect to a Daisy by selecting it's name from the list.  <s:span fontStyle="italic">You must be connected to a Daisy to interact with it. The Debug Console and Apps will be disabled until you connect.</s:span>
+										</s:TextFlow>
+									</s:textFlow>
+								</s:RichText>
+							</s:FormItem>
+							<s:FormItem sequenceLabel="c)" width="100%" skinClass="spark.skins.spark.FormItemSkin">
+								<s:RichText width="100%">
+									<s:textFlow>
+										<s:TextFlow>The <s:span textDecoration="underline">Debug Console</s:span> allows you to transmit and receive raw commands to/from the Daisy.  
+										</s:TextFlow>
+									</s:textFlow>
+								</s:RichText>
+							</s:FormItem>
+						</s:VGroup>	
+					</s:BorderContainer>
+				</s:FormItem>
+				
+				<!-- _____________________________ DAISYWORKS APP STORE ________________________ -->
+				<s:Image source="{Icons.APPLICATIONS}" />
+				<s:FormItem width="100%" label="Daisyworks App Store" sequenceLabel="2.">
+					<s:BorderContainer width="100%" height="100%" styleName="formItemMajorStep">
+						<s:VGroup width="100%" height="100%" gap="0">
+							<s:FormItem sequenceLabel="a)" width="100%" skinClass="spark.skins.spark.FormItemSkin">
+								<s:RichText width="100%">
+									<s:textFlow>
+										<s:TextFlow>Browse the <s:span textDecoration="underline">DaisywWorks App Store</s:span> to find Apps that you want to install.
+										</s:TextFlow>
+									</s:textFlow>	
+								</s:RichText>
+							</s:FormItem>
+							<s:FormItem sequenceLabel="b)" width="100%" skinClass="spark.skins.spark.FormItemSkin">
+								<s:RichText width="100%">
+									<s:textFlow>
+										<s:TextFlow>Select an App Icon to view more detailed information.  You can install the App from the details page.
+										</s:TextFlow>
+									</s:textFlow>
+								</s:RichText>
+							</s:FormItem>
+						</s:VGroup>
+					</s:BorderContainer>
+				</s:FormItem>
+				
+				<!-- _____________________________ INSTALLED APPLICATIONS _______________________ -->
+				<s:Image source="{Icons.INSTALLED_APPS}" />
+				<s:FormItem width="100%" label="Installed Applications" sequenceLabel="3.">
+					<s:BorderContainer width="100%" height="100%" styleName="formItemMajorStep">
+						<s:VGroup width="100%" height="100%" gap="0">
+							<s:FormItem sequenceLabel="a)" width="100%" skinClass="spark.skins.spark.FormItemSkin">
+								<s:RichText width="100%">
+									<s:textFlow>
+										<s:TextFlow>View <s:span textDecoration="underline">Installed Applications</s:span> to review the Apps you have installed.  Each App may include: 
+										</s:TextFlow>
+									</s:textFlow>
+								</s:RichText>
+								<s:RichText width="100%">
+									<s:textFlow>
+										<s:TextFlow>
+											<s:list>
+												<s:li><s:span fontWeight="bold">Firmware</s:span> software that runs on the Daisy which controls the device and interacts with sensors or controls.
+												</s:li>
+												<s:li><s:span fontWeight="bold">User Interface (UI)</s:span> graphical application which allows you to interact with the Daisy through your computer.  
+													It may contain graphs, sliders, buttons, or other widgets that allow you to interact with sensors or controls in real-time.
+												</s:li>
+												<s:li><s:span fontWeight="bold">Both</s:span> some Apps will have both firmware and a UI.</s:li>
+											</s:list>
+										</s:TextFlow>
+									</s:textFlow>
+								</s:RichText>
+							</s:FormItem>
+							<s:FormItem sequenceLabel="b)" width="100%" skinClass="spark.skins.spark.FormItemSkin">
+								<s:RichText width="100%">
+									<s:textFlow>
+										<s:TextFlow>To load an App, select it's name from the list of installed Apps.  If it contains firmware, you will have the ability to program the firmware on the Daisy (this will
+											overwrite any existing firmware on the device.)  If the App contains UI, it will load and be visible.  The UI will be disabled until you connect to a Daisy.
+										</s:TextFlow>
+									</s:textFlow>
+								</s:RichText>
+							</s:FormItem>
+						</s:VGroup>
+					</s:BorderContainer>
+				</s:FormItem>
+			</s:Form>
+		</s:Group>
+		</s:Scroller>
+		
+		
 	</mx:VBox>
 		
 </s:Group>

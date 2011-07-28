@@ -89,7 +89,11 @@ package daisyworks.controller
 				xml = XML(fs.readUTFBytes(fs.bytesAvailable));
 			} finally {
 				fs.close();
-				return xml;
+				if(xml.toString().length == 0) {
+					return bootstrapEmptyMetadata();
+				} else {
+					return xml;
+				}
 			}
 		}
 		
@@ -131,7 +135,7 @@ package daisyworks.controller
 				chain.addStep( new EventChainStep( new AppDownloadEvent(AppDownloadEvent.DOWNLOAD, app, swf, swfFile), dispatcher ) );
 			}
 			
-			// download the images
+			// download the images => TODO
 			
 			
 			if(chain.steps.length <= 0) {
@@ -143,11 +147,33 @@ package daisyworks.controller
 			}	
 		}
 		
+		[EventHandler(event="AppEvent.REMOVE", properties="app")]
+		public function removeApp(app:App):void {
+			// delete the node
+			delete appXML.app.(@id == app.id)[0];
+			// write it out
+			var fs:FileStream = new FileStream();
+			try {
+				fs.open(appMetadataFile, FileMode.WRITE);
+				fs.writeUTFBytes(appXML);
+			} finally {
+				fs.close();
+			}
+			
+			var outDir:File = appDir.resolvePath(cleanName(app.name));
+			if(outDir.exists && outDir.isDirectory) {
+				outDir.deleteDirectory(true);
+			}
+			// refire the list event so everyone is refreshed
+			list();
+		}
+		
 		/**
 		 * Fired when the download chain has completed all of its steps
 		 */
 		private function commandChainComplete(evt:ChainEvent):void {
-			dispatcher.dispatchEvent(new AppEvent(AppEvent.DOWNLOAD_COMPLETE));
+			// refire the list event so everyone is refreshed
+			list();
 		}
 		
 		/**
@@ -203,7 +229,7 @@ package daisyworks.controller
 			
 			var xml:XML = app.toXml();
 			
-			LOG.info("Saving app metadata, appXML =>\n" + xml.toString());
+			//LOG.info("Saving app metadata, appXML =>\n" + xml.toString());
 			
 			// if this app already exists, we will replace it in the app metadata XML
 			var oldNode:XML = appXML.app.(@id == app.id)[0];
@@ -224,7 +250,7 @@ package daisyworks.controller
 				fs.close();
 			}
 			
-			LOG.info("After writing it out, appXML =>\n" + appXML.toString());
+			//LOG.info("After writing it out, appXML =>\n" + appXML.toString());
 		}
 		
 		/**

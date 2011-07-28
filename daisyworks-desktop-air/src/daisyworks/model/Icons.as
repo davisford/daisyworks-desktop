@@ -80,6 +80,10 @@ package daisyworks.model {
 		[Embed(source="../../assets/images/bullet_toggle_minus.png")]
 		[Bindable]
 		public static var MINUS:Class;
+		
+		[Embed(source="../../assets/images/arrow_left.png")]
+		[Bindable]
+		public static var ARROW_LEFT:Class;
 
 		public function Icons() {	}
 	}
