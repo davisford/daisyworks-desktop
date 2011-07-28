@@ -8,6 +8,12 @@
 	<s:layout>
 		<s:VerticalLayout paddingTop="8"/>
 	</s:layout>
+	
+	<s:states>
+		<s:State name="Normal" />
+		<s:State name="Installed" />
+		<s:State name="Update" />
+	</s:states>
 
 	<fx:Script>
 		<![CDATA[
@@ -20,8 +26,16 @@
 			override public function set data(value:Object):void
 			{
 				super.data=value;
-				if(value)
+				if(value) {
 					app = App(value);
+					if(app.updateAvailable) {
+						currentState = "Update";
+					} else if(app.installed) {
+						currentState = "Installed";
+					} else {
+						currentState = "Normal";
+					}
+				}
 			}
 
 		]]>
@@ -48,13 +62,16 @@
 			 width="100%"
 			 showTruncationTip="true"
 			 maxDisplayedLines="1"/>
-	<s:HGroup width="100%"
-			  horizontalAlign="center"
+	<s:Group width="100%"
 			  height="100%">
-		<mx:Image height="128"
-				  width="128"
-				  source="{app.getIconUrl(128)}"/>
-	</s:HGroup>
+		<s:layout>
+			<s:BasicLayout />
+		</s:layout>
+		<mx:Image left="25" right="25" top="10" bottom="10" source="{app.getIconUrl(128)}"/>
+		<mx:Image includeIn="Installed" right="5" top="10" width="16" height="16"
+				  source="{Icons.INSTALLED}" toolTip="This app is currently installed."/>
+		<mx:Image includeIn="Update" right="5" top="10" width="16" height="16" source="{Icons.UPDATE}" toolTip="This app is installed and has an update available."/>
+	</s:Group>
 
 
 </s:ItemRenderer>

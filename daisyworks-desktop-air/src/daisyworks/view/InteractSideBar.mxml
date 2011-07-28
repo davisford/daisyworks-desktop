@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300" xmlns:itemrenderers="daisyworks.view.itemrenderers.*">
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="100%" 
+		 xmlns:itemrenderers="daisyworks.view.itemrenderers.*">
 	<s:layout>
 		<s:BasicLayout/>
 	</s:layout>
@@ -12,41 +13,35 @@
 			import daisyworks.model.presentation.AppPresentationModel;
 			
 			import mx.collections.ArrayCollection;
-			import mx.collections.XMLListCollection;
 			
 			import spark.events.GridSelectionEvent;
-			import spark.events.IndexChangeEvent;
 
 			[Inject]
 			[Bindable]
 			public var model:AppPresentationModel; 
-			
-			public var markedForDelete:ArrayCollection = new ArrayCollection();
+						
+			public static var markedForDelete:ArrayCollection = new ArrayCollection();
 			
 			[PostConstruct]
 			public function init():void {
 				dispatchEvent(new AppEvent(AppEvent.LIST));
 			}
-
+			
 			protected function appGrid_selectionChangeHandler(event:GridSelectionEvent):void
 			{
 				dispatchEvent(new AppEvent(AppEvent.DEPLOY, App(appGrid.selectedItem)));
 			}
-						
+									
 		]]>
 	</fx:Script>
 	
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		
 	</fx:Declarations>
 	<s:Label text="Installed Applications" paddingLeft="5" paddingTop="5" paddingRight="5" verticalAlign="middle" paddingBottom="5" left="10" right="10" top="10" height="25"/>
-	<s:HGroup left="10" right="10" top="35" height="28" verticalAlign="middle" horizontalAlign="right">
-		<s:Button label="Check For Updates"/>
-		
-	</s:HGroup>
 	
-	<s:DataGrid id="appGrid" top="65" left="10" right="10" bottom="10"
-				dataProvider="{model.installedApps}" selectionChange="appGrid_selectionChangeHandler(event)">
+	<s:DataGrid id="appGrid" top="89" left="10" right="10" bottom="63" 
+				dataProvider="{model.installedApps}" selectionChange="appGrid_selectionChangeHandler(event)" >
 		<s:columns>
 			<s:ArrayList>
 				<s:GridColumn headerText="" width="29" >
@@ -57,8 +52,26 @@
 					</s:itemRenderer>
 				</s:GridColumn>
 				<s:GridColumn headerText="Name" dataField="name" />
+				<s:GridColumn headerText="" dataField="selected" width="29" >
+					<s:itemRenderer>
+						<fx:Component>
+							<s:GridItemRenderer>
+								<s:CheckBox id="cb" label="" selected="{data.selected}" horizontalCenter="0" />
+							</s:GridItemRenderer>
+						</fx:Component>
+					</s:itemRenderer>
+				</s:GridColumn>
 			</s:ArrayList>
 		</s:columns>
 	</s:DataGrid>
+	<s:BorderContainer left="10" right="10" top="35" height="45" borderWeight="2">
+		<s:Button left="10" top="10" bottom="10" width="70" label="Update"/>
+		<s:Label x="88" top="10" bottom="10" width="279" text="Update all checked Apps" verticalAlign="middle"/>
+	</s:BorderContainer>
+	<s:BorderContainer left="10" right="10" bottom="10" height="45" borderWeight="2">
+		<s:Button left="10" top="10" bottom="10" label="Delete"/>
+		<s:Label x="88" top="10" bottom="10" width="278" text="Delete all checked Apps"
+				 verticalAlign="middle"/>
+	</s:BorderContainer>
 	
 </s:Group>

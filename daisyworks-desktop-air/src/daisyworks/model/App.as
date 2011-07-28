@@ -29,6 +29,9 @@ package daisyworks.model
 		private var _updateAvailable:Boolean;
 		private var _installed:Boolean;
 		
+		/* helper property for ui, when selected in a datagrid / list */
+		private var _selected:Boolean = false;
+		
 		public function App()
 		{
 		}
@@ -159,6 +162,14 @@ package daisyworks.model
 		
 		public function set installed(val:Boolean):void {
 			_installed = val;
+		}
+		
+		public function get selected():Boolean {
+			return _selected;
+		}
+		
+		public function set selected(val:Boolean):void {
+			_selected = val;
 		}
 		
 		public function getIconUrl(size:Number):String {

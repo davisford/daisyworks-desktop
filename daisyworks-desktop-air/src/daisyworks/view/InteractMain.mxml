@@ -84,16 +84,25 @@
 			public function deploy(app:App):void {
 				// remove content from the border container if it exists
 				if(content) {
-					border.removeElement(content as IVisualElement);
+					if(border.contains(content as DisplayObject) ) {
+						border.removeElement(content as IVisualElement);
+					}
 				}
 				// unload the module if it is loaded
 				moduleLoader.unloadModule();
 				
 				this.app = app;
+				if(app.getFirmware() != null) {
+					hasFirmware = (app.getFirmware().path != null && app.getFirmware().path.length > 0);
+				}
+				
+				// no ui component to this
+				if(app.getSwf() == null) {		
+					updateState();
+					return;
+				}
 				url = app.getSwf().path;
-				
-				hasFirmware = (app.getFirmware().path != null && app.getFirmware().path.length > 0);
-				
+
 				var swf:File = new File(url);
 				if(!swf.exists) {
 					LOG.error("Could not load SWF module from path {0} b/c the file does not exist.", url);
@@ -115,6 +124,7 @@
 					// load the swf file
 					urlLoader.load(new URLRequest(url)); 
 				}
+			
 			}
 			
 			private function onReady(evt:ModuleEvent):void {

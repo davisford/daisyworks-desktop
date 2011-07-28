@@ -14,6 +14,7 @@
 		<![CDATA[
 			import daisyworks.event.AppStoreEvent;
 			import daisyworks.model.App;
+			import daisyworks.model.Icons;
 			import daisyworks.model.presentation.AppPresentationModel;
 			
 			import mx.collections.XMLListCollection;
@@ -52,7 +53,7 @@
 	</s:HGroup>
 	<s:List id="tileList"
 			itemRenderer="daisyworks.view.itemrenderers.AppRenderer"
-			left="0" right="0" top="0" bottom="0" width="100%" height="100%" borderVisible="false"
+			left="0" right="0" top="0" bottom="0" width="100%" height="100%" borderVisible="true"
 			dataProvider="{model.appStoreApps}" click="tileList_clickHandler(event)"
 			change="tileList_changeHandler(event)">
 		<s:layout>
@@ -63,4 +64,10 @@
 						  orientation="rows"/>
 		</s:layout>
 	</s:List>
+	<s:HGroup width="100%" height="35" verticalAlign="middle" horizontalAlign="right">
+		<s:Image source="{Icons.INSTALLED}"/>
+		<s:Label text="Installed App"/>
+		<s:Image source="{Icons.UPDATE}"/>
+		<s:Label text="Update Available"/>
+	</s:HGroup>
 </s:Group>

@@ -37,6 +37,10 @@ package daisyworks.model {
 		[Bindable]
 		public static var UPDATE:Class;
 		
+		[Embed(source="../../assets/images/accept.png")]
+		[Bindable]
+		public static var INSTALLED:Class;
+		
 		[Embed(source="../../assets/images/www_page.png")]
 		[Bindable]
 		public static var WWW:Class;

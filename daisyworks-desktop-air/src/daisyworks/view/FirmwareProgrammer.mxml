@@ -78,11 +78,8 @@
 	</fx:Declarations>
 	<mx:ProgressBar id="progress" left="5" right="85" top="65" label="" mode="manual" minimum="0" maximum="100" />
 	<s:TextArea left="5" right="5" top="5" maxHeight="55">
-		<s:content>
-			This application <s:span fontWeight="bold">
-				{app.name}
-			</s:span>, has a Daisy firmware component included with it.  You can re-program the Daisy with 
-			this firmware so the application can communicate with it if you have not already done so.
+		<s:content><s:span fontWeight="bold">{app.name}</s:span> has a Daisy firmware component included with it.  If you wish to re-program the Daisy with this
+			firmware, select the program button.  When programming is complete, you can start communicating with the application on the Daisy.
 		</s:content>
 	</s:TextArea>
 	<s:Button id="programButton" right="5" top="65" label="Program" enabled="{connectionModel.connected}" click="programButton_clickHandler(event)"/>
