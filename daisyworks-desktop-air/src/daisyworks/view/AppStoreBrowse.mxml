@@ -36,8 +36,7 @@
 			protected function tileList_changeHandler(event:IndexChangeEvent):void
 			{
 				dispatchEvent(new Event("appSelected"));
-			}
-
+			}			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -47,7 +46,7 @@
 		<s:Label text="Featured Apps" fontSize="18" textDecoration="underline"/>
 	</s:HGroup>
 	<s:List id="tileList"
-			itemRenderer="daisyworks.view.itemrenderers.AppRenderer"
+			itemRenderer="daisyworks.view.itemrenderers.AppRenderer" 
 			left="0" right="0" top="0" bottom="0" width="100%" height="100%" borderVisible="true"
 			dataProvider="{model.appStoreApps}" 
 			change="tileList_changeHandler(event)">

@@ -164,8 +164,7 @@ package daisyworks.controller
 			if(outDir.exists && outDir.isDirectory) {
 				outDir.deleteDirectory(true);
 			}
-			// refire the list event so everyone is refreshed
-			list();
+			dispatcher.dispatchEvent(new AppEvent(AppEvent.REMOVED, app));
 		}
 		
 		/**
@@ -174,6 +173,7 @@ package daisyworks.controller
 		private function commandChainComplete(evt:ChainEvent):void {
 			// refire the list event so everyone is refreshed
 			list();
+			dispatcher.dispatchEvent(new AppEvent(AppEvent.DOWNLOAD_COMPLETE));
 		}
 		
 		/**

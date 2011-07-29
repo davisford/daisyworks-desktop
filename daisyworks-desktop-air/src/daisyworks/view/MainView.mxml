@@ -143,7 +143,7 @@
 				<view:AppStoreSideBar width="100%" x="0" height="100%" />
 			</s:NavigatorContent>
 			<s:NavigatorContent id="controlSettings" left="5" right="5" width="100%" height="100%" label="Installed Applications" icon="{Icons.INSTALLED_APPS}">
-				<view:InteractSideBar width="100%" height="100%" x="0" />
+				<view:InstalledAppsSideBar width="100%" height="100%" x="0" />
 			</s:NavigatorContent>
 			
 		</mx:Accordion>
@@ -156,7 +156,7 @@
 				</view:AppStoreMain>
 			</s:NavigatorContent>
 			<s:NavigatorContent id="control">
-				<view:InteractMain />
+				<view:InstalledAppsMain />
 			</s:NavigatorContent>
 			
 		</mx:ViewStack>

@@ -5,6 +5,7 @@
 				autoDrawBackground="true"
 				width="172"
 				height="193">
+		
 	<s:layout>
 		<s:VerticalLayout paddingTop="8"/>
 	</s:layout>
@@ -36,8 +37,7 @@
 						currentState = "Normal";
 					}
 				}
-			}
-
+			}			
 		]]>
 	</fx:Script>
 

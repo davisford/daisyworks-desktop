@@ -2,7 +2,8 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="100%" 
-		 xmlns:itemrenderers="daisyworks.view.itemrenderers.*">
+		 xmlns:itemrenderers="daisyworks.view.itemrenderers.*"
+		 xmlns:components="daisyworks.view.components.*" >
 	<s:layout>
 		<s:BasicLayout/>
 	</s:layout>
@@ -46,9 +47,12 @@
 			
 			protected function deleteButton_clickHandler(event:MouseEvent):void
 			{
-				for each (var app:App in model.installedApps) {
-					if(app.selected) {
-						dispatchEvent(new AppEvent(AppEvent.REMOVE, app));
+				var arr:Array = model.installedApps.source;
+				// when doing subtractive operations on array, always move from arr.length to arr[0]
+				// otherwise the index is a moving target
+				for(var i:int = arr.length - 1; i >= 0; i--) {
+					if(arr[i].selected == true) {
+						dispatchEvent(new AppEvent(AppEvent.REMOVE, App(arr[i]) ) );
 					}
 				}
 			}
@@ -56,6 +60,13 @@
 			[EventHandler(event="AppEvent.DOWNLOAD_COMPLETE")]
 			public function onAppsAdded():void {
 				model.installedApps.refresh();
+			}
+			
+			protected function appGrid_selectionChangingHandler(event:GridSelectionEvent):void
+			{
+				if(event.selectionChange.columnIndex == 0) {
+					event.preventDefault();
+				}
 			}
 			
 		]]>
@@ -66,38 +77,43 @@
 	</fx:Declarations>
 	<s:Label text="Installed Applications" paddingLeft="5" paddingTop="5" paddingRight="5" verticalAlign="middle" paddingBottom="5" left="10" right="10" top="10" height="25"/>
 	
-	<s:DataGrid id="appGrid" top="89" left="10" right="10" bottom="63" 
-				dataProvider="{model.installedApps}" selectionChange="appGrid_selectionChangeHandler(event)" >
-		<s:columns>
+	<components:MyDataGrid id="appGrid" top="89" left="10" right="10" bottom="63" 
+				dataProvider="{model.installedApps}" selectionChange="appGrid_selectionChangeHandler(event)"
+				selectionChanging="appGrid_selectionChangingHandler(event)">
+		<components:columns>
 			<s:ArrayList>
-				<s:GridColumn headerText="" width="29" >
+				<!-- CHECK BOX COLUMN -->
+				<s:GridColumn headerText="" dataField="selected" width="29" sortable="false" resizable="false">
+					<s:itemRenderer>
+						<fx:Component>
+							<s:GridItemRenderer selected="false">
+								<s:CheckBox id="cb" label="" selected="@{data.selected}" horizontalCenter="0" />
+							</s:GridItemRenderer>
+						</fx:Component>
+					</s:itemRenderer>
+				</s:GridColumn>
+				<!-- ICON COLUMN -->
+				<s:GridColumn headerText="" width="29" sortable="false" resizable="false">
 					<s:itemRenderer>
 						<fx:Component>
 							<itemrenderers:GridIconItemRenderer iconSize="29" />
 						</fx:Component>
 					</s:itemRenderer>
 				</s:GridColumn>
-				<s:GridColumn headerText="" width="29" headerRenderer="daisyworks.view.itemrenderers.GridHeaderUpdateIconItemRenderer" >
+				<!-- UPDATE ICON COLUMN -->
+				<s:GridColumn headerText="" width="29" sortable="false" resizable="false" headerRenderer="daisyworks.view.itemrenderers.GridHeaderUpdateIconItemRenderer" >
 					<s:itemRenderer>
 						<fx:Component>
 							<itemrenderers:GridUpdateIconItemRenderer />
 						</fx:Component>
 					</s:itemRenderer>
-					
 				</s:GridColumn>
+				<!-- NAME COLUMN -->
 				<s:GridColumn headerText="Name" dataField="name" />
-				<s:GridColumn headerText="" dataField="selected" width="29" >
-					<s:itemRenderer>
-						<fx:Component>
-							<s:GridItemRenderer>
-								<s:CheckBox id="cb" label="" selected="@{data.selected}" horizontalCenter="0" />
-							</s:GridItemRenderer>
-						</fx:Component>
-					</s:itemRenderer>
-				</s:GridColumn>
+				
 			</s:ArrayList>
-		</s:columns>
-	</s:DataGrid>
+		</components:columns>
+	</components:MyDataGrid>
 	<s:BorderContainer left="10" right="10" top="35" height="45" borderWeight="2">
 		<s:Button id="updateButton" left="10" top="10" bottom="10" width="70" label="Update" click="updateButton_clickHandler(event)"/>
 		<s:Label x="88" top="10" bottom="10" text="Update all checked Apps" verticalAlign="middle"/>

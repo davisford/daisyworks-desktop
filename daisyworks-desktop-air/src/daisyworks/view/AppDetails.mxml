@@ -16,6 +16,7 @@
 		<s:State name="Downloading" />
 		<s:State name="Installed" />
 		<s:State name="Update" />
+		<s:State name="Unavailable" />
 	</s:states>
 	
 	<fx:Script>
@@ -43,13 +44,14 @@
 			public function set app(app:App):void
 			{
 				_app=app;
-				if(app.installed) {
+				if(app.software.length == 0) {
+					currentState = "Unavailable";
+				} else if (app.updateAvailable) {
+					currentState = "Update";
+				} else if (app.installed) {
 					currentState = "Installed";
 				} else {
 					currentState = "Normal";
-				}
-				if(app.updateAvailable) {
-					currentState = "Update";
 				}
 			}
 
@@ -133,10 +135,12 @@
 									  label.Downloading="Downloading..."
 									  label.Installed="Installed"
 									  label.Update="Update"
+									  label.Unavailable="Unavailable"
 									  enabled.Normal="true"
 									  enabled.Downloading="false"
 									  enabled.Installed="false"
 									  enabled.Update="true"
+									  enabled.Unavailable="false"
 									  click="downloadButton_clickHandler(event)"/>
 							<components:SelectableList id="softwareList" horizontalScrollPolicy="off" 
 													   itemRenderer="daisyworks.view.itemrenderers.SoftwareItemRenderer" 

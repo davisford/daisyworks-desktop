@@ -45,7 +45,7 @@
 			private var moduleLoader:ModuleLoader;
 			private var content:Object;
 			
-			private static const LOG:ILogger = Logger.getLogger(InteractMain);
+			private static const LOG:ILogger = Logger.getLogger(InstalledAppsMain);
 			
 			protected function creationCompleteHandler(event:FlexEvent):void
 			{
