@@ -39,6 +39,9 @@ package daisyworks.controller
 		private var controlRemoteObj:RemoteObject;
 		private var localDeviceRemoteObj:RemoteObject;
 		
+		// timeout fault if it takes longer than this many seconds
+		private static const requestTimeout:int = 10000;
+		
 		private var consumer:Consumer;
 		
 		[Inject]
@@ -66,6 +69,7 @@ package daisyworks.controller
 			localDeviceRemoteObj.endpoint = endpoint;
 			localDeviceRemoteObj.concurrency = "multiple";
 			localDeviceRemoteObj.showBusyCursor = false;
+			localDeviceRemoteObj.requestTimeout = requestTimeout;
 			
 			var operations:Object = new Object();
 			var op:Operation = new Operation(null, "getLocalDevice");
@@ -81,6 +85,7 @@ package daisyworks.controller
 			controlRemoteObj.endpoint = endpoint;
 			controlRemoteObj.concurrency = "multiple";
 			controlRemoteObj.showBusyCursor = true;
+			controlRemoteObj.requestTimeout = requestTimeout;
 			
 			operations = new Object();
 			op = new Operation(null, "findDevices");
@@ -121,6 +126,7 @@ package daisyworks.controller
 			dataRemoteObj.endpoint = endpoint;
 			dataRemoteObj.concurrency = "multiple";
 			dataRemoteObj.showBusyCursor = false;
+			dataRemoteObj.requestTimeout = requestTimeout;
 			
 			operations = new Object();
 			op = new Operation(null, "send");

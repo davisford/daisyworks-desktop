@@ -12,6 +12,10 @@
 			<endpoint
 				url="http://{server.name}:{server.port}/{context.root}/messagebroker/amf"
 				class="flex.messaging.endpoints.AMFEndpoint" />
+			<properties>
+				<add-no-cache-headers>true</add-no-cache-headers>
+				<connect-timeout-seconds>0</connect-timeout-seconds>
+			</properties>
 		</channel-definition>
 	</channels>
 

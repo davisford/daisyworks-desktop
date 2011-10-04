@@ -181,6 +181,7 @@ public final class BluetoothService implements DiscoveryListener {
 			}
 			return toDeviceSet(deviceMap);
 		} catch (BluetoothServiceException e) {
+			LOGGER.error("Exception scanning for devices "+e.getMessage());
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error(e);
@@ -498,7 +499,7 @@ public final class BluetoothService implements DiscoveryListener {
 
 	private Device toDevice(final RemoteDevice remoteDevice) throws IOException {
 		try {
-			final Device device = new Device(remoteDevice.getFriendlyName(true),
+			final Device device = new Device(remoteDevice.getFriendlyName(false),
 					remoteDevice.getBluetoothAddress());
 			device.setAuthenticated(remoteDevice.isAuthenticated());
 			device.setEncrypted(remoteDevice.isEncrypted());
@@ -522,6 +523,8 @@ public final class BluetoothService implements DiscoveryListener {
 	public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
 		if(btDevice.getBluetoothAddress().startsWith("0006")) {
 			deviceMap.put(btDevice.getBluetoothAddress(), btDevice);
+		} else {
+			LOGGER.debug(String.format("Ignoring device with Bluetooth address %s b/c it is not a Daisy", btDevice.getBluetoothAddress()));
 		}
 		
 	}
@@ -533,16 +536,19 @@ public final class BluetoothService implements DiscoveryListener {
 	 */
 	@Override
 	public void inquiryCompleted(int discType) {
-		LOGGER.debug("inquiry completed: " + discType);
+		
 		switch (discType) {
 		case DiscoveryListener.INQUIRY_COMPLETED:
 			lastDeviceDiscoveryResult = DeviceDiscoveryResult.INQUIRY_COMPLETED;
+			LOGGER.debug("Device Inquiry Completed with: " + DeviceDiscoveryResult.INQUIRY_COMPLETED);
 			break;
 		case DiscoveryListener.INQUIRY_TERMINATED:
 			lastDeviceDiscoveryResult = DeviceDiscoveryResult.INQUIRY_TERMINATED;
+			LOGGER.debug("Device Inquiry Completed with: " + DeviceDiscoveryResult.INQUIRY_TERMINATED);
 			break;
 		case DiscoveryListener.INQUIRY_ERROR:
 			lastDeviceDiscoveryResult = DeviceDiscoveryResult.INQUIRY_ERROR;
+			LOGGER.debug("Device Inquiry Completed with: " + DeviceDiscoveryResult.INQUIRY_ERROR);
 			break;
 		default:
 			LOGGER.error("\tresponse code: Unknown Response Code =>" + discType);

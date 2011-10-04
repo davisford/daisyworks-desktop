@@ -11,10 +11,10 @@
 	<properties>
 		<jetty.version>8.0.0.M1</jetty.version>
 		<log4j.version>1.2.13</log4j.version>
-		<spring-flex.version>1.5.0.M1</spring-flex.version>
 		<bouncycastle.version>140</bouncycastle.version>
 		<spring.version>3.0.4.RELEASE</spring.version>
-		<spring.flex.version>1.5.0.BUILD-SNAPSHOT</spring.flex.version>
+<!-- 		<spring.flex.version>1.5.0.BUILD-SNAPSHOT</spring.flex.version> -->
+		<spring.flex.version>1.5.0.RELEASE</spring.flex.version>
 		<!-- 2.1.0 is last stable release -->
 		<bluecove.version>2.1.1-SNAPSHOT</bluecove.version>
 		<!-- SKIP TESTS? -->

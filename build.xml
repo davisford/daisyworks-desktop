@@ -51,6 +51,8 @@
 		Builds an executable jar and copies it to the Air build to be included in the installer
 	-->
 	<target name="server" depends="init">
+		<delete file="./${ui}/bin-debug/daisyworks-server.jar" />
+		<delete file="./${ui}/deploy/daisyworks-server.jar" />
 		<exec executable="${mvn}" dir="./${webapp}">
 			<arg value="clean"/>
 			<arg value="package"/>
