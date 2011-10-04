@@ -195,7 +195,7 @@ public final class BluetoothService implements DiscoveryListener {
 	 */
 	@RemotingInclude
 	public Set<Device> findCachedDevices() throws Exception {
-		
+		Set<Device> set = new HashSet<Device>();
 		try {
 			final LocalDevice localDevice = LocalDevice.getLocalDevice();
 			LOGGER.info("Local Bluetooth Name/Addres: "
@@ -208,11 +208,17 @@ public final class BluetoothService implements DiscoveryListener {
 			RemoteDevice[] devices = agent.retrieveDevices(DiscoveryAgent.CACHED);
 			
 			if(devices == null) { return new HashSet<Device>(0); }
-			
-			Set<Device> set = new HashSet<Device>(devices.length);
+
 			for(RemoteDevice rd : devices) {
-				set.add(toDevice(rd));
-				deviceMap.put(rd.getBluetoothAddress(), rd);
+				try {
+					if(rd.getBluetoothAddress().startsWith("0006")) {
+						set.add(toDevice(rd));
+						deviceMap.put(rd.getBluetoothAddress(), rd);
+					}
+				} catch(Exception e) {
+					LOGGER.error(e.getMessage());
+				}
+				
 			}
 			return set;
 		} catch(Exception e) {
@@ -453,6 +459,9 @@ public final class BluetoothService implements DiscoveryListener {
 			output.writeBytes("---\n");
 			output.flush();
 			
+			LOGGER.debug("sleeping to let device initialize");
+			Thread.sleep(3000);
+			
 			LOGGER.info("Going to update firmware with "+filePath);
 			final BufferedIntelHexReader reader = new BufferedIntelHexReader(new BufferedReader(new FileReader(file)));
 
@@ -478,19 +487,29 @@ public final class BluetoothService implements DiscoveryListener {
 			throws IOException {
 		final Set<Device> set = new HashSet<Device>();
 		for (final String key : map.keySet()) {
-			set.add(toDevice(map.get(key)));
+			Device d = toDevice(map.get(key));
+			if(d != null) {
+				set.add(toDevice(map.get(key)));
+			}
+			
 		}
 		return set;
 	}
 
 	private Device toDevice(final RemoteDevice remoteDevice) throws IOException {
-		final Device device = new Device(remoteDevice.getFriendlyName(true),
-				remoteDevice.getBluetoothAddress());
-		device.setAuthenticated(remoteDevice.isAuthenticated());
-		device.setEncrypted(remoteDevice.isEncrypted());
-		device.setTrusted(remoteDevice.isTrustedDevice());
-		LOGGER.debug("discovered: " + device);
-		return device;
+		try {
+			final Device device = new Device(remoteDevice.getFriendlyName(true),
+					remoteDevice.getBluetoothAddress());
+			device.setAuthenticated(remoteDevice.isAuthenticated());
+			device.setEncrypted(remoteDevice.isEncrypted());
+			device.setTrusted(remoteDevice.isTrustedDevice());
+			LOGGER.debug("discovered: " + device);
+			return device;
+		} catch(Exception e) {
+			LOGGER.error("Exception resolving device friendly name"+e.getMessage());
+			return null;
+		}
+		
 	}
 
 	/*
@@ -501,7 +520,10 @@ public final class BluetoothService implements DiscoveryListener {
 	 */
 	@Override
 	public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
-		deviceMap.put(btDevice.getBluetoothAddress(), btDevice);
+		if(btDevice.getBluetoothAddress().startsWith("0006")) {
+			deviceMap.put(btDevice.getBluetoothAddress(), btDevice);
+		}
+		
 	}
 
 	/*
@@ -636,6 +658,7 @@ public final class BluetoothService implements DiscoveryListener {
 			this.template = template;
 		}
 		
+		@SuppressWarnings("deprecation")
 		@Override
 		public void notify(final STK500Event event) {
 			LOGGER.info(event);
@@ -646,6 +669,7 @@ public final class BluetoothService implements DiscoveryListener {
 			template.send("serialPort", "FOTA,"+event.toString());
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public void notify(final STK500Event event, final int progress) {
 			LOGGER.info(event + ": " + progress + "%");
