@@ -1,6 +1,9 @@
 ---------------------------------------------
 | DaisyWorks Desktop App
 ---------------------------------------------
+This software is made available under the GNU LGPL (v3.0).  A copy of this license is
+provided in the root directory of this project as LICENSE.txt or you may view an
+online version at http://www.gnu.org/licenses/gpl-3.0.html
 
 --------------------------------------------
 | Introduction
