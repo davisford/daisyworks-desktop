@@ -31,6 +31,10 @@
 			<url>http://maven.springframework.org/milestone</url>
 		</repository>
 		<repository>
+            <id>springframework-s3</id>
+            <url>http://s3browse.springsource.com/browse/maven.springframework.org/external/com/adobe/blazeds/</url>
+	    </repository>
+		<repository>
 			<id>springframework-snapshot</id>
 			<url>http://maven.springframework.org/snapshot</url>
 			<releases>
