@@ -1,12 +1,13 @@
 ---------------------------------------------
-| DaisyWorks Desktop App
+DaisyWorks Desktop App
 ---------------------------------------------
+
+##License
 This software is made available under the GNU LGPL (v3.0).  A copy of this license is
 provided in the root directory of this project as LICENSE.txt or you may view an
 online version at http://www.gnu.org/licenses/gpl-3.0.html
 
---------------------------------------------
-| Introduction
+##Introduction
 --------------------------------------------
 The [DaisyWorks Desktop App](http://daisyworks.com/downloads.html) is a GUI desktop application for managing / interacting
 with the [Daisy Bluetooth 1T](http://daisyworks.com/products.html).  The application is built using
@@ -40,8 +41,7 @@ For Mac OS, there is no re-distributable JRE.  The OS (through 10.6.x) ships wit
 Java.  This may change in the future, and we'll have to re-evaluate but for now,
 we expect it to be there, and the application will find it and use it at runtime.
 
---------------------------------------------
-| Build Pre-requisites
+++Build Pre-requisites
 --------------------------------------------
 
 Adobe Build tools allow you to create a native application installer for each platform,
@@ -50,7 +50,7 @@ to get each respective installer file.  Thus, to build a Windows setup.exe, you 
 build on Windows, etc.
 
  * Sun/Oracle JDK - install and use the Sun/Oracle JDK; The Ant build scripts use the
-<os> tag and this supposedly requires tools.jar which is not present in OpenJDK.
+`<os>` tag and this supposedly requires tools.jar which is not present in OpenJDK.
 
  * Ant (using 1.7 or later) - I would just use all Maven, but the flex-mojos/maven support
 for the Air stuff (e.g. native installers) is poorly supported, as well as FlashBuilder
@@ -65,8 +65,10 @@ You can download the Flex SDK here:
 
 http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+4.5
 
+```
 $ mkdir -p /home/me/flex-sdks/flex_sdk_4.5.0.20967/
 $ unzip flex_sdk_4.5.0.20967.zip -d /home/me/flex-sdks/flex_sdk_4.5.0.20967
+```
 
 As of this writing, we are using 4.5.0.20967 Adobe Flex SDK -- not the Open Source Flex SDK.
 
@@ -81,22 +83,22 @@ For Linux, you can't go above 2.6 since Adobe stopped supporting it...bastards.
 http://airdownload.adobe.com/air/lin/download/2.6/AdobeAIRSDK.tbz2
 
 Now, unzip it into the same directory as the Flex SDK
-
+```
 $ unzip AdobeAirSDK.zip -d /home/me/flex-sdks/flex_sdk_4.5.0.20967
-
+```
 !!! IMPORTANT !!! It *must* unzip / overlay directly on top of it -- it has a similar directory
 structure.  If you get the path wrong, it won't work.  
 
---------------------------------------------
-| How To Build
+##How To Build
 --------------------------------------------
 
-1. cp build.properties.sample build.properties
-2. edit build.properties
-3. ant
+```
+$ cp build.properties.sample build.properties
+$ vi build.properties
+$ ant
+```
 
---------------------------------------------
-| TODO
+##TODO
 --------------------------------------------
 
 The JRE that we include for Windows / Linux is the full enchilada.  We should trim it back to the 
@@ -106,8 +108,8 @@ Also need to fix the Linux JRE bundle because the uid/gid get blown away and the
 can no longer be launched.  Also, if you try to run the .deb installer it has a whole bunch of
 warnings and says the package is of poor quality (mainly b/c of these uid/gid issues).
 
---------------------------------------------
-| BLUETOOTH
+
+###BLUETOOTH
 --------------------------------------------
 
 Bluetooth is a fickle animal with lots of different hardware and software stack implementations
@@ -116,36 +118,34 @@ on what we've tested the application on and what steps were necessary to make it
 
 The implementation relies on the open source Java Bluecove libraries.  Here are some relative links.
 
-http://bluecove.org
-http://code.google.com/p/bluecove
-http://snapshot.bluecove.org/
+* http://bluecove.org
+* http://code.google.com/p/bluecove
+* http://snapshot.bluecove.org/
 
--------------------
-| Windows 7 on AMD64
+
+####Windows 7 on AMD64
 -------------------
 Should work out of the box
 
 Tested with SMC BT10 USB/Bluetooth Adapter: http://www.smc.com/index.cfm?event=viewProduct&cid=5&scid=103&localeCode=EN_USA&pid=1370
 
--------------------
-| Ubuntu 11.04 on i5 x86_64 and AMD64
+####Ubuntu 11.04 on i5 x86_64 and AMD64
 -------------------
 On 64-bit Ubuntu you will need to install the native libs for Bluetooth dev.  I'm not sure if we 
 could really bundle these.  They should be installed by the user as an extra step, unfortunately
 to better ensure it will work.  This command should do it:
 
+```
 sudo apt-get install libbluetooth-dev
-
+```
 Tested with Targus ACB10US1 USB/Bluetooth Adapter: http://www.targus.com/us/productdetail.aspx?sku=ACB10US1
 
--------------------
-| Mac OS X 10.6 i7 x86_64
+####Mac OS X 10.6 i7 x86_64
 -------------------
 Should work out of the box; tested with built-in bluetooth for Mac Book Pro
 
 
-----------------------------------------------
-| DEPRECATED
+#####DEPRECATED
 ----------------------------------------------
 
 This was old advice related to Linux builds.  If you download the Flex SDK and the latest Air SDK and unzip 
