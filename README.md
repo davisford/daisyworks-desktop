@@ -8,7 +8,7 @@ provided in the root directory of this project as LICENSE.txt or you may view an
 online version at http://www.gnu.org/licenses/gpl-3.0.html
 
 ##Introduction
---------------------------------------------
+
 The [DaisyWorks Desktop App](http://daisyworks.com/downloads.html) is a GUI desktop application for managing / interacting
 with the [Daisy Bluetooth 1T](http://daisyworks.com/products.html).  The application is built using
 Adobe Air and Java.  Air represents the bulk of the application and the user interface.
@@ -42,7 +42,6 @@ Java.  This may change in the future, and we'll have to re-evaluate but for now,
 we expect it to be there, and the application will find it and use it at runtime.
 
 ##Build Pre-requisites
---------------------------------------------
 
 Adobe Build tools allow you to create a native application installer for each platform,
 which is nice.  What is not so nice is that you must actually *build on that platform*
@@ -90,7 +89,6 @@ $ unzip AdobeAirSDK.zip -d /home/me/flex-sdks/flex_sdk_4.5.0.20967
 structure.  If you get the path wrong, it won't work.  
 
 ##How To Build
---------------------------------------------
 
 ```
 $ cp build.properties.sample build.properties
@@ -99,7 +97,6 @@ $ ant
 ```
 
 ##TODO
---------------------------------------------
 
 The JRE that we include for Windows / Linux is the full enchilada.  We should trim it back to the 
 absolute bare binary essentials for runtime.  It blows up the size of the installer mega-fold.
@@ -110,7 +107,6 @@ warnings and says the package is of poor quality (mainly b/c of these uid/gid is
 
 
 ###BLUETOOTH
---------------------------------------------
 
 Bluetooth is a fickle animal with lots of different hardware and software stack implementations
 on different operating systems and architectures.  This section provides some brief documentation
@@ -124,13 +120,11 @@ The implementation relies on the open source Java Bluecove libraries.  Here are 
 
 
 ####Windows 7 on AMD64
--------------------
 Should work out of the box
 
 Tested with SMC BT10 USB/Bluetooth Adapter: http://www.smc.com/index.cfm?event=viewProduct&cid=5&scid=103&localeCode=EN_USA&pid=1370
 
 ####Ubuntu 11.04 on i5 x86_64 and AMD64
--------------------
 On 64-bit Ubuntu you will need to install the native libs for Bluetooth dev.  I'm not sure if we 
 could really bundle these.  They should be installed by the user as an extra step, unfortunately
 to better ensure it will work.  This command should do it:
@@ -141,12 +135,10 @@ sudo apt-get install libbluetooth-dev
 Tested with Targus ACB10US1 USB/Bluetooth Adapter: http://www.targus.com/us/productdetail.aspx?sku=ACB10US1
 
 ####Mac OS X 10.6 i7 x86_64
--------------------
 Should work out of the box; tested with built-in bluetooth for Mac Book Pro
 
 
 #####DEPRECATED
-----------------------------------------------
 
 This was old advice related to Linux builds.  If you download the Flex SDK and the latest Air SDK and unzip 
 them as per the instructions below, this shouldn't be necessary..so ignore it.  It is here for 
