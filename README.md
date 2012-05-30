@@ -8,8 +8,8 @@ online version at http://www.gnu.org/licenses/gpl-3.0.html
 --------------------------------------------
 | Introduction
 --------------------------------------------
-The DaisyWorks Desktop App is a GUI desktop application for managing / interacting
-with the Daisy embedded device via Bluetooth.  The application is built using
+The [DaisyWorks Desktop App](http://daisyworks.com/downloads.html) is a GUI desktop application for managing / interacting
+with the [Daisy Bluetooth 1T](http://daisyworks.com/products.html).  The application is built using
 Adobe Air and Java.  Air represents the bulk of the application and the user interface.
 Java is used because there is no way to talk to Bluetooth through the Air SDK.
 
