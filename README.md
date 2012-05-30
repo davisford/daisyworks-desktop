@@ -41,7 +41,7 @@ For Mac OS, there is no re-distributable JRE.  The OS (through 10.6.x) ships wit
 Java.  This may change in the future, and we'll have to re-evaluate but for now,
 we expect it to be there, and the application will find it and use it at runtime.
 
-++Build Pre-requisites
+##Build Pre-requisites
 --------------------------------------------
 
 Adobe Build tools allow you to create a native application installer for each platform,
